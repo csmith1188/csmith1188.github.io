@@ -1,0 +1,29 @@
+* {
+  font-family: arial;
+}
+
+div {
+  border-style: solid;
+  margin: 2px;
+  padding: 4px;
+}
+
+#content {
+  background-color: blue;
+}
+
+#headerBox {
+  background-color: red;
+}
+
+#linksBox {
+  background-color: yellow;
+}
+
+#parasBox {
+  background-color: cyan;
+}
+
+.para {
+  background-color: green;
+}
