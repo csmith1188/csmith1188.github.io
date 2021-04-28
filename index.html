@@ -1,61 +1,63 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thumbspanel</title>
+    <style media="screen">
+      div {
+        border: 1px solid black;
+        background-color: yellow;
+        margin: 5px;
+        padding: 5px;
+      }
+      #content {
+        border: 2px dotted red;
+        width: 60%;
+        margin: auto;
+        background-color: blue;
+      }
+      #headerBox {
 
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Thumbspanel</title>
-        <style media="screen">
-            div {
-                border: 1px solid black;
-                background-color: yellow;
-                margin: 5px;
-                padding: 5px;
-            }
-            #headerBox {}
-            .linksBox {}
-            a {}
-            a:visited {}
-            a:hover {}
-            body {
-                background-color: black;
-            }
+      }
+      .linksBox {
 
-            #content {
-              border: 2px dotted red;
-              width: 60%;
-              margin: auto;
-              background-color: blue;
-            }
+      }
+      a {
 
-            @media (max-width: 600px) {
-              #content {
-                width: 100%;
-              }
-              body {
-                background-color: white;
-              }
-            }
-        </style>
-    </head>
+      }
+      a:visited {
 
-    <body>
-        <div id="content">
-            <div id="headerBox">
-                <h1>Thumbspanel</h1>
-            </div>
-            <div class="linksBox">
-                <p><a href="http://172.21.3.4:5000/tutd?thumb=up">UP</a></p>
-                <p><a href="http://172.21.3.4:5000/tutd?thumb=wiggle">WIGGLE</a></p>
-                <p><a href="http://172.21.3.4:5000/tutd?thumb=down">DOWN</a></p>
-            </div>
-            <div class="linksBox">
-				<p><a href="game.html">My Game</a></p>
-                <p><a href="http://172.21.3.4:5000/">LINK LINK LINK</a></p>
-                <p><a href="http://172.21.3.4:5000/">LINK LINK LINK</a></p>
-                <p><a href="http://172.21.3.4:5000/">LINK LINK LINK</a></p>
-            </div>
-        </div>
-    </body>
+      }
+      a:hover {
 
+      }
+      body {
+        background-color: black;
+      }
+      @media only screen and (max-width: 600px) {
+        body {
+          background-color: lightblue;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="content">
+      <div id="headerBox">
+        <h1>Thumbspanel</h1>
+      </div>
+      <div class="linksBox">
+        <p><a href="http://172.21.3.4:5000/tutd?thumb=up">UP</a></p>
+        <p><a href="http://172.21.3.4:5000/tutd?thumb=wiggle">WIGGLE</a></p>
+        <p><a href="http://172.21.3.4:5000/tutd?thumb=down">DOWN</a></p>
+      </div>
+      <div class="linksBox">
+        <p><a href="game.html">Game</a></p>
+        <p><a href="#">Link Here</a></p>
+        <p><a href="#">Link Here</a></p>
+        <p><a href="#">Link Here</a></p>
+      </div>
+    </div>
+  </body>
 </html>
