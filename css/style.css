@@ -1,0 +1,53 @@
+div {
+    border: 1px solid black;
+    background-color: #6666FF;
+    margin: 5px;
+    padding: 5px;
+}
+
+h1 {
+  color: white;
+}
+
+/* Combine Selectors */
+.linksBox,
+.textBox {
+    border-radius: 10px;
+}
+
+/* Selector for all textBoxes */
+.textBox {
+    overflow: auto;
+}
+
+/* Selector for only images inside of textBoxes */
+.textBox img {
+    width: 25%;
+    clear: both;
+}
+
+.f-left {
+    float: left;
+}
+
+.f-right {
+    float: right;
+}
+
+body {
+    font-family: arial;
+}
+
+#content {
+    border-radius: 10px;
+    border: 2px solid #3333FF;
+    width: 60%;
+    margin: auto;
+    background-color: #9999FF;
+}
+
+@media (max-width: 600px) {
+    #content {
+        width: 100%;
+    }
+}
