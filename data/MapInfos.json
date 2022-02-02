@@ -1,5 +1,13 @@
 [
 null,
-{"id":1,"expanded":true,"name":"OutsideHouse","order":1,"parentId":0,"scrollX":659,"scrollY":376},
-{"id":2,"expanded":false,"name":"InsideHouse","order":2,"parentId":1,"scrollX":832,"scrollY":640}
+{"id":1,"expanded":true,"name":"OutsideHouse","order":1,"parentId":0,"scrollX":832,"scrollY":640},
+{"id":2,"expanded":false,"name":"InsideHouse","order":2,"parentId":1,"scrollX":832,"scrollY":640},
+{"id":3,"expanded":false,"name":"target","order":6,"parentId":0,"scrollX":585.7777777777778,"scrollY":334.22222222222223},
+{"id":4,"expanded":false,"name":"boulder","order":7,"parentId":3,"scrollX":0,"scrollY":0},
+{"id":5,"expanded":false,"name":"switches","order":8,"parentId":3,"scrollX":659,"scrollY":376},
+{"id":6,"expanded":false,"name":"fishing","order":9,"parentId":3,"scrollX":659,"scrollY":376},
+{"id":7,"expanded":false,"name":"Overworld","order":5,"parentId":0,"scrollX":2568,"scrollY":2492.4444444444443},
+{"id":8,"expanded":true,"name":"Boulder Pass","order":3,"parentId":0,"scrollX":1129.2,"scrollY":441.59999999999997},
+{"id":9,"expanded":false,"name":"bpdungeon","order":4,"parentId":8,"scrollX":1194,"scrollY":2472},
+{"id":10,"expanded":false,"name":"debugroom","order":10,"parentId":0,"scrollX":790.8,"scrollY":451.2}
 ]
