@@ -1,0 +1,125 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body {
+      overflow: hidden;
+      color: #ffffff;
+      /* background-image: url('grassbg.jpg'); */
+      background-size: 300px;
+      background-color: #999966;
+    }
+  </style>
+  <script>
+    var snowflakes = [];
+    var jetbikes = [];
+
+    function dirCalc() {
+      return Math.round(Math.random() * 3) - 1.5;
+    }
+
+    function newflake() {
+      // Create img
+      let flake = document.createElement('img');
+      flake.src = "leaf.png";
+      flake.style.width = '8px';
+      // Set position to absolute
+      flake.style.position = 'absolute';
+      // random left between 0 and screen width
+      flake.style.left = Math.round(Math.random() * window.innerWidth);
+      // Set top to 0
+      flake.style.top = '-5';
+      // pick a direction (-3 to 3)
+      flake.setAttribute('data-direction', dirCalc());
+      document.body.appendChild(flake);
+      snowflakes.push(flake);
+    }
+
+    function newbike() {
+      // Create img
+      let bike = document.createElement('img');
+      bike.src = "bike.png";
+      // bike.style.width = '64px';
+      // Set position to absolute
+      bike.style.position = 'absolute';
+      // random left between 0 and screen width
+      bike.style.top = Math.round(Math.random() * window.innerHeight);
+      // Set top to 0
+      bike.style.left = '-16';
+      // pick a direction (-3 to 3)
+      bike.setAttribute('data-direction', dirCalc() / 2);
+      document.body.appendChild(bike);
+      jetbikes.push(bike);
+    }
+
+    function moveFlake() {
+      for (flake of snowflakes) {
+        let landed = flake.getAttribute('data-landed');
+        if (landed) {
+          if (Number(landed) > 5000) {
+            snowflakes.splice(snowflakes.indexOf(flake), 1);
+            flake.remove()
+          } else {
+            flake.setAttribute('data-landed', Number(landed)+1);
+          }
+        } else if (Number(flake.style.top.replaceAll('px', '')) > window.innerHeight) {
+          snowflakes.splice(snowflakes.indexOf(flake), 1);
+          flake.remove()
+        } else {
+          if (Math.floor(Math.random() * 1000) == 0) {
+            flake.setAttribute('data-landed', 1);
+            flake.src = "leaf1.png";
+          } else {
+            flake.style.top = Number(flake.style.top.replaceAll('px', '')) + Math.ceil(Math.random() * 2);
+            // Add direction to left
+            flake.style.left = Number(flake.style.left.replaceAll('px', '')) + Number(flake.getAttribute('data-direction'));
+            // roll 0-19
+            // on 0, reroll direction
+            if (Math.floor(Math.random() * 10) == 0) {
+              flake.setAttribute('data-direction', dirCalc());
+            }
+          }
+        }
+      }
+      if (Math.floor(Math.random() * 10) == 0) {
+        newflake();
+      }
+    }
+
+    function moveBikes() {
+      for (bike of jetbikes) {
+        if (Number(bike.style.left.replaceAll('px', '')) > window.innerWidth) {
+          jetbikes.splice(jetbikes.indexOf(bike), 1);
+          bike.remove()
+        } else {
+          bike.style.left = Number(bike.style.left.replaceAll('px', '')) + Math.ceil(Math.random() * 3);
+          // Add direction to left
+          bike.style.top = Number(bike.style.top.replaceAll('px', '')) + Number(bike.getAttribute('data-direction'));
+          // roll 0-19
+          // on 0, reroll direction
+          if (Math.floor(Math.random() * 50) == 0) {
+            bike.setAttribute('data-direction', dirCalc() / 2);
+          }
+        }
+      }
+      if (Math.floor(Math.random() * 200) == 0) {
+        newbike();
+      }
+    }
+
+    setInterval(() => {
+      moveFlake();
+      moveBikes();
+    }, 25);
+  </script>
+</head>
+
+<body>
+
+</body>
+
+</html>
