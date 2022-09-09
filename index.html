@@ -1,188 +1,192 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
 
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <style>
+  <title>RiskTest</title>
+  <style media="screen">
+  html {
+    padding: 0px;
+  }
     body {
-      overflow: hidden;
-      color: #ffffff;
-      /* background-image: url('grassbg.jpg'); */
-      background-size: 300px;
-      background-color: #999966;
-      /* background-color: #6e5200; */
+    display: flex;
+    background-color: #666633;
+    padding: 0px;
+    margin: 0px;
+  }
+    #map {
+      float:left;
+      position: relative;
+      padding: 0px;
+      width: 300;
+      margin: 0px;
+    }
+    #map .unitGFX {
+      position: absolute;
+      transition: 1s;
     }
 
-    h1 {
-      text-align: center;
+    #backGraphic {
+
+    }
+    #controlBox {
+    width: 300px;
+    height: 300px;
+    display: block;
+    padding: 0px;
+    background-color: #666633;
+    margin: 0px;
+
+    }
+    #controlBox a {
+      background-color: #999966;
+    display: block;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 10px;
+    border-width: 2px 4px 4px 2px;
+    border-style: solid;
+    border-color: black;
+    }
+    #controlBox a:hover {
+      background-color: #bbbb99;
     }
   </style>
-  <script>
-    const FRAMESPEED = 25; //How fast the frames redraw
-    const DIRECTVARI = 3; //How wide the variance in direction changes are
-    const CLEARTIME = 5000; //How long a dead thing stays on the screen
-    var snowflakes = [];
-    var jetbikes = [];
-    var attackbikes = [];
+  <script src="units.js" charset="utf-8"></script>
+  <script src="gameMap.js" charset="utf-8"></script>
+  <script type="text/javascript">
+    var units = []
 
-    var tickles = 0;
-    var tickleLock = false;
-
-    function tickle() {
-      tickles += 15;
-      if (tickles > 100 && !tickleLock) {
-        document.body.style.backgroundImage = "url('grassbg.jpg')";
-        document.getElementsByTagName('h1')[0].innerHTML += "<br>Now With GTI 3080Ti Raytracing Enabled"
-        tickleLock = true;
+    class Unit {
+      constructor(id, name, options) {
+        this.id = id;
+        this.name = name;
+        this.region = 'AA';
+        this.graphic = 'jetbike.png';
+        if (typeof options === 'object')
+          for (var key of Object.keys(options)) {
+            this[key] = options[key];
+          }
+        this.e = document.createElement('img');
+        document.getElementById('map').appendChild(this.e);
+        this.move()
+      }
+      size() {
+        return {
+          w: this.width,
+          h: this.height,
+          ow: this.width / 2,
+          oh: this.height / 2
+        }
+      }
+      move() {
+        this.coords = gameMap.find(reg => reg.name == this.region);
+        if (this.coords) this.coords = this.coords.center
+        this.e.src = this.graphic;
+        this.e.classList.add('unitGFX');
+        this.e.style.left = this.coords.x - 16 + 'px';
+        this.e.style.top = this.coords.y - 16 + 'px';
       }
     }
 
-    function dirCalc() {
-      return Math.round(Math.random() * 3) - (DIRECTVARI / 2);
+
+    function init() {
+      for (var i = 0; i < 5; i++) {
+        units.push(new Unit(i, "Space Bike " + i, {
+          hue: 0
+        }))
+      }
+      from();
     }
 
-    function newattackbike() {
-      // Create img
-      let bike = document.createElement('img');
-      bike.src = "jetbike.png";
-      // bike.style.width = '64px';
-      // Set position to absolute
-      bike.style.position = 'absolute';
-      // random left between 0 and screen width
-      bike.style.top = Math.round(Math.random() * window.innerHeight);
-      // Set top to 0
-      bike.style.left = window.innerWidth + 32;
-      bike.style.transform = 'scaleX(-1)';
-      bike.style.filter = 'hue-rotate(180deg)';
-      // pick a direction (-3 to 3)
-      bike.setAttribute('data-drift', dirCalc() / 2);
-      bike.setAttribute('data-facing', 'left');
-      bike.setAttribute('data-speed', 3)
-      document.body.appendChild(bike);
-      attackbikes.push(bike);
-    }
-
-    // function newspacemarine() {
-    //   // Create img
-    //   let marine = document.createElement('img');
-    //   marine.src = "spacemarine.png";
-    //   // marine.style.width = '64px';
-    //   // Set position to absolute
-    //   marine.style.position = 'absolute';
-    //   // random left between 0 and screen width
-    //   marine.style.top = Math.round(Math.random() * window.innerHeight);
-    //   // Set top to 0
-    //   marine.style.left = window.innerWidth + 32;
-    //   // Copy left image
-    //   // marine.style.transform = 'scaleX(-1)';
-    //   // marine.style.filter = 'hue-rotate(180deg)';
-    //   // pick a direction (-3 to 3)
-    //   marine.setAttribute('data-drift', dirCalc() / 2);
-    //   marine.setAttribute('data-facing', 'left');
-    //   marine.setAttribute('data-speed', 3)
-    //   document.body.appendChild(marine);
-    //   spacemarines.push(marine);
+    // let idIndex = 0;
+    // for (var unit of units) {
+    //   unit.id = idIndex++;
+    //   unit.marches = 1;
     // }
 
-    function newjetbike() {
-      // Create img
-      let bike = document.createElement('img');
-      bike.src = "jetbike.png";
-      // bike.style.width = '64px';
-      // Set position to absolute
-      bike.style.position = 'absolute';
-      // random left between 0 and screen width
-      bike.style.top = Math.round(Math.random() * window.innerHeight);
-      // Set top to 0
-      bike.style.left = '-16';
-      // pick a direction (-3 to 3)
-      bike.setAttribute('data-drift', dirCalc() / 2);
-      bike.setAttribute('data-facing', 'right');
-      bike.setAttribute('data-speed', 3)
-      document.body.appendChild(bike);
-      jetbikes.push(bike);
-    }
-
-    function newflake() {
-      // Create img
-      let flakeElement = document.createElement('img');
-      flakeElement.src = "leaf.png";
-      flakeElement.style.width = '8px';
-      flakeElement.classList.add('leaf');
-      // Set position to absolute
-      flakeElement.style.position = 'absolute';
-      // random left between 0 and screen width
-      flakeElement.style.left = Math.round(Math.random() * window.innerWidth);
-      // Set top to 0
-      flakeElement.style.top = '-5';
-      // pick a direction (-3 to 3)
-      flakeElement.setAttribute('data-drift', dirCalc());
-      flakeElement.setAttribute('data-facing', 'down');
-      flakeElement.setAttribute('data-speed', 2)
-      document.body.appendChild(flakeElement);
-      snowflakes.push(flakeElement);
-    }
-
-    function moveList(list) {
-      for (unit of list) {
-        let landed = unit.getAttribute('data-landed');
-        let facing = unit.getAttribute('data-facing')
-        let leftPX = Number(unit.style.left.replaceAll('px', ''))
-        let topPX = Number(unit.style.top.replaceAll('px', ''))
-
-        // Crazy Dave Mode
-        // let hue = Math.round(Math.random()*360)
-        // unit.style.filter = `hue-rotate(${hue}deg)`;
-
-        if (landed) {
-          if (Number(landed) > CLEARTIME) {
-            list.splice(list.indexOf(unit), 1);
-            unit.remove()
-          } else {
-            unit.setAttribute('data-landed', Number(landed) + 1);
-          }
-        } else if ((leftPX > window.innerWidth && facing == 'right') || (leftPX < 0 - unit.width && facing == 'left') || (topPX > window.innerHeight && facing == 'down') || (topPX < 0 && facing == 'up')) {
-          list.splice(list.indexOf(unit), 1);
-          unit.remove()
-        } else {
-          if (unit.classList.contains('leaf') && Math.floor(Math.random() * 1000) == 0) {
-            unit.setAttribute('data-landed', 1);
-            unit.src = "leaf1.png";
-          } else {
-            let faceValue = 1;
-            let corner = ['left', 'top'];
-            if (facing == 'left') faceValue = Math.floor(Math.random() * (Number(unit.getAttribute('data-speed')) * -1));
-            else faceValue = Math.ceil(Math.random() * (Number(unit.getAttribute('data-speed'))));
-            if (facing == 'down') corner = ['top', 'left'];
-            unit.style[corner[0]] = Number(unit.style[corner[0]].replaceAll('px', '')) + faceValue;
-            // Add direction to left
-            unit.style[corner[1]] = Number(unit.style[corner[1]].replaceAll('px', '')) + Number(unit.getAttribute('data-drift'));
-            if (Math.floor(Math.random() * 50) == 0) {
-              unit.setAttribute('data-drift', dirCalc() / 2);
-            }
-          }
+    function from() {
+      let controlBox = document.getElementById('controlBox');
+      controlBox.innerHTML = '<h3><b>Select Sector:</b></h3>';
+      for (var region of gameMap) {
+        let occupants = units.filter(unit => unit.region == region.name);
+        if (occupants.length) {
+          let from = region;
+          let link = document.createElement('a');
+          link.href = '#';
+          link.innerHTML = region.name;
+          link.onclick = function() {
+            who(from, occupants);
+          };
+          controlBox.appendChild(link);
         }
       }
     }
 
-    setInterval(() => {
-      // moveFlake();
-      moveList(snowflakes);
-      moveList(jetbikes);
-      moveList(attackbikes);
-      if (Math.floor(Math.random() * 10) == 0) newflake();
-      if (Math.floor(Math.random() * 200) == 0) newjetbike();
-      if (Math.floor(Math.random() * 200) == 0) newattackbike();
-      tickles--;
-      if (tickles <= 0) tickles = 0;
-    }, FRAMESPEED);
+
+    function who(from, occupants) {
+      let controlBox = document.getElementById('controlBox');
+      controlBox.innerHTML = '<h3><b>Select Unit:</b></h3>';
+      for (var occ of occupants) {
+        let goto = from.routes;
+        let link = document.createElement('a');
+        link.href = '#';
+        link.innerHTML = occ.name;
+        let occupant = occ;
+        link.onclick = function() {
+          to(from, occupant, goto);
+        };
+        controlBox.appendChild(link);
+      }
+    }
+
+    function to(from, who, routes) {
+      let controlBox = document.getElementById('controlBox');
+      controlBox.innerHTML = '<h3><b>Select Destination:</b></h3>';
+      for (var route of routes) {
+        let link = document.createElement('a');
+        let goto = route
+        link.href = '#';
+        link.innerHTML = route;
+        link.onclick = function() {
+          move(from, who, goto);
+        };
+        controlBox.appendChild(link);
+      }
+    }
+
+    function move(fromArg, whoArg, toArg) {
+      console.log(whoArg);
+      let fromRegion = gameMap.find(reg => reg.name == fromArg);
+      let gotoRegion = gameMap.find(reg => reg.name == toArg);
+      console.log(gotoRegion);
+      let whoRegion = units.find(unit => unit.id == whoArg.id);
+      console.log(whoRegion);
+      whoRegion.region = gotoRegion.name;
+      whoRegion.move();
+      document.getElementById('controlBox').innerHTML = '';
+      document.getElementById('controlBox').innerHTML = '';
+      document.getElementById('controlBox').innerHTML = '';
+      from();
+    }
   </script>
 </head>
 
-<body onclick="tickle()">
-  <h1>ジェットバイクに乗る宇宙エルフ</h1>
+<body onload="init()">
+  <div id="map">
+    <img src="map.png" id="backGraphic">
+  </div>
+  <div id="controlBox" class=""></div>
+
 </body>
+
+<script type="text/javascript">
+  document.onclick = function(e) {
+    var x = e.pageX;
+    var y = e.pageY;
+    console.log("X is " + x + " and Y is " + y);
+  };
+</script>
 
 </html>
