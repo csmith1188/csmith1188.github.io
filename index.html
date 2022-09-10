@@ -5,188 +5,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RiskTest</title>
-  <style media="screen">
-  html {
-    padding: 0px;
-  }
-    body {
-    display: flex;
-    background-color: #666633;
-    padding: 0px;
-    margin: 0px;
-  }
-    #map {
-      float:left;
-      position: relative;
-      padding: 0px;
-      width: 300;
-      margin: 0px;
-    }
-    #map .unitGFX {
-      position: absolute;
-      transition: 1s;
-    }
-
-    #backGraphic {
-
-    }
-    #controlBox {
-    width: 300px;
-    height: 300px;
-    display: block;
-    padding: 0px;
-    background-color: #666633;
-    margin: 0px;
-
-    }
-    #controlBox a {
-      background-color: #999966;
-    display: block;
-    padding: 5px;
-    margin: 5px;
-    border-radius: 10px;
-    border-width: 2px 4px 4px 2px;
-    border-style: solid;
-    border-color: black;
-    }
-    #controlBox a:hover {
-      background-color: #bbbb99;
-    }
-  </style>
+  <link rel="stylesheet" href="risk.css">
   <script src="units.js" charset="utf-8"></script>
   <script src="gameMap.js" charset="utf-8"></script>
-  <script type="text/javascript">
-    var units = []
-
-    class Unit {
-      constructor(id, name, options) {
-        this.id = id;
-        this.name = name;
-        this.region = 'AA';
-        this.graphic = 'jetbike.png';
-        if (typeof options === 'object')
-          for (var key of Object.keys(options)) {
-            this[key] = options[key];
-          }
-        this.e = document.createElement('img');
-        document.getElementById('map').appendChild(this.e);
-        this.move()
-      }
-      size() {
-        return {
-          w: this.width,
-          h: this.height,
-          ow: this.width / 2,
-          oh: this.height / 2
-        }
-      }
-      move() {
-        this.coords = gameMap.find(reg => reg.name == this.region);
-        if (this.coords) this.coords = this.coords.center
-        this.e.src = this.graphic;
-        this.e.classList.add('unitGFX');
-        this.e.style.left = this.coords.x - 16 + 'px';
-        this.e.style.top = this.coords.y - 16 + 'px';
-      }
-    }
-
-
-    function init() {
-      for (var i = 0; i < 5; i++) {
-        units.push(new Unit(i, "Space Bike " + i, {
-          hue: 0
-        }))
-      }
-      from();
-    }
-
-    // let idIndex = 0;
-    // for (var unit of units) {
-    //   unit.id = idIndex++;
-    //   unit.marches = 1;
-    // }
-
-    function from() {
-      let controlBox = document.getElementById('controlBox');
-      controlBox.innerHTML = '<h3><b>Select Sector:</b></h3>';
-      for (var region of gameMap) {
-        let occupants = units.filter(unit => unit.region == region.name);
-        if (occupants.length) {
-          let from = region;
-          let link = document.createElement('a');
-          link.href = '#';
-          link.innerHTML = region.name;
-          link.onclick = function() {
-            who(from, occupants);
-          };
-          controlBox.appendChild(link);
-        }
-      }
-    }
-
-
-    function who(from, occupants) {
-      let controlBox = document.getElementById('controlBox');
-      controlBox.innerHTML = '<h3><b>Select Unit:</b></h3>';
-      for (var occ of occupants) {
-        let goto = from.routes;
-        let link = document.createElement('a');
-        link.href = '#';
-        link.innerHTML = occ.name;
-        let occupant = occ;
-        link.onclick = function() {
-          to(from, occupant, goto);
-        };
-        controlBox.appendChild(link);
-      }
-    }
-
-    function to(from, who, routes) {
-      let controlBox = document.getElementById('controlBox');
-      controlBox.innerHTML = '<h3><b>Select Destination:</b></h3>';
-      for (var route of routes) {
-        let link = document.createElement('a');
-        let goto = route
-        link.href = '#';
-        link.innerHTML = route;
-        link.onclick = function() {
-          move(from, who, goto);
-        };
-        controlBox.appendChild(link);
-      }
-    }
-
-    function move(fromArg, whoArg, toArg) {
-      console.log(whoArg);
-      let fromRegion = gameMap.find(reg => reg.name == fromArg);
-      let gotoRegion = gameMap.find(reg => reg.name == toArg);
-      console.log(gotoRegion);
-      let whoRegion = units.find(unit => unit.id == whoArg.id);
-      console.log(whoRegion);
-      whoRegion.region = gotoRegion.name;
-      whoRegion.move();
-      document.getElementById('controlBox').innerHTML = '';
-      document.getElementById('controlBox').innerHTML = '';
-      document.getElementById('controlBox').innerHTML = '';
-      from();
-    }
-  </script>
+  <script src="risk.js" charset="utf-8"></script>
 </head>
 
 <body onload="init()">
-  <div id="map">
-    <img src="map.png" id="backGraphic">
+  <div id="content">
+    <div id="map">
+      <img src="map.png" id="backGraphic" class="overlay">
+    </div>
+    <div id="controlBox" class=""></div>
   </div>
-  <div id="controlBox" class=""></div>
 
 </body>
 
-<script type="text/javascript">
+<!-- <script type="text/javascript">
   document.onclick = function(e) {
     var x = e.pageX;
     var y = e.pageY;
     console.log("X is " + x + " and Y is " + y);
   };
-</script>
+</script> -->
 
 </html>
