@@ -10,8 +10,8 @@ class Controller {
             enabled: false,
             left: {
                 img: new Image(),
-                offsetx: 40,
-                offsety: 40,
+                offsetx: 20,
+                offsety: 20,
                 w: 150,
                 h: 150
             }
