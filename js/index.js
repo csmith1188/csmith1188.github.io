@@ -73,6 +73,7 @@ function draw() {
 
 function setupInputs() {
     document.addEventListener("keydown", function (event) {
+        game.player.controller.touch.enabled = false;
         if (event.shiftKey) {
             game.player.controller.shiftKey = Number(event.shiftKey)
         }
@@ -102,6 +103,7 @@ function setupInputs() {
             game.player.controller.gamePad = null;
     });
     window.addEventListener('touchstart', (event) => {
+        game.player.controller.touch.enabled = true;
         getTouchLeft(event);
     }, false);
 
@@ -110,6 +112,9 @@ function setupInputs() {
     }, false);
 
     window.addEventListener('touchend', (event) => {
+        getTouchLeft(event);
+    }, false);
+    window.addEventListener('touchcancel', (event) => {
         getTouchLeft(event);
     }, false);
 }
@@ -124,7 +129,6 @@ function getCanvasRelative(e) {
 }
 
 function getTouchLeft(event) {
-    game.player.controller.touch.enabled = true;
     if (event.target == canvas) {
         let touchLeftFound = false;
         for (const touch of event.targetTouches) {
