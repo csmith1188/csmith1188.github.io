@@ -2,10 +2,24 @@ class Controller {
     constructor() {
         this.deadzone = 0.2;
         this.alt = {
-            current : false,
+            current: false,
             last: false
         }
         this.gamePad;
+        this.touch = {
+            enabled: false,
+            left: {
+                img: new Image(),
+                offsetx: 10,
+                offsety: 10,
+                w: 150,
+                h: 150,
+                centerX: (150 / 2) + 10,
+                centerY: game.window.h - (150 / 2) - 10
+
+            }
+        }
+        this.touch.left.img.src = 'img/touch_left.png'
     }
 
     read() {
@@ -30,6 +44,19 @@ class Controller {
             if (gp.buttons[5].pressed) this.alt.current = 1;
             else if (this.altKey) this.alt.current = this.altKey;
             else this.alt.current = 0;
+        }
+        if (this.touch.enabled) {
+            if (this.leftTouch) this.left = this.leftTouch;
+            if (this.rightTouch) this.right = this.rightTouch;
+            if (this.upTouch) this.up = this.upTouch;
+            if (this.downTouch) this.down = this.downTouch;
+        }
+    }
+    draw() {
+        if (this.touch.enabled) {
+            ctx.globalAlpha = 0.5;
+            ctx.drawImage(this.touch.left.img, this.touch.left.offsetx, game.window.h - this.touch.left.h - this.touch.left.offsety, this.touch.left.w, this.touch.left.h);
+            ctx.globalAlpha = 1;
         }
     }
 }

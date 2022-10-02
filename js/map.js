@@ -2,9 +2,10 @@ class Map {
     constructor(options) {
         this.w = 4800;
         this.h = 3200
-        this.friction = 0.995;
+        this.friction = 0.99;
         this.gravity = 0.0;
-        this.maxSpeed = 30;
+        this.maxSpeed = 20;
+        this.collideDamageSpeed = 6;
         this.bgimg = new Image();
         this.bgimg.src = "img/maps/forest.png";
         if (typeof options == 'object')

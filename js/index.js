@@ -1,7 +1,6 @@
 //Variables
 let canvas;
 let ctx;
-
 //Create Game variables
 
 let gameLoop;
@@ -24,15 +23,33 @@ window.onload = function () {
     //Player
     game.player = new Player();
     game.player.controller = new Controller();
-    game.player.character = new Character(game.window.w / 2, game.window.h / 2);
+    game.player.character = new Character(game.match.map.w / 2, game.match.map.h / 2);
 
     //start game loop
     gameLoop = setInterval(step, 16);
 }
 
 function step() {
+    if (window.innerWidth < game.window.dw) {
+        game.window.w = window.innerWidth - 10;
+        game.window.h = (game.window.w / (2 / 3)) - 10;
+
+    } else {
+        game.window.w = game.window.dw;
+        canvas.height = game.window.h;
+    }
+    if (window.innerHeight < game.window.dh) {
+        game.window.h = window.innerHeight - 10;
+        game.window.w = (game.window.h * 1.5) - 10;
+    } else {
+        game.window.w = game.window.dw;
+        game.window.h = game.window.dh;
+    }
+    canvas.width = game.window.w;
+    canvas.height = game.window.h;
+
     game.player.controller.read();
-    game.player.character.step(game.match, game.player.controller);
+    game.player.character.step(game.player.controller);
     draw();
 }
 
@@ -49,6 +66,9 @@ function draw() {
 
     //Draw HUD
     game.player.drawHUD();
+
+    //Draw Controller HUD
+    game.player.controller.draw();
 }
 
 function setupInputs() {
@@ -74,15 +94,71 @@ function setupInputs() {
         else if (event.key.toLocaleLowerCase() === "d" || event.key === "ArrowRight") game.player.controller.rightKey = 0;
     });
     window.addEventListener('gamepadconnected', (event) => {
-        console.log(event);
         if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
             game.player.controller.gamePad = event.gamepad.index;
     });
     window.addEventListener('gamepaddisconnected', (event) => {
-        console.log(event);
         if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
             game.player.controller.gamePad = null;
     });
+    window.addEventListener('touchstart', (event) => {
+        getTouchLeft(event);
+    }, false);
+
+    window.addEventListener('touchmove', (event) => {
+        getTouchLeft(event);
+    }, false);
+
+    window.addEventListener('touchend', (event) => {
+        getTouchLeft(event);
+    }, false);
+}
+
+function getCanvasRelative(e) {
+    bx = canvas.getBoundingClientRect();
+    return {
+        x: e.clientX - bx.left,
+        y: e.clientY - bx.top,
+        bx: bx
+    };
+}
+
+function getTouchLeft(event) {
+    game.player.controller.touch.enabled = true;
+    if (event.target == canvas) {
+        let touchLeftFound = false;
+        for (const touch of event.targetTouches) {
+            let touchCoord = getCanvasRelative(touch);
+            let touchX = touchCoord.x - game.player.controller.touch.left.centerX
+            let touchY = touchCoord.y - game.player.controller.touch.left.centerY
+            console.log(touchX, touchY);
+            if (Math.abs(touchX) < game.player.controller.touch.left.w / 2 && Math.abs(touchY) < game.player.controller.touch.left.h / 2) {
+                touchLeftFound = true
+                if (touchX < 0) {
+                    game.player.controller.leftTouch = (touchX / (game.player.controller.touch.left.w / 2)) * -1;
+                    game.player.controller.rightTouch = 0;
+                }
+                else if (touchX > 0) {
+                    game.player.controller.rightTouch = (touchX / (game.player.controller.touch.left.w / 2));
+                    game.player.controller.leftTouch = 0;
+                }
+                if (touchY < 0) {
+                    game.player.controller.upTouch = (touchY / (game.player.controller.touch.left.h / 2)) * -1;
+                    game.player.controller.downTouch = 0;
+                }
+                else if (touchY > 0) {
+                    game.player.controller.downTouch = (touchY / (game.player.controller.touch.left.h / 2));
+                    game.player.controller.upTouch = 0;
+                }
+            }
+        }
+        if (!touchLeftFound) {
+            game.player.controller.rightTouch = 0;
+            game.player.controller.leftTouch = 0;
+            game.player.controller.upTouch = 0;
+            game.player.controller.downTouch = 0;
+        }
+    }
 }
 
 function checkIntersection(r1, r2) {

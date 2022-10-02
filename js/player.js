@@ -12,7 +12,10 @@ class Player {
             ctx.fillStyle = "#FF9900";
         } else if (healthBar >= 50) {
             ctx.fillStyle = "#FFFF00";
+        } else if (healthBar > 0) {
+            ctx.fillStyle = "#FF0000";
         } else {
+            healthBar = 1;
             ctx.fillStyle = "#FF0000";
         }
         ctx.fillRect(game.window.w / 2 - 80, game.window.h - 130, healthBar, 10);
@@ -26,9 +29,12 @@ class Player {
         }
         ctx.fillRect(game.window.w / 2 - 80, game.window.h - 115, lungeBar, 10);
 
+
         let calcSpeed = (((Math.abs(this.character.xspeed) + Math.abs(this.character.yspeed)) / 2) / game.match.map.maxSpeed) * 150;
         if (calcSpeed >= (this.character.maxSpeed / game.match.map.maxSpeed) * 150) {
             ctx.fillStyle = "#FF9900";
+        } else if (Math.abs(this.character.xspeed) >= game.match.map.collideDamageSpeed || Math.abs(this.character.xspeed) >= game.match.map.collideDamageSpeed) {
+            ctx.fillStyle = "#FFFF00";
         } else {
             ctx.fillStyle = "#00FF00";
         }
