@@ -31,16 +31,16 @@ window.onload = function () {
 
 function step() {
     if (window.innerWidth < game.window.dw) {
-        game.window.w = window.innerWidth - 10;
-        game.window.h = (game.window.w / (2 / 3)) - 10;
+        game.window.w = window.innerWidth;
+        game.window.h = (game.window.w / (2 / 3));
 
     } else {
         game.window.w = game.window.dw;
         canvas.height = game.window.h;
     }
     if (window.innerHeight < game.window.dh) {
-        game.window.h = window.innerHeight - 10;
-        game.window.w = (game.window.h * 1.5) - 10;
+        game.window.h = window.innerHeight;
+        game.window.w = (game.window.h * 1.5);
     } else {
         game.window.w = game.window.dw;
         game.window.h = game.window.dh;
@@ -103,24 +103,35 @@ function setupInputs() {
             game.player.controller.gamePad = null;
     });
     window.addEventListener('touchstart', (event) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
         game.player.controller.touch.enabled = true;
-        getTouchLeft(event);
-    }, false);
+        getTouch(event);
+    }, { passive: false });
 
     window.addEventListener('touchmove', (event) => {
-        getTouchLeft(event);
-    }, false);
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        getTouch(event);
+    }, { passive: false });
 
     window.addEventListener('touchend', (event) => {
-        getTouchLeft(event);
-    }, false);
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        getTouch(event);
+    }, { passive: false });
+
     window.addEventListener('touchcancel', (event) => {
-        getTouchLeft(event);
-    }, false);
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        getTouch(event);
+    }, { passive: false });
 }
 
 function getCanvasRelative(e) {
+    // console.log(window.orientation);
     bx = canvas.getBoundingClientRect();
+    console.log(e.clientY, bx.top);
     return {
         x: e.clientX - bx.left,
         y: e.clientY - bx.top,
@@ -128,14 +139,13 @@ function getCanvasRelative(e) {
     };
 }
 
-function getTouchLeft(event) {
+function getTouch(event) {
     if (event.target == canvas) {
         let touchLeftFound = false;
         for (const touch of event.targetTouches) {
             let touchCoord = getCanvasRelative(touch);
             let touchX = touchCoord.x - game.player.controller.touch.left.centerX
             let touchY = touchCoord.y - game.player.controller.touch.left.centerY
-            console.log(touchX, touchY);
             if (Math.abs(touchX) < game.player.controller.touch.left.w / 2 && Math.abs(touchY) < game.player.controller.touch.left.h / 2) {
                 touchLeftFound = true
                 if (touchX < 0) {
