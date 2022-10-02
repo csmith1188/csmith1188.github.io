@@ -32,19 +32,19 @@ window.onload = function () {
 function step() {
     if (window.innerWidth < game.window.dw) {
         game.window.w = window.innerWidth;
-        game.window.h = (game.window.w / (2 / 3));
+        game.window.h = game.window.w * (2/3)
+        if (window.innerHeight >= game.window.h)
+        game.window.h = window.innerHeight;
 
-    } else {
-        game.window.w = game.window.dw;
-        canvas.height = game.window.h;
     }
     if (window.innerHeight < game.window.dh) {
         game.window.h = window.innerHeight;
-        game.window.w = (game.window.h * 1.5);
-    } else {
-        game.window.w = game.window.dw;
-        game.window.h = game.window.dh;
+        game.window.w = game.window.h / (2/3);
     }
+    // if {
+    //     game.window.w = game.window.dw;
+    //     game.window.h = game.window.dh;
+    // }
     canvas.width = game.window.w;
     canvas.height = game.window.h;
 
