@@ -171,22 +171,22 @@ function getTouch(event, unlockedRegion) {
                 touchLeftFound = true
                 if (touchX < 0) {
                     game.player.controller.leftTouch = (touchX / (game.player.controller.touch.left.w / 2)) * -1;
-                    if (game.player.controller.leftTouch > 1) game.player.controller.leftTouch = 0;
+                    if (game.player.controller.leftTouch > 1) game.player.controller.leftTouch = 1;
                     game.player.controller.rightTouch = 0;
                 }
                 else if (touchX > 0) {
                     game.player.controller.rightTouch = (touchX / (game.player.controller.touch.left.w / 2));
-                    if (game.player.controller.rightTouch > 1) game.player.controller.rightTouch = 0;
+                    if (game.player.controller.rightTouch > 1) game.player.controller.rightTouch = 1;
                     game.player.controller.leftTouch = 0;
                 }
                 if (touchY < 0) {
                     game.player.controller.upTouch = (touchY / (game.player.controller.touch.left.h / 2)) * -1;
-                    if (game.player.controller.upTouch > 1) game.player.controller.upTouch = 0;
+                    if (game.player.controller.upTouch < 1) game.player.controller.upTouch = 1;
                     game.player.controller.downTouch = 0;
                 }
                 else if (touchY > 0) {
                     game.player.controller.downTouch = (touchY / (game.player.controller.touch.left.h / 2));
-                    if (game.player.controller.downTouch > 1) game.player.controller.downTouch = 0;
+                    if (game.player.controller.downTouch > 1) game.player.controller.downTouch = 1;
                     game.player.controller.upTouch = 0;
                 }
             }
