@@ -134,7 +134,7 @@ function setupInputs() {
     window.addEventListener('touchmove', (event) => {
         event.preventDefault();
         event.stopImmediatePropagation();
-        getTouch(event);
+        getTouch(event, true);
     }, { passive: false });
 
     window.addEventListener('touchend', (event) => {
@@ -160,29 +160,33 @@ function getCanvasRelative(e) {
     };
 }
 
-function getTouch(event) {
+function getTouch(event, unlockedRegion) {
     if (event.target == canvas) {
         let touchLeftFound = false;
         for (const touch of event.targetTouches) {
             let touchCoord = getCanvasRelative(touch);
             let touchX = touchCoord.x - game.player.controller.touch.left.centerX
             let touchY = touchCoord.y - game.player.controller.touch.left.centerY
-            if (Math.abs(touchX) < game.player.controller.touch.left.w / 2 && Math.abs(touchY) < game.player.controller.touch.left.h / 2) {
+            if ((Math.abs(touchX) < game.player.controller.touch.left.w / 2 && Math.abs(touchY) < game.player.controller.touch.left.h / 2) || unlockedRegion) {
                 touchLeftFound = true
                 if (touchX < 0) {
                     game.player.controller.leftTouch = (touchX / (game.player.controller.touch.left.w / 2)) * -1;
+                    if (game.player.controller.leftTouch > 1) game.player.controller.leftTouch = 0;
                     game.player.controller.rightTouch = 0;
                 }
                 else if (touchX > 0) {
                     game.player.controller.rightTouch = (touchX / (game.player.controller.touch.left.w / 2));
+                    if (game.player.controller.rightTouch > 1) game.player.controller.rightTouch = 0;
                     game.player.controller.leftTouch = 0;
                 }
                 if (touchY < 0) {
                     game.player.controller.upTouch = (touchY / (game.player.controller.touch.left.h / 2)) * -1;
+                    if (game.player.controller.upTouch > 1) game.player.controller.upTouch = 0;
                     game.player.controller.downTouch = 0;
                 }
                 else if (touchY > 0) {
                     game.player.controller.downTouch = (touchY / (game.player.controller.touch.left.h / 2));
+                    if (game.player.controller.downTouch > 1) game.player.controller.downTouch = 0;
                     game.player.controller.upTouch = 0;
                 }
             }
