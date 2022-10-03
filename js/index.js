@@ -25,31 +25,47 @@ window.onload = function () {
     game.player.controller = new Controller();
     game.player.character = new Character(game.match.map.w / 2, game.match.map.h / 2);
 
+    //Enemy
+    game.match.npcs.push(new Enemy((game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, game.player.character))
+    game.match.npcs.push(new Enemy((game.match.map.w / 2) + 600, (game.match.map.h / 2) - 100, game.player.character))
+    // game.match.npcs.push(new Enemy((game.match.map.w / 2) - 500, (game.match.map.h / 2) + 200, game.player.character))
+
+
     //start game loop
+    //Run the step() function every 16ms (60fps)
     gameLoop = setInterval(step, 16);
 }
 
 function step() {
+    // Resize screen if needed
     if (window.innerWidth < game.window.dw) {
         game.window.w = window.innerWidth;
-        game.window.h = game.window.w * (2/3)
+        game.window.h = game.window.w * (2 / 3)
         if (window.innerHeight >= game.window.h)
-        game.window.h = window.innerHeight;
-
+            game.window.h = window.innerHeight;
     }
     if (window.innerHeight < game.window.dh) {
         game.window.h = window.innerHeight;
-        game.window.w = game.window.h / (2/3);
+        game.window.w = game.window.h / (2 / 3);
     }
-    // if {
-    //     game.window.w = game.window.dw;
-    //     game.window.h = game.window.dh;
-    // }
     canvas.width = game.window.w;
     canvas.height = game.window.h;
 
-    game.player.controller.read();
-    game.player.character.step(game.player.controller);
+    if (!game.paused) {
+        //Do all collision
+        game.player.character.collide(game.match.npcs)
+        for (const npc of game.match.npcs) {
+            npc.collide([game.player.character, ...game.match.npcs])
+        }
+
+        //Do all steps and movement
+        game.player.controller.read();
+        game.player.character.step(game.player.controller);
+        for (const npc of game.match.npcs) {
+            npc.step(game.player.controller);
+        }
+    }
+    //Draw game
     draw();
 }
 
@@ -63,6 +79,11 @@ function draw() {
 
     //Draw player
     game.player.character.draw();
+
+    //Draw npcs
+    for (const npc of game.match.npcs) {
+        npc.draw(game.player.character);
+    }
 
     //Draw HUD
     game.player.drawHUD();
@@ -85,14 +106,15 @@ function setupInputs() {
         if (event.key.toLocaleLowerCase() === "a" || event.key === "ArrowLeft") game.player.controller.leftKey = 1;
         if (event.key.toLocaleLowerCase() === "s" || event.key === "ArrowDown") game.player.controller.downKey = 1;
         if (event.key.toLocaleLowerCase() === "d" || event.key === "ArrowRight") game.player.controller.rightKey = 1;
+        if (event.key === "Escape" || event.key === "Escape") game.paused = !game.paused;
     });
     document.addEventListener("keyup", function (event) {
         game.player.controller.shiftKey = Number(event.shiftKey)
         game.player.controller.altKey = Number(event.altKey)
         if (event.key.toLocaleLowerCase() === "w" || event.key === "ArrowUp") game.player.controller.upKey = 0;
-        else if (event.key.toLocaleLowerCase() === "a" || event.key === "ArrowLeft") game.player.controller.leftKey = 0;
-        else if (event.key.toLocaleLowerCase() === "s" || event.key === "ArrowDown") game.player.controller.downKey = 0;
-        else if (event.key.toLocaleLowerCase() === "d" || event.key === "ArrowRight") game.player.controller.rightKey = 0;
+        if (event.key.toLocaleLowerCase() === "a" || event.key === "ArrowLeft") game.player.controller.leftKey = 0;
+        if (event.key.toLocaleLowerCase() === "s" || event.key === "ArrowDown") game.player.controller.downKey = 0;
+        if (event.key.toLocaleLowerCase() === "d" || event.key === "ArrowRight") game.player.controller.rightKey = 0;
     });
     window.addEventListener('gamepadconnected', (event) => {
         if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
@@ -131,7 +153,6 @@ function setupInputs() {
 function getCanvasRelative(e) {
     // console.log(window.orientation);
     bx = canvas.getBoundingClientRect();
-    console.log(e.clientY, bx.top);
     return {
         x: e.clientX - bx.left,
         y: e.clientY - bx.top,
