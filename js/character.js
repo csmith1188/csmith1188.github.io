@@ -24,6 +24,7 @@ class Character {
         this.img = new Image();
         this.rightgfx = 'img/sprites/jetbike.png';
         this.leftgfx = 'img/sprites/jetbike_l.png';
+        this.img.src = this.rightgfx
         this.bot = false;
     }
 
@@ -42,9 +43,6 @@ class Character {
             else if (this.xspeed < game.match.map.maxSpeed * -1) this.xspeed = game.match.map.maxSpeed * -1;
             if (this.yspeed > game.match.map.maxSpeed) this.yspeed = game.match.map.maxSpeed;
             else if (this.yspeed < game.match.map.maxSpeed * -1) this.yspeed = game.match.map.maxSpeed * -1;
-            // Change the graphics based on direction
-            if (controller.left < controller.right) this.img.src = this.rightgfx;
-            if (controller.left > controller.right) this.img.src = this.leftgfx;
             // Make the move
             this.x += this.xspeed;
             this.y += this.yspeed;
@@ -99,26 +97,46 @@ class Character {
         else if (controller.left && this.xspeed > this.maxSpeed * -1) this.xspeed -= controller.left * this.speedMulti;
         if (controller.up && this.yspeed > this.maxSpeed * -1) this.yspeed -= controller.up * this.speedMulti;
         else if (controller.down && this.yspeed < this.maxSpeed) this.yspeed += controller.down * this.speedMulti;
+        // Change the graphics based on direction
+        if (controller.left < controller.right) this.img.src = this.rightgfx;
+        if (controller.left > controller.right) this.img.src = this.leftgfx;
     }
 
-    draw = function (match) {
-        ctx.drawImage(this.img, (game.window.w / 2) - (this.w / 2), (game.window.h / 2) - (this.h / 2), this.w, this.h);
+    draw = function () {
+        if (game.debug) {
+            ctx.fillStyle = "#FF0000";
+            ctx.fillRect((game.window.w / 2) - (this.w / 2), (game.window.h / 2) - (this.h / 2), this.w, this.h);
+            ctx.fillStyle = "#000000";
+            ctx.fillRect((game.window.w / 2) - 2, (game.window.h / 2) - 2, 4, 4);
+        } else {
+            ctx.drawImage(this.img, (game.window.w / 2) - (this.w / 2), (game.window.h / 2) - (this.h / 2), this.w, this.h);
+        }
     }
 
     collide(colliders) {
         for (const c of colliders) {
-            if (c != this && this.isCollide(this, c)) {
-                // console.log(this.isCollide(this, c));
+            if (c != this) {
+                if (Math.abs(this.x - c.x) < this.w && Math.abs(this.y - c.y) < this.h) {
+                    let compareY = c.y - this.y;
+                    let compareX = c.x - this.x;
+                    if (Math.abs(compareX) > Math.abs(compareY)) { //side hit
+                        if (c.x > this.x) c.x =  this.x + this.w + 1;
+                        else c.x = this.x - (c.w / 2) - (this.w / 2) - 1;
+                        if (Math.abs(this.xspeed) > game.match.map.collideDamageSpeed) c.hp -= Math.abs(this.xspeed);
+                        if (Math.abs(c.xspeed) > game.match.map.collideDamageSpeed) this.hp -= Math.abs(c.xspeed);
+                        this.xspeed *= -1;
+                        c.xspeed *= -1;
+                    } else { //top/bottom hit
+                        if (c.y > this.y) c.y =  this.y + this.h + 1;
+                        else c.y = this.y - (c.h / 2) - (this.h / 2) - 1;
+                        if (Math.abs(this.yspeed) > game.match.map.collideDamageSpeed) c.hp -= Math.abs(this.yspeed);
+                        if (Math.abs(c.yspeed) > game.match.map.collideDamageSpeed) this.hp -= Math.abs(c.yspeed);
+                        this.yspeed *= -1;
+                        c.yspeed *= -1;
+                    }
+                }
             }
         }
-    }
-
-    isCollide(m, c) {
-        const rightCol = () => { return c.x > m.x && m.x < c.x + c.w; }
-        const leftCol = () => { return c.x > m.x + m.w && m.x + m.w < c.x + c.w; }
-        const topCol = () => {return c.y > m.y && m.y < c.y + c.h;}
-        const botCol = () => {return c.y > m.y + m.h && m.y + m.h < c.y + c.h;}
-        return {r: rightCol(), l: leftCol(), t: topCol(), b: botCol()}
     }
 }
 
@@ -143,18 +161,31 @@ class Enemy extends Character {
     }
 
     AI() {
-        let compareX = (this.target.x - (this.target.w / 2)) - this.x;
-        let compareY = (this.target.y - (this.target.h / 2)) - this.y;
-        if (compareX > 0 && this.xspeed < this.maxSpeed) this.xspeed += this.speedMulti;
-        else if (compareX <= 0 && this.xspeed > this.maxSpeed * -1) this.xspeed -= this.speedMulti;
+        let compareX = this.target.x - this.x;
+        let compareY = this.target.y - this.y;
+        if (compareX > 0 && this.xspeed < this.maxSpeed) {
+            this.xspeed += this.speedMulti;
+            this.img.src = this.rightgfx;
+        }
+        else if (compareX <= 0 && this.xspeed > this.maxSpeed * -1) {
+            this.xspeed -= this.speedMulti;
+            this.img.src = this.leftgfx;
+        }
         if (compareY < 0 && this.yspeed > this.maxSpeed * -1) this.yspeed -= this.speedMulti;
         else if (compareY >= 0 && this.yspeed < this.maxSpeed) this.yspeed += this.speedMulti;
     }
 
-    draw = function (character) {
-        let compareX = this.target.x - this.x;
+    draw = function () {
         let compareY = this.target.y - this.y;
-        ctx.drawImage(this.img, game.window.w / 2 - compareX, game.window.h / 2 - compareY, this.w, this.h);
+        let compareX = this.target.x - this.x;
+        if (game.debug) {
+            ctx.fillStyle = "#00FF00";
+            ctx.fillRect(game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2), this.w, this.h);
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(game.window.w / 2 - compareX - 2, game.window.h / 2 - compareY - 2, 4, 4);
+        } else {
+            ctx.drawImage(this.img, game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2), this.w, this.h);
+        }
     }
 
 }

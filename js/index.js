@@ -16,6 +16,7 @@ window.onload = function () {
 
     //Game
     game = new Game();
+    game.debug = false;
 
     game.match = new Match();
     game.match.map = new Map();
@@ -26,14 +27,18 @@ window.onload = function () {
     game.player.character = new Character(game.match.map.w / 2, game.match.map.h / 2);
 
     //Enemy
+    // game.match.npcs.push(new Enemy(24, 24, game.player.character))
     game.match.npcs.push(new Enemy((game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, game.player.character))
-    game.match.npcs.push(new Enemy((game.match.map.w / 2) + 600, (game.match.map.h / 2) - 100, game.player.character))
+    // game.match.npcs.push(new Enemy((game.match.map.w / 2) + 600, (game.match.map.h / 2) - 100, game.player.character))
     // game.match.npcs.push(new Enemy((game.match.map.w / 2) - 500, (game.match.map.h / 2) + 200, game.player.character))
 
 
     //start game loop
     //Run the step() function every 16ms (60fps)
     gameLoop = setInterval(step, 16);
+
+    draw();
+
 }
 
 function step() {
@@ -134,13 +139,13 @@ function setupInputs() {
     window.addEventListener('touchmove', (event) => {
         event.preventDefault();
         event.stopImmediatePropagation();
-        getTouch(event, true);
+        getTouch(event, 'move');
     }, { passive: false });
 
     window.addEventListener('touchend', (event) => {
         event.preventDefault();
         event.stopImmediatePropagation();
-        getTouch(event);
+        getTouch(event, 'end');
     }, { passive: false });
 
     window.addEventListener('touchcancel', (event) => {
@@ -160,14 +165,14 @@ function getCanvasRelative(e) {
     };
 }
 
-function getTouch(event, unlockedRegion) {
+function getTouch(event, type) {
     if (event.target == canvas) {
         let touchLeftFound = false;
         for (const touch of event.targetTouches) {
             let touchCoord = getCanvasRelative(touch);
             let touchX = touchCoord.x - game.player.controller.touch.left.centerX
             let touchY = touchCoord.y - game.player.controller.touch.left.centerY
-            if ((Math.abs(touchX) < game.player.controller.touch.left.w / 2 && Math.abs(touchY) < game.player.controller.touch.left.h / 2) || unlockedRegion) {
+            if ((Math.abs(touchX) < game.player.controller.touch.left.w / 2 && Math.abs(touchY) < game.player.controller.touch.left.h / 2) || type == 'move') {
                 touchLeftFound = true
                 if (touchX < 0) {
                     game.player.controller.leftTouch = (touchX / (game.player.controller.touch.left.w / 2)) * -1;

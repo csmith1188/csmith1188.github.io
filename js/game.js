@@ -5,7 +5,8 @@ class Game {
             h: 600,
             dw: 900,
             dh: 600,
-            paused: false
+            paused: false,
+            debug: false
         }
     }
 }

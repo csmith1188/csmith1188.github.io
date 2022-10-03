@@ -43,31 +43,31 @@ class Controller {
             else this.alt.current = 0;
         }
         else
-            if (this.touch.enabled) {
-                if (this.leftTouch) this.left = this.leftTouch;
-                else this.left = 0;
-                if (this.rightTouch) this.right = this.rightTouch;
-                else this.right = 0;
-                if (this.upTouch) this.up = this.upTouch;
-                else this.up = 0;
-                if (this.downTouch) this.down = this.downTouch;
-                else this.down = 0;
-            }
-            else {
-                if (this.rightKey) this.right = this.rightKey;
-                else this.right = 0;
-                if (this.leftKey) this.left = this.leftKey;
-                else this.left = 0;
-                if (this.downKey) this.down = this.downKey;
-                else this.down = 0;
-                if (this.upKey) this.up = this.upKey;
-                else this.up = 0;
-                if (this.shiftKey) this.shift = this.shiftKey;
-                else this.shift = 0;
-                if (this.altKey) this.alt.current = this.altKey;
-                else this.alt.current = 0;
+        if (this.touch.enabled) {
+            if (this.leftTouch) this.left = this.leftTouch;
+            else this.left = 0;
+            if (this.rightTouch) this.right = this.rightTouch;
+            else this.right = 0;
+            if (this.upTouch) this.up = this.upTouch;
+            else this.up = 0;
+            if (this.downTouch) this.down = this.downTouch;
+            else this.down = 0;
+        }
+        else {
+            if (this.rightKey) this.right = this.rightKey;
+            else this.right = 0;
+            if (this.leftKey) this.left = this.leftKey;
+            else this.left = 0;
+            if (this.downKey) this.down = this.downKey;
+            else this.down = 0;
+            if (this.upKey) this.up = this.upKey;
+            else this.up = 0;
+            if (this.shiftKey) this.shift = this.shiftKey;
+            else this.shift = 0;
+            if (this.altKey) this.alt.current = this.altKey;
+            else this.alt.current = 0;
 
-            }
+        }
     }
     draw() {
         if (this.touch.enabled) {
