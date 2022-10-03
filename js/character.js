@@ -117,23 +117,23 @@ class Character {
         for (const c of colliders) {
             if (c != this) {
                 if (Math.abs(this.x - c.x) < this.w && Math.abs(this.y - c.y) < this.h) {
-                    let compareY = c.y - this.y;
-                    let compareX = c.x - this.x;
-                    if (Math.abs(compareX) > Math.abs(compareY)) { //side hit
-                        if (c.x > this.x) c.x =  this.x + this.w + 1;
-                        else c.x = this.x - (c.w / 2) - (this.w / 2) - 1;
-                        if (Math.abs(this.xspeed) > game.match.map.collideDamageSpeed) c.hp -= Math.abs(this.xspeed);
-                        if (Math.abs(c.xspeed) > game.match.map.collideDamageSpeed) this.hp -= Math.abs(c.xspeed);
-                        this.xspeed *= -1;
-                        c.xspeed *= -1;
-                    } else { //top/bottom hit
-                        if (c.y > this.y) c.y =  this.y + this.h + 1;
-                        else c.y = this.y - (c.h / 2) - (this.h / 2) - 1;
-                        if (Math.abs(this.yspeed) > game.match.map.collideDamageSpeed) c.hp -= Math.abs(this.yspeed);
-                        if (Math.abs(c.yspeed) > game.match.map.collideDamageSpeed) this.hp -= Math.abs(c.yspeed);
-                        this.yspeed *= -1;
-                        c.yspeed *= -1;
-                    }
+                    // let compareY = c.y - this.y;
+                    // let compareX = c.x - this.x;
+                    // if (Math.abs(compareX) > Math.abs(compareY)) { //side hit
+                    //     if (c.x > this.x) c.x =  this.x + this.w + 1;
+                    //     else c.x = this.x - (c.w / 2) - (this.w / 2) - 1;
+                    //     if (Math.abs(this.xspeed) > game.match.map.collideDamageSpeed) c.hp -= Math.abs(this.xspeed);
+                    //     if (Math.abs(c.xspeed) > game.match.map.collideDamageSpeed) this.hp -= Math.abs(c.xspeed);
+                    //     this.xspeed *= -1;
+                    //     c.xspeed *= -1;
+                    // } else { //top/bottom hit
+                    //     if (c.y > this.y) c.y =  this.y + this.h + 1;
+                    //     else c.y = this.y - (c.h / 2) - (this.h / 2) - 1;
+                    //     if (Math.abs(this.yspeed) > game.match.map.collideDamageSpeed) c.hp -= Math.abs(this.yspeed);
+                    //     if (Math.abs(c.yspeed) > game.match.map.collideDamageSpeed) this.hp -= Math.abs(c.yspeed);
+                    //     this.yspeed *= -1;
+                    //     c.yspeed *= -1;
+                    // }
                 }
             }
         }
