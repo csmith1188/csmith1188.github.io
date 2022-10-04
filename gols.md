@@ -1,3 +1,4 @@
+- transfer speed into collider (c.xspeed += this.xspeed)
 - fix player blocks collision (depth vs z)
 - fix collision with boxes bigger than 48
 - jumppad and items only?

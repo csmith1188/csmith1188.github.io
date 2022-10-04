@@ -10,10 +10,10 @@ class Controller {
             enabled: false,
             left: {
                 img: new Image(),
-                offsetx: 20,
-                offsety: 20,
-                w: 150,
-                h: 150
+                offsetx: 100,
+                offsety: 100,
+                w: 200,
+                h: 200
             }
         }
         this.touch.left.img.src = 'img/touch_left.png'
