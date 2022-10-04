@@ -66,6 +66,23 @@ class JumpPad extends Block {
     }
 }
 
+class Wave extends JumpPad {
+    constructor(x, y, options) {
+        super(x, y, options);
+        this.xspeed = 4;
+        this.yspeed = 0;
+    }
+
+    step() {
+        this.x += this.xspeed;
+        this.y += this.yspeed;
+        if (this.x > game.match.map.w) this.xspeed *= -1;
+        if (this.x < 0) this.xspeed *= -1;
+        if (this.y > game.match.map.h) this.xspeed *= -1;
+        if (this.y < 0) this.xspeed *= -1;
+    }
+}
+
 class DeathBlock extends Block {
     constructor(x, y, options) {
         super(x, y, options);

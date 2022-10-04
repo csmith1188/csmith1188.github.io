@@ -28,7 +28,7 @@ window.onload = function () {
     
     //Enemy
     // game.match.npcs.push(new Enemy(24, 24, game.player.character))
-    game.match.npcs.push(new Enemy((game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, game.player.character))
+    game.match.npcs.push(new Enemy((game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, game.player.character)) //Kevin
     // game.match.npcs.push(new Enemy((game.match.map.w / 2) + 600, (game.match.map.h / 2) - 100, game.player.character))
     // game.match.npcs.push(new Enemy((game.match.map.w / 2) - 500, (game.match.map.h / 2) + 200, game.player.character))
     // game.match.npcs.push(new Enemy((game.match.map.w / 2) + 100, (game.match.map.h / 2) + 100, game.player.character))
@@ -56,6 +56,10 @@ window.onload = function () {
         let tempy = Math.floor(Math.random() *(game.match.map.h / 48)) * 48
         game.match.map.blocks.push(new DeathBlock(tempx, tempy, {color: '#660000', damageOnCollision: 2}))
     }
+    for (let i = 0; i < 8; i++) {
+        game.match.map.blocks.push(new Wave(0, (game.match.map.h / 2) + (48 * i), {color: '#FF9900'}))
+    }
+
 
 
 
@@ -106,6 +110,7 @@ function step() {
         for (const block of game.match.map.blocks) {
             block.step();
         }
+
     }
     //Draw game
     draw();

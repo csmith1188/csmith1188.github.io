@@ -20,6 +20,7 @@ class Character {
         this.lungeSpeed = 5;
         this.lungeCost = 100;
         this.jumpCost = 25;
+        this.airtime = 0;
         //Stats
         this.hp = 100;
         this.hp_max = 100;
@@ -40,7 +41,13 @@ class Character {
             // Friction
             this.xspeed *= game.match.map.friction * this.frictionMulti;
             this.yspeed *= game.match.map.friction * this.frictionMulti;
-            if (this.z > 0) this.zspeed -= game.match.map.gravity;
+            if (this.z > 0) {
+                this.zspeed -= game.match.map.gravity;
+                this.airtime++;
+                if (game.player.best.airtime < this.airtime) game.player.best.airtime = this.airtime
+            } else {
+                this.airtime = 0;
+            }
             if (this.z < 0) this.zspeed += game.match.map.gravity;
             if (Math.abs(this.z) < 4) this.zspeed *= 0.8
             if (Math.abs(this.zspeed) < 0.2 && Math.abs(this.z) < 2) {
@@ -60,7 +67,11 @@ class Character {
             this.y += this.yspeed;
             // Gravity
             this.z += this.zspeed;
-            if (this.z < this.d * -1) this.z = this.d * -1;
+            if (this.z < this.hover * -1) this.z = this.hover * -1;
+            // Break your records!
+            if (game.player.best.air < this.z) game.player.best.air = this.z
+            if (game.player.best.speed < (Math.abs(this.xspeed) + Math.abs(this.xspeed) )/ 2) game.player.best.speed = (Math.abs(this.xspeed) + Math.abs(this.xspeed) )/ 2
+
 
 
             // Check for out of bounds
