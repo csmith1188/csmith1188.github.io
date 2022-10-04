@@ -1,0 +1,5 @@
+- fix player blocks collision (depth vs z)
+- fix collision with boxes bigger than 48
+- jumppad and items only?
+- raytrace a sword
+- raytrace a curve https://www.geeksforgeeks.org/draw-circle-without-floating-point-arithmetic/

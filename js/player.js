@@ -6,7 +6,15 @@ class Player {
             barW: 48
         }
     }
+
     drawHUD() {
+
+        if (game.debug) {
+            ctx.font = '12px serif';
+            ctx.fillText(this.character.x, 10, 50);
+            ctx.fillText(this.character.y, 10, 70);
+        }
+
         ctx.fillStyle = "#000000";
         ctx.fillRect((game.window.w / 2) - (this.character.w / 2) - 1, (game.window.h / 2) + (this.character.h / 2) - 1, this.hud.barW + 2, 16);
         let healthBar = (this.character.hp / this.character.hp_max) * this.hud.barW;
@@ -25,12 +33,12 @@ class Player {
         }
         ctx.fillRect((game.window.w / 2) - (this.character.w / 2), (game.window.h / 2) + (this.character.h / 2), healthBar, 4);
 
-        let lungeBar = (this.character.lungePower / this.character.lungePower_max) * this.hud.barW;
+        let lungeBar = (this.character.power / this.character.power_max) * this.hud.barW;
         if (lungeBar >= this.hud.barW) {
             lungeBar = this.hud.barW;
             ctx.fillStyle = "#990099";
         } else {
-            ctx.fillStyle = "#3333FF";
+            ctx.fillStyle = "#5555FF";
         }
         ctx.fillRect((game.window.w / 2) - (this.character.w / 2), (game.window.h / 2) + (this.character.h / 2) + 5, lungeBar, 4);
 

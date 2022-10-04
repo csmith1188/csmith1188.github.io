@@ -62,6 +62,8 @@ class Controller {
             else this.down = 0;
             if (this.upKey) this.up = this.upKey;
             else this.up = 0;
+            if (this.spaceKey) this.space = this.spaceKey;
+            else this.space = 0;
             if (this.shiftKey) this.shift = this.shiftKey;
             else this.shift = 0;
             if (this.altKey) this.alt.current = this.altKey;

@@ -25,12 +25,38 @@ window.onload = function () {
     game.player = new Player();
     game.player.controller = new Controller();
     game.player.character = new Character(game.match.map.w / 2, game.match.map.h / 2);
-
+    
     //Enemy
     // game.match.npcs.push(new Enemy(24, 24, game.player.character))
     game.match.npcs.push(new Enemy((game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, game.player.character))
     // game.match.npcs.push(new Enemy((game.match.map.w / 2) + 600, (game.match.map.h / 2) - 100, game.player.character))
     // game.match.npcs.push(new Enemy((game.match.map.w / 2) - 500, (game.match.map.h / 2) + 200, game.player.character))
+    // game.match.npcs.push(new Enemy((game.match.map.w / 2) + 100, (game.match.map.h / 2) + 100, game.player.character))
+
+    
+    //Blocks
+    // game.match.map.blocks.push(new Block((game.match.map.w / 2) + 100, (game.match.map.h / 2), {color: '#0000FF'}))
+    // game.match.map.blocks.push(new JumpPad((game.match.map.w / 2) + 100, (game.match.map.h / 2) + 100, {color: '#FF9900'}))
+    // game.match.map.blocks.push(new DeathBlock((game.match.map.w / 2) + 500, (game.match.map.h / 2) + 500, {color: '#990000', damageOnCollision: 2}))
+    // game.match.map.blocks.push(new DeathBlock((game.match.map.w / 2) + 200, (game.match.map.h / 2) + 200, {color: '#996666', damageOnCollision: 20, tags: ['immobile']}))
+
+
+    for (let i = 0; i < 100; i++) {
+        let tempx = Math.floor(Math.random() *(game.match.map.w / 48)) * 48
+        let tempy = Math.floor(Math.random() *(game.match.map.h / 48)) * 48
+        game.match.map.blocks.push(new Block(tempx, tempy, {color: '#333333'}))
+    }
+    for (let i = 0; i < 50; i++) {
+        let tempx = Math.floor(Math.random() *(game.match.map.w / 48)) * 48
+        let tempy = Math.floor(Math.random() *(game.match.map.h / 48)) * 48
+        game.match.map.blocks.push(new JumpPad(tempx, tempy, {color: '#FF6600'}))
+    }
+    for (let i = 0; i < 25; i++) {
+        let tempx = Math.floor(Math.random() *(game.match.map.w / 48)) * 48
+        let tempy = Math.floor(Math.random() *(game.match.map.h / 48)) * 48
+        game.match.map.blocks.push(new DeathBlock(tempx, tempy, {color: '#660000', damageOnCollision: 2}))
+    }
+
 
 
     //start game loop
@@ -43,31 +69,42 @@ window.onload = function () {
 
 function step() {
     // Resize screen if needed
-    if (window.innerWidth < game.window.dw) {
-        game.window.w = window.innerWidth;
-        game.window.h = game.window.w * (2 / 3)
-        if (window.innerHeight >= game.window.h)
-            game.window.h = window.innerHeight;
-    }
-    if (window.innerHeight < game.window.dh) {
-        game.window.h = window.innerHeight;
-        game.window.w = game.window.h / (2 / 3);
-    }
+    // if (window.innerWidth < game.window.dw) {
+    //     game.window.w = window.innerWidth;
+    //     game.window.h = game.window.w * (2 / 3)
+    //     if (window.innerHeight >= game.window.h)
+    //         game.window.h = window.innerHeight;
+    // }
+    // if (window.innerHeight < game.window.dh) {
+    //     game.window.h = window.innerHeight;
+    //     game.window.w = game.window.h / (2 / 3);
+    // }
+
+    // The next two lines will always max screen (comment out above)
+    game.window.h = window.innerHeight;
+    game.window.w = window.innerWidth;
+
     canvas.width = game.window.w;
     canvas.height = game.window.h;
 
     if (!game.paused) {
-        //Do all collision
-        game.player.character.collide(game.match.npcs)
-        for (const npc of game.match.npcs) {
-            npc.collide([game.player.character, ...game.match.npcs])
+        //Do all collision. It has to be in this order, or else pads/blocks won't activate
+        for (const block of game.match.map.blocks) {
+            block.collide([game.player.character, ...game.match.npcs])
         }
+        for (const npc of game.match.npcs) {
+            npc.collide([game.player.character, ...game.match.npcs, ...game.match.map.blocks])
+        }
+        game.player.character.collide([...game.match.npcs, ...game.match.map.blocks])
 
         //Do all steps and movement
         game.player.controller.read();
         game.player.character.step(game.player.controller);
         for (const npc of game.match.npcs) {
             npc.step(game.player.controller);
+        }
+        for (const block of game.match.map.blocks) {
+            block.step();
         }
     }
     //Draw game
@@ -81,14 +118,20 @@ function draw() {
 
     //Draw Map
     game.match.map.draw(game.player.character);
-
-    //Draw player
-    game.player.character.draw();
-
+    
+    
+    //Draw blocks
+    for (const block of game.match.map.blocks) {
+        block.draw(game.player.character);
+    }
+    
     //Draw npcs
     for (const npc of game.match.npcs) {
         npc.draw(game.player.character);
     }
+
+    //Draw player
+    game.player.character.draw();
 
     //Draw HUD
     game.player.drawHUD();
@@ -111,6 +154,7 @@ function setupInputs() {
         if (event.key.toLocaleLowerCase() === "a" || event.key === "ArrowLeft") game.player.controller.leftKey = 1;
         if (event.key.toLocaleLowerCase() === "s" || event.key === "ArrowDown") game.player.controller.downKey = 1;
         if (event.key.toLocaleLowerCase() === "d" || event.key === "ArrowRight") game.player.controller.rightKey = 1;
+        if (event.key.toLocaleLowerCase() === " ") game.player.controller.spaceKey = 1;
         if (event.key === "Escape" || event.key === "Escape") game.paused = !game.paused;
     });
     document.addEventListener("keyup", function (event) {
@@ -120,6 +164,7 @@ function setupInputs() {
         if (event.key.toLocaleLowerCase() === "a" || event.key === "ArrowLeft") game.player.controller.leftKey = 0;
         if (event.key.toLocaleLowerCase() === "s" || event.key === "ArrowDown") game.player.controller.downKey = 0;
         if (event.key.toLocaleLowerCase() === "d" || event.key === "ArrowRight") game.player.controller.rightKey = 0;
+        if (event.key.toLocaleLowerCase() === " ") game.player.controller.spaceKey = 0;
     });
     window.addEventListener('gamepadconnected', (event) => {
         if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
