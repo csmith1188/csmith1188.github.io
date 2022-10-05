@@ -76,15 +76,15 @@ window.onload = function () {
         let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
         game.match.map.blocks.push(new SpeedPad(allID++, tempx, tempy, {color: '#9999FF'}))
     }
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 10; i++) {
         let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
         let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
-        game.match.map.blocks.push(new HealthBlock(allID++, tempx, tempy, {color: '#660000', healthCollide: 2}))
+        game.match.map.blocks.push(new HealthBlock(allID++, tempx, tempy, {color: '#660000', healthCollide: -2}))
     }
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 20; i++) {
         let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
         let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
-        game.match.map.blocks.push(new HealthBlock(allID++, tempx, tempy, {color: '#006600', healthCollide: -2}))
+        game.match.map.blocks.push(new HealthBlock(allID++, tempx, tempy, {color: '#006600', healthCollide: 1, powerCollide: 2}))
     }
 
 
@@ -216,11 +216,11 @@ function setupInputs() {
         if (event.key.toLocaleLowerCase() === " ") game.player.controller.spaceKey = 0;
     });
     window.addEventListener('gamepadconnected', (event) => {
-        if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
+        // if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
             game.player.controller.gamePad = event.gamepad.index;
     });
     window.addEventListener('gamepaddisconnected', (event) => {
-        if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
+        // if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
             game.player.controller.gamePad = null;
     });
     window.addEventListener('touchstart', (event) => {

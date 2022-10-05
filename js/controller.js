@@ -37,10 +37,23 @@ class Controller {
             else this.down = 0;
             if (gp.axes[1] < this.deadzone * -1) this.up = gp.axes[1] * -1;
             else this.up = 0;
-            if (gp.buttons[4].pressed) this.shift = 1;
+            if (gp.buttons[10].pressed) this.shift = 1;
             else this.shift = 0;
-            if (gp.buttons[5].pressed) this.alt.current = 1;
+            if (gp.buttons[4].pressed) this.alt.current = 1;
             else this.alt.current = 0;
+
+            if (gp.buttons[6].pressed) this.space = 1;
+            else this.space = 0;
+            
+            if (gp.buttons[8].pressed) if (ticks > 180) location.reload();
+            // else this.alt.current = 0;
+
+            if (gp.buttons[9].pressed) game.paused = !game.paused;
+            // else this.alt.current = 0;
+
+
+
+            
         }
         else
         if (this.touch.enabled) {

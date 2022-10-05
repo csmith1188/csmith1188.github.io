@@ -220,6 +220,7 @@ class HealthBlock extends Block {
         super(id, x, y, options);
         this.tags = ['nocollide', 'immobile'];
         this.healthCollide = 0;
+        this.powerCollide = 0;
         if (typeof options === 'object')
             for (var key of Object.keys(options)) {
                 this[key] = options[key];
@@ -229,9 +230,12 @@ class HealthBlock extends Block {
     collide(colliders, options) {
         for (const c of colliders) {
             if (c != this)
-                if (Math.abs(this.x - c.x) < this.w / 2 + (c.w / 2) && Math.abs(this.y - c.y) < this.h / 2 + (c.h / 2) && this.z < c.d && c.z < this.d) //depth of the block
-                    c.hp -= this.healthCollide;
+                if (Math.abs(this.x - c.x) < this.w / 2 + (c.w / 2) && Math.abs(this.y - c.y) < this.h / 2 + (c.h / 2) && this.z < c.d && c.z < this.d) { //depth of the block
+                    c.hp += this.healthCollide;
+                    c.power += this.powerCollide;
+                }
             if (c.hp > c.hp_max) c.hp = c.hp_max;
+            if (c.power > c.power_max) c.power = c.power_max;
         }
     }
 }
