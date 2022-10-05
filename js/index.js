@@ -25,11 +25,11 @@ window.onload = function () {
     //Player
     game.player = new Player();
     game.player.controller = new Controller();
-    game.player.character = new Character(allID++, game.match.map.w / 2, game.match.map.h / 2);
+    game.player.character = new Character(allID++, (game.match.map.w / 2) + 24, (game.match.map.h / 2) - 1000);
 
     //Enemy
     // game.match.npcs.push(new Enemy(allID++, 24, 24, game.player.character))
-    game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, game.player.character)) //Kevin
+    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, game.player.character)) //Kevin
     // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 600, (game.match.map.h / 2) - 100, game.player.character))
     // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2) + 200, game.player.character))
     // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 100, (game.match.map.h / 2) + 100, game.player.character))
@@ -51,11 +51,23 @@ window.onload = function () {
     game.match.map.blocks.push(new Ball(allID++, (game.match.map.w / 2) - 200, (game.match.map.h / 2) + 200, { color: '#FFFFFF' }))
 
 
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2), (game.match.map.h / 2) - 500, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2), { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2), (game.match.map.h / 2) + 500, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2), { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 48, (game.match.map.h / 2) - 500, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 24, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1250, (game.match.map.h / 2) - 500, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2), { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1250, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2), (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1250, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2), { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1250, (game.match.map.h / 2) - 500, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 24, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
     game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2), game.match.goals[0])) //racer
 
 
