@@ -1,5 +1,6 @@
 class Character {
-    constructor(spawnx, spawny) {
+    constructor(id, spawnx, spawny) {
+        this.id = id;
         this.active = true;
         //Location
         this.x = spawnx;
@@ -67,10 +68,14 @@ class Character {
             this.y += this.yspeed;
             // Gravity
             this.z += this.zspeed;
-            if (this.z < this.hover * -1) this.z = this.hover * -1;
+            if (this.z < this.hover * -1) {
+                this.z = this.hover * -1;
+                this.zspeed *= -1;
+                if (game.debug) game.match.map.blocks.push(new Block(this.x, this.y, { color: '#0000FF', tags: ['immobile', 'nocollide'] }))
+            }
             // Break your records!
             if (game.player.best.air < this.z) game.player.best.air = this.z
-            if (game.player.best.speed < (Math.abs(this.xspeed) + Math.abs(this.xspeed) )/ 2) game.player.best.speed = (Math.abs(this.xspeed) + Math.abs(this.xspeed) )/ 2
+            if (game.player.best.speed < (Math.abs(this.xspeed) + Math.abs(this.xspeed)) / 2) game.player.best.speed = (Math.abs(this.xspeed) + Math.abs(this.xspeed)) / 2
 
 
 
@@ -151,7 +156,8 @@ class Character {
     collide(colliders) {
         for (const c of colliders) {
             if (c != this) {
-                if (Math.abs(this.x - c.x) < this.w && Math.abs(this.y - c.y) < this.h && this.z < c.d && c.z < this.d) {
+                //Math.abs(this.x - c.x) < this.w && Math.abs(this.y - c.y) < this.h && this.z < c.d && c.z < this.d
+                if (Math.abs(this.x - c.x) < this.w / 2 + (c.w / 2) && Math.abs(this.y - c.y) < this.h / 2 + (c.h / 2) && this.z < c.d && c.z < this.d) {
                     let compareY = c.y - this.y;
                     let compareX = c.x - this.x;
                     if (!c.tags.includes('nocollide')) {
@@ -159,26 +165,30 @@ class Character {
                             if (this.x > c.x) this.x = c.x + c.w + 1;
                             else this.x = c.x - (this.w / 2) - (c.w / 2) - 1;
                             if (c.tags.includes('immobile')) {
-                                this.xspeed *= -1;
-                                this.hp -= Math.abs(this.xspeed);
+                                if (!c.tags.includes('nodamage'))
+                                    this.hp -= Math.abs(this.xspeed);
                             } else {
                                 if (Math.abs(this.xspeed) > game.match.map.collideDamageSpeed) c.hp -= Math.abs(this.xspeed);
                                 if (Math.abs(c.xspeed) > game.match.map.collideDamageSpeed) this.hp -= Math.abs(c.xspeed);
-                                this.xspeed *= -1;
                                 c.xspeed *= -1;
+                                c.xspeed += this.xspeed;
                             }
+                            if (!c.tags.includes('nobounce'))
+                                this.xspeed *= -1;
                         } else { //top/bottom hit
                             if (this.y > c.y) this.y = c.y + c.h + 1;
                             else this.y = c.y - (this.h / 2) - (c.h / 2) - 1;
                             if (c.tags.includes('immobile')) {
-                                this.yspeed *= -1;
-                                this.hp -= Math.abs(this.yspeed);
+                                if (!c.tags.includes('nodamage'))
+                                    this.hp -= Math.abs(this.yspeed);
                             } else {
                                 if (Math.abs(this.yspeed) > game.match.map.collideDamageSpeed) c.hp -= Math.abs(this.yspeed);
                                 if (Math.abs(c.yspeed) > game.match.map.collideDamageSpeed) this.hp -= Math.abs(c.yspeed);
-                                this.yspeed *= -1;
                                 c.yspeed *= -1;
+                                c.yspeed += this.yspeed;
                             }
+                            if (!c.tags.includes('nobounce'))
+                                this.yspeed *= -1;
                         }
                     }
                 }
@@ -194,8 +204,8 @@ class Character {
 // Boost or shoot if you can draw a straight line with no collision
 
 class Enemy extends Character {
-    constructor(spawnx, spawny, target) {
-        super(spawnx, spawny);
+    constructor(id, spawnx, spawny, target) {
+        super(id, spawnx, spawny);
         this.bot = true;
         this.target = target;
         this.hp = 100;
@@ -228,15 +238,15 @@ class Enemy extends Character {
     }
 
     draw() {
-        let compareY = this.target.y - this.y;
-        let compareX = this.target.x - this.x;
+        let compareY = game.player.character.y - this.y;
+        let compareX = game.player.character.x - this.x;
         if (game.debug) {
             ctx.fillStyle = "#00FF00";
             ctx.fillRect(game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2), this.w, this.h);
             ctx.fillStyle = "#000000";
             ctx.fillRect(game.window.w / 2 - compareX - 2, game.window.h / 2 - compareY - 2, 4, 4);
         } else {
-            ctx.drawImage(this.img, game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2)- this.z, this.w, this.h);
+            ctx.drawImage(this.img, game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2) - this.z, this.w, this.h);
         }
 
         // ctx.fillStyle = "#000000";

@@ -9,7 +9,8 @@ class Player {
             air: 0,
             airtime: 0,
             speed: 0,
-            damage: 0
+            damage: 0,
+            lap: 0
         }
     }
 
@@ -18,15 +19,27 @@ class Player {
         ctx.fillStyle = "#000000";
 
         if (game.debug) {
-            ctx.font = '15px serif';
-            ctx.fillText(this.character.x, 10, 50);
-            ctx.fillText(this.character.y, 10, 70);
+            ctx.font = '12px consolas';
+            ctx.fillText(this.character.x, 10, 80);
+            ctx.fillText(this.character.y, 10, 95);
+            let aimX = game.player.controller.aimX;
+            let aimY = game.player.controller.aimY;
+            if (aimX > 100) aimX = 100;
+            if (aimX < -100) aimX = -100;
+            if (aimY > 100) aimY = 100;
+            if (aimY < -100) aimY = -100;
+            ctx.fillRect((game.window.w / 2) + aimX, (game.window.h / 2) + aimY, 10, 10);
+            ctx.beginPath();
+            ctx.moveTo((game.window.w / 2), (game.window.h / 2));
+            ctx.lineTo((game.window.w / 2) + aimX, (game.window.h / 2) + aimY);
+            ctx.stroke();
         }
 
-        ctx.font = '12px Arial';
+        ctx.font = '12px consolas';
         ctx.fillText("Air:     " + game.player.best.air, 10, 20);
         ctx.fillText("Airtime: " + game.player.best.airtime, 10, 35);
         ctx.fillText("Speed:   " + game.player.best.speed, 10, 50);
+        ctx.fillText("Lap:     " + game.player.best.lap, 10, 65);
 
         ctx.fillStyle = "#FF0000";
         ctx.fillRect((game.player.character.x / game.match.map.w) * game.window.w - 3, 0, 6, 6);
@@ -59,7 +72,7 @@ class Player {
             lungeBar = this.hud.barW;
             ctx.fillStyle = "#990099";
         } else {
-            ctx.fillStyle = "#5555FF";
+            ctx.fillStyle = "#9999FF";
         }
         ctx.fillRect((game.window.w / 2) - (this.character.w / 2), (game.window.h / 2) + (this.character.h / 2) + 5, lungeBar, 4);
 

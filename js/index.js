@@ -5,7 +5,8 @@ let ctx;
 
 let gameLoop;
 let game;
-let player;
+let allID = 0;
+let ticks = 0;
 
 
 window.onload = function () {
@@ -24,42 +25,67 @@ window.onload = function () {
     //Player
     game.player = new Player();
     game.player.controller = new Controller();
-    game.player.character = new Character(game.match.map.w / 2, game.match.map.h / 2);
-    
-    //Enemy
-    // game.match.npcs.push(new Enemy(24, 24, game.player.character))
-    game.match.npcs.push(new Enemy((game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, game.player.character)) //Kevin
-    // game.match.npcs.push(new Enemy((game.match.map.w / 2) + 600, (game.match.map.h / 2) - 100, game.player.character))
-    // game.match.npcs.push(new Enemy((game.match.map.w / 2) - 500, (game.match.map.h / 2) + 200, game.player.character))
-    // game.match.npcs.push(new Enemy((game.match.map.w / 2) + 100, (game.match.map.h / 2) + 100, game.player.character))
+    game.player.character = new Character(allID++, game.match.map.w / 2, game.match.map.h / 2);
 
-    
+    //Enemy
+    // game.match.npcs.push(new Enemy(allID++, 24, 24, game.player.character))
+    game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, game.player.character)) //Kevin
+    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 600, (game.match.map.h / 2) - 100, game.player.character))
+    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2) + 200, game.player.character))
+    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 100, (game.match.map.h / 2) + 100, game.player.character))
+
+
+
     //Blocks
-    // game.match.map.blocks.push(new Block((game.match.map.w / 2) + 100, (game.match.map.h / 2), {color: '#0000FF'}))
-    // game.match.map.blocks.push(new JumpPad((game.match.map.w / 2) + 100, (game.match.map.h / 2) + 100, {color: '#FF9900'}))
-    // game.match.map.blocks.push(new DeathBlock((game.match.map.w / 2) + 500, (game.match.map.h / 2) + 500, {color: '#990000', damageOnCollision: 2}))
-    // game.match.map.blocks.push(new DeathBlock((game.match.map.w / 2) + 200, (game.match.map.h / 2) + 200, {color: '#996666', damageOnCollision: 20, tags: ['immobile']}))
+    // game.match.map.blocks.push(new Block(allID++, (game.match.map.w / 2) + 100, (game.match.map.h / 2), {color: '#0000FF'}))
+    // game.match.map.blocks.push(new Block(allID++, (game.match.map.w / 2), (game.match.map.h / 2), {color: '#FF9900', w: 48, h: 96}))
+    // game.match.map.blocks.push(new JumpPad(allID++, (game.match.map.w / 2) + 100, (game.match.map.h / 2) + 300, {color: '#FF9900'}))
+    // game.match.map.blocks.push(new HealthBlock(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2) + 500, {color: '#990000', healthCollide: 2}))
+    // game.match.map.blocks.push(new HealthBlock(allID++, (game.match.map.w / 2) + 200, (game.match.map.h / 2) + 200, {color: '#996666', healthCollide: 20, tags: ['immobile']}))
+    // game.match.map.blocks.push(new HealthBlock(allID++, (game.match.map.w / 2) + 200, (game.match.map.h / 2) + 200, { color: '#66FF66', healthCollide: -1 }))
+    game.match.map.blocks.push(new Wave(allID++, 0, (game.match.map.h / 2), { color: '#aaaaFF', w: 48, h: 288 }))
+    // for (let i = 0; i < game.match.map.w / 48; i++) {
+    //     game.match.map.blocks.push(new SpeedPad(allID++, (i * 48 * 10) + 24, (game.match.map.h / 2), { color: '#0066FF' }))
+    // }
+
+    game.match.map.blocks.push(new Ball(allID++, (game.match.map.w / 2) - 200, (game.match.map.h / 2) + 200, { color: '#FFFFFF' }))
+
+
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2), (game.match.map.h / 2) - 500, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2), { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2), (game.match.map.h / 2) + 500, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2), { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
+    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 48, (game.match.map.h / 2) - 500, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
+    game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2), game.match.goals[0])) //racer
 
 
     for (let i = 0; i < 100; i++) {
-        let tempx = Math.floor(Math.random() *(game.match.map.w / 48)) * 48
-        let tempy = Math.floor(Math.random() *(game.match.map.h / 48)) * 48
-        game.match.map.blocks.push(new Block(tempx, tempy, {color: '#333333'}))
-    }
-    for (let i = 0; i < 50; i++) {
-        let tempx = Math.floor(Math.random() *(game.match.map.w / 48)) * 48
-        let tempy = Math.floor(Math.random() *(game.match.map.h / 48)) * 48
-        game.match.map.blocks.push(new JumpPad(tempx, tempy, {color: '#FF6600'}))
+        let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+        let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+        let tempw = (Math.ceil(Math.random() * 2) * 48)
+        let temph = (Math.ceil(Math.random() * 2) * 48)
+        game.match.map.blocks.push(new Block(allID++, tempx, tempy, {color: '#333333', w: tempw, h: temph}))
     }
     for (let i = 0; i < 25; i++) {
-        let tempx = Math.floor(Math.random() *(game.match.map.w / 48)) * 48
-        let tempy = Math.floor(Math.random() *(game.match.map.h / 48)) * 48
-        game.match.map.blocks.push(new DeathBlock(tempx, tempy, {color: '#660000', damageOnCollision: 2}))
+        let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+        let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+        game.match.map.blocks.push(new JumpPad(allID++, tempx, tempy, {color: '#FF6600'}))
     }
-    for (let i = 0; i < 8; i++) {
-        game.match.map.blocks.push(new Wave(0, (game.match.map.h / 2) + (48 * i), {color: '#FF9900'}))
+    for (let i = 0; i < 25; i++) {
+        let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+        let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+        game.match.map.blocks.push(new SpeedPad(allID++, tempx, tempy, {color: '#9999FF'}))
     }
-
+    for (let i = 0; i < 15; i++) {
+        let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+        let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+        game.match.map.blocks.push(new HealthBlock(allID++, tempx, tempy, {color: '#660000', healthCollide: 2}))
+    }
+    for (let i = 0; i < 15; i++) {
+        let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+        let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+        game.match.map.blocks.push(new HealthBlock(allID++, tempx, tempy, {color: '#006600', healthCollide: -2}))
+    }
 
 
 
@@ -92,9 +118,23 @@ function step() {
     canvas.height = game.window.h;
 
     if (!game.paused) {
-        //Do all collision. It has to be in this order, or else pads/blocks won't activate
+        //Handle goals and collisions
+        for (const goal of game.match.goals) {
+            if (game.match.goalIndex >= game.match.goals.length) {
+                game.match.goalIndex = 0;
+                game.match.lapEnd = ticks;
+                if (game.player.best.lap == 0 || game.player.best.lap > game.match.lapEnd - game.match.lapStart) game.player.best.lap = game.match.lapEnd - game.match.lapStart
+                game.match.lapStart = ticks;
+            }
+            goal.activeGoal = false;
+            if (game.match.goals.indexOf(goal) == game.match.goalIndex)
+                goal.activeGoal = true;
+            goal.collide([game.player.character, ...game.match.npcs])
+        }
+
+        //Do all collision. It has to be in this order, or else pads/blocks won't activate for players and npcs
         for (const block of game.match.map.blocks) {
-            block.collide([game.player.character, ...game.match.npcs])
+            block.collide([game.player.character, ...game.match.npcs, ...game.match.map.blocks])
         }
         for (const npc of game.match.npcs) {
             npc.collide([game.player.character, ...game.match.npcs, ...game.match.map.blocks])
@@ -110,26 +150,30 @@ function step() {
         for (const block of game.match.map.blocks) {
             block.step();
         }
-
     }
     //Draw game
     draw();
+    ticks++;
 }
 
 function draw() {
     //Clear the canvas 
     ctx.fillStyle = "#333300";
-    ctx.fillRect(0, 0, 1280, 720);
+    ctx.fillRect(0, 0, game.window.w, game.window.h);
 
     //Draw Map
     game.match.map.draw(game.player.character);
-    
-    
+
     //Draw blocks
     for (const block of game.match.map.blocks) {
         block.draw(game.player.character);
     }
-    
+
+    //Draw goals
+    for (const goal of game.match.goals) {
+        goal.draw(game.player.character);
+    }
+
     //Draw npcs
     for (const npc of game.match.npcs) {
         npc.draw(game.player.character);
@@ -203,16 +247,31 @@ function setupInputs() {
         event.stopImmediatePropagation();
         getTouch(event);
     }, { passive: false });
+    window.addEventListener('mousemove', (event) => {
+        let coords = getCanvasRelative(event, true);
+        game.player.controller.aimX = coords.x
+        game.player.controller.aimY = coords.y
+    })
 }
 
-function getCanvasRelative(e) {
+function getCanvasRelative(e, center) {
     // console.log(window.orientation);
     bx = canvas.getBoundingClientRect();
-    return {
-        x: e.clientX - bx.left,
-        y: e.clientY - bx.top,
-        bx: bx
-    };
+    if (center) {
+        let compareX = e.clientX - this.x;
+        let compareY = e.clientY - this.y;
+        return {
+            x: e.clientX - (bx.width / 2),
+            y: e.clientY - (bx.height / 2),
+            bx: bx
+        };
+    } else {
+        return {
+            x: e.clientX - bx.left,
+            y: e.clientY - bx.top,
+            bx: bx
+        };
+    }
 }
 
 function getTouch(event, type) {
@@ -252,19 +311,5 @@ function getTouch(event, type) {
             game.player.controller.upTouch = 0;
             game.player.controller.downTouch = 0;
         }
-    }
-}
-
-function checkIntersection(r1, r2) {
-    if (r1.x > r2.x + r2.width) {
-        return false;
-    } else if (r1.x + r1.width <= r2.x) {
-        return false;
-    } else if (r1.y >= r2.y + r2.height) {
-        return false;
-    } else if (r1.y + r1.height <= r2.y) {
-        return false;
-    } else {
-        return true;
     }
 }

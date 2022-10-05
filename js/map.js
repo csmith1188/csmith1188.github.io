@@ -21,7 +21,4 @@ class Map {
         ctx.drawImage(this.bgimg, (character.x * -1) + game.window.w / 2, (character.y * -1) + game.window.h / 2, this.w, this.h);
         // ctx.drawImage(this.bgimg, (player.x * -1), (player.y * -1), this.w, this.h);
     }
-    // draw(player) {
-
-    // }
 }
