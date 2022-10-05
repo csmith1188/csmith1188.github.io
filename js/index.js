@@ -29,7 +29,7 @@ window.onload = function () {
 
     //Enemy
     // game.match.npcs.push(new Enemy(allID++, 24, 24, game.player.character))
-    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, game.player.character)) //Kevin
+    game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, game.player.character)) //Kevin
     // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 600, (game.match.map.h / 2) - 100, game.player.character))
     // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2) + 200, game.player.character))
     // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 100, (game.match.map.h / 2) + 100, game.player.character))
