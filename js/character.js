@@ -2,6 +2,7 @@ class Character {
     constructor(id, spawnx, spawny) {
         this.id = id;
         this.active = true;
+        this.team = 0;
         //Location
         this.x = spawnx;
         this.y = spawny;
@@ -17,35 +18,52 @@ class Character {
         this.maxSpeed = 8;
         this.speedMulti = 0.25;
         this.frictionMulti = 1;
-        this.brakes = 0.95;
+        this.brakes = 0.5;
         this.lungeSpeed = 5;
         this.lungeCost = 100;
         this.jumpCost = 25;
         this.airtime = 0;
+        this.weight = 1;
         //Stats
         this.hp = 100;
         this.hp_max = 100;
         this.power = 300;
         this.power_max = 300;
+        this.threatMulti = 1;
         //Graphics
         this.img = new Image();
-        this.rightgfx = 'img/sprites/jetbike.png';
-        this.leftgfx = 'img/sprites/jetbike_l.png';
-        this.img.src = this.rightgfx
+        this.gfx = 'img/sprites/jetbike';
+        this.leftgfx = 'img/sprites/jetbike_l';
+        this.img.src = this.gfx + '.png'
         this.bot = false;
         this.tags = [];
+        //SFX
+        this.touchSFX = new Audio('sfx/hardhit_01.wav');
+        this.jumpSFX = new Audio('sfx/jump_01.wav');
+        this.lungeSFX = new Audio('sfx/pup_01.wav');
+        this.brakeSFX = new Audio('sfx/exp_01.wav');
+        //Misc?
+        this.lastColBlock = null;
+        this.lastColNPC = null;
     }
 
     step(controller) {
         if (this.active) {
             if (this.power < this.power_max) this.power++;
+            //Wind
+            this.xspeed += game.match.map.xwind * (1 - this.weight);
+            this.yspeed += game.match.map.ywind * (1 - this.weight);
+            this.zspeed += game.match.map.zwind * (1 - this.weight);
             // Friction
             this.xspeed *= game.match.map.friction * this.frictionMulti;
             this.yspeed *= game.match.map.friction * this.frictionMulti;
             if (this.z > 0) {
                 this.zspeed -= game.match.map.gravity;
-                this.airtime++;
-                if (game.player.best.airtime < this.airtime) game.player.best.airtime = this.airtime
+                // High Score Tracking
+                if (!this.bot) {
+                    this.airtime++;
+                    if (game.player.best.airtime < this.airtime) game.player.best.airtime = this.airtime
+                }
             } else {
                 this.airtime = 0;
             }
@@ -68,16 +86,21 @@ class Character {
             this.y += this.yspeed;
             // Gravity
             this.z += this.zspeed;
+            if (this.zspeed > 5)
+                if (this.jumpSFX.duration <= 0 || this.jumpSFX.paused)
+                    this.jumpSFX.play();
             if (this.z < this.hover * -1) {
                 this.z = this.hover * -1;
                 this.zspeed *= -1;
+                this.xspeed *= 0.85;
+                this.yspeed *= 0.85;
                 if (game.debug) game.match.map.blocks.push(new Block(this.x, this.y, { color: '#0000FF', tags: ['immobile', 'nocollide'] }))
+                game.match.map.blocks.push(new Block(this.x, this.y, { color: '#0000FF', tags: ['immobile', 'nocollide'] }))
+
             }
             // Break your records!
-            if (game.player.best.air < this.z) game.player.best.air = this.z
-            if (game.player.best.speed < (Math.abs(this.xspeed) + Math.abs(this.xspeed)) / 2) game.player.best.speed = (Math.abs(this.xspeed) + Math.abs(this.xspeed)) / 2
-
-
+            if (!this.bot && game.player.best.air < this.z) game.player.best.air = this.z
+            if (!this.bot && game.player.best.speed < (Math.abs(this.xspeed) + Math.abs(this.xspeed)) / 2) game.player.best.speed = (Math.abs(this.xspeed) + Math.abs(this.xspeed)) / 2
 
             // Check for out of bounds
             if (this.x + (this.w / 2) > game.match.map.w) {
@@ -114,11 +137,15 @@ class Character {
 
     userInput(controller) {
         // Brakes
-        this.xspeed *= ((controller.shift) ? this.brakes : 1)
-        this.yspeed *= ((controller.shift) ? this.brakes : 1)
+        if (controller.shift) this.zspeed -= this.brakes * 3;
+        if (controller.shift)
+            // if (this.brakeSFX.duration <= 0 || this.brakeSFX.paused)
+            this.brakeSFX.play();
         // Lunge
         if (controller.alt.current != controller.alt.last && this.power >= this.lungeCost) {
             if (controller.alt.current) {
+                if (this.lungeSFX.duration <= 0 || this.lungeSFX.paused)
+                    this.lungeSFX.play();
                 if (controller.right) this.xspeed += this.lungeSpeed;
                 if (controller.left) this.xspeed -= this.lungeSpeed;
                 if (controller.down) this.yspeed += this.lungeSpeed;
@@ -138,8 +165,8 @@ class Character {
         if (controller.up && this.yspeed > this.maxSpeed * -1) this.yspeed -= controller.up * this.speedMulti;
         else if (controller.down && this.yspeed < this.maxSpeed) this.yspeed += controller.down * this.speedMulti;
         // Change the graphics based on direction
-        if (controller.left < controller.right) this.img.src = this.rightgfx;
-        if (controller.left > controller.right) this.img.src = this.leftgfx;
+        if (controller.left < controller.right) this.img.src = this.gfx + '.png';
+        if (controller.left > controller.right) this.img.src = this.leftgfx + '.png';
     }
 
     draw() {
@@ -149,18 +176,31 @@ class Character {
             ctx.fillStyle = "#000000";
             ctx.fillRect((game.window.w / 2) - 2, (game.window.h / 2) - 2, 4, 4);
         } else {
-            ctx.drawImage(this.img, (game.window.w / 2) - (this.w / 2), (game.window.h / 2) - (this.h / 2) - this.z, this.w, this.h);
+            let compareX = game.player.camera.x - this.x;
+            let compareY = game.player.camera.y - this.y;
+            ctx.drawImage(this.img, game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2) - this.z, this.w, this.h);
+
         }
     }
 
     collide(colliders) {
         for (const c of colliders) {
             if (c != this) {
-                //Math.abs(this.x - c.x) < this.w && Math.abs(this.y - c.y) < this.h && this.z < c.d && c.z < this.d
                 if (Math.abs(this.x - c.x) < this.w / 2 + (c.w / 2) && Math.abs(this.y - c.y) < this.h / 2 + (c.h / 2) && this.z < c.d && c.z < this.d) {
+                    // THERE WAS A COLLISION!
+                    // Remember the things you collided with
+                    if (c.team !== undefined) this.lastColNPC = c; //Only npcs have teams
+                    else if (!c.tags.includes('debris')) this.lastColBlock = c;
                     let compareY = c.y - this.y;
                     let compareX = c.x - this.x;
                     if (!c.tags.includes('nocollide')) {
+                        // Volume by distance
+                        let calcSound = 1; //Couldn't figure it out. Plz help my poor ears
+                        if (calcSound > 0) {
+                            this.touchSFX.volume = calcSound;
+                            this.touchSFX.play();
+                        }
+                        //Direction hit
                         if (Math.abs(compareX) > Math.abs(compareY)) { //side hit
                             if (this.x > c.x) this.x = c.x + c.w + 1;
                             else this.x = c.x - (this.w / 2) - (c.w / 2) - 1;
@@ -190,6 +230,7 @@ class Character {
                             if (!c.tags.includes('nobounce'))
                                 this.yspeed *= -1;
                         }
+                        // NEEDS TOP HIT!
                     }
                 }
             }
@@ -204,42 +245,80 @@ class Character {
 // Boost or shoot if you can draw a straight line with no collision
 
 class Enemy extends Character {
-    constructor(id, spawnx, spawny, target) {
+    constructor(id, spawnx, spawny, options) {
         super(id, spawnx, spawny);
+        this.team = 1;
+        this.formationRange = 0;
+        this.nameTag = '';
         this.bot = true;
-        this.target = target;
+        this.target = null;
         this.hp = 100;
         this.hp_max = 100;
         // Less friction means more speed and less control
         this.frictionMulti = Math.random() * 0.1
         this.speedMulti = 0.65 - (this.frictionMulti * 3);
         this.frictionMulti += 0.9;
-        console.log(this.frictionMulti);
-        this.rightgfx = 'img/sprites/dark1.png';
-        this.leftgfx = 'img/sprites/dark1_l.png';
+        this.gfx = 'img/sprites/dark1';
         this.hud = {
             barW: 48
         }
+        if (typeof options === 'object')
+            for (var key of Object.keys(options)) {
+                this[key] = options[key];
+            }
+        this.leftgfx = this.gfx + '_l'; // Set this after options so you only have to set gfx
+        this.img.src = this.gfx
     }
 
     AI() {
-        let compareX = this.target.x - this.x;
-        let compareY = this.target.y - this.y;
-        if (compareX > 0 && this.xspeed < this.maxSpeed) {
-            this.xspeed += this.speedMulti;
-            this.img.src = this.rightgfx;
+        if (this.target) {
+            if (Math.abs(this.x - this.target.x) < this.w / 2 + (this.target.w / 2) + this.formationRange && Math.abs(this.y - this.target.y) < this.h / 2 + (this.target.h / 2) + this.formationRange && this.z < this.target.d && this.target.z < this.d) {
+                //Already there
+            } else {
+                let compareX = this.target.x - this.x;
+                let compareY = this.target.y - this.y;
+                if (compareX > 0 && this.xspeed < this.maxSpeed) {
+                    this.xspeed += this.speedMulti;
+                    this.img.src = this.gfx + '.png';
+                }
+                else if (compareX <= 0 && this.xspeed > this.maxSpeed * -1) {
+                    this.xspeed -= this.speedMulti;
+                    this.img.src = this.leftgfx + '.png';
+                }
+                if (compareY < 0 && this.yspeed > this.maxSpeed * -1) this.yspeed -= this.speedMulti;
+                else if (compareY >= 0 && this.yspeed < this.maxSpeed) this.yspeed += this.speedMulti;
+            }
+
+            if (this.target.team !== undefined) {
+                if (this.target.team == this.team) this.formationRange = 100;
+                else this.formationRange = 0;
+                //The player can never receive a lastCOLNPC because the npc always hits first. this is also why kevin hits so hard
+                // console.log(this.target);
+                if (this.target.lastColNPC)
+                    if (this.target.lastColNPC.team != this.team)
+                        this.target = this.target.lastColNPC;
+            }
+
+            if (!this.target.active) {
+                this.target = null;
+                if (game.player.character.team != this.team && !game.player.character.active) {
+                    this.target = game.player.character;
+                } else {
+                    for (const npc of game.match.npcs) {
+                        if (npc.active && npc.team != this.team) {
+                            this.target = npc
+                        }
+                    }
+                    if (!this.target) this.target = game.match.goals[0];
+                    if (!this.target) this.target = this;
+                }
+            }
         }
-        else if (compareX <= 0 && this.xspeed > this.maxSpeed * -1) {
-            this.xspeed -= this.speedMulti;
-            this.img.src = this.leftgfx;
-        }
-        if (compareY < 0 && this.yspeed > this.maxSpeed * -1) this.yspeed -= this.speedMulti;
-        else if (compareY >= 0 && this.yspeed < this.maxSpeed) this.yspeed += this.speedMulti;
     }
 
     draw() {
-        let compareY = game.player.character.y - this.y;
-        let compareX = game.player.character.x - this.x;
+        let compareY = game.player.camera.y - this.y;
+        let compareX = game.player.camera.x - this.x;
         if (game.debug) {
             ctx.fillStyle = "#00FF00";
             ctx.fillRect(game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2), this.w, this.h);
@@ -266,7 +345,11 @@ class Enemy extends Character {
             ctx.fillStyle = "#FF0000";
         }
         ctx.fillRect(game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY + (this.h / 2) - this.z, healthBar, 4);
-
+        if (this.nameTag) {
+            ctx.fillStyle = "#000000";
+            ctx.font = '15px consolas';
+            ctx.fillText(this.nameTag, game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY + (this.h / 2) - this.z + 15);
+        }
     }
 
 }

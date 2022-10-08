@@ -9,11 +9,21 @@ let allID = 0;
 let ticks = 0;
 
 
+/*
+..######..########.########.##.....##.########.
+.##....##.##..........##....##.....##.##.....##
+.##.......##..........##....##.....##.##.....##
+..######..######......##....##.....##.########.
+.......##.##..........##....##.....##.##.......
+.##....##.##..........##....##.....##.##.......
+..######..########....##.....#######..##.......
+*/
+
 window.onload = function () {
     canvas = document.getElementById("game-canvas");
     ctx = canvas.getContext("2d");
 
-    setupInputs()
+    setupInputs();
 
     //Game
     game = new Game();
@@ -25,16 +35,13 @@ window.onload = function () {
     //Player
     game.player = new Player();
     game.player.controller = new Controller();
-    game.player.character = new Character(allID++, (game.match.map.w / 2) + 24, (game.match.map.h / 2) - 1000);
+    game.player.character = new Character(allID++, (game.match.map.w / 2), (game.match.map.h / 2));
+    game.player.camera = new Camera({ target: game.player.character });
 
     //Enemy
-    // game.match.npcs.push(new Enemy(allID++, 24, 24, game.player.character))
-    game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, game.player.character)) //Kevin
-    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 600, (game.match.map.h / 2) - 100, game.player.character))
-    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2) + 200, game.player.character))
-    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 100, (game.match.map.h / 2) + 100, game.player.character))
-
-
+    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, {target: game.player.character, nameTag: 'Kevin', gfx: 'img/sprites/dark2'})) //Kevin
+    // game.player.camera.target = game.match.npcs[game.match.npcs.length-1] //Kevin-vision
+    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) + 500, {target: game.match.npcs[game.match.npcs.length-1], nameTag: 'Fren', team: 0})) //Anti-Kevin
 
     //Blocks
     // game.match.map.blocks.push(new Block(allID++, (game.match.map.w / 2) + 100, (game.match.map.h / 2), {color: '#0000FF'}))
@@ -43,63 +50,76 @@ window.onload = function () {
     // game.match.map.blocks.push(new HealthBlock(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2) + 500, {color: '#990000', healthCollide: 2}))
     // game.match.map.blocks.push(new HealthBlock(allID++, (game.match.map.w / 2) + 200, (game.match.map.h / 2) + 200, {color: '#996666', healthCollide: 20, tags: ['immobile']}))
     // game.match.map.blocks.push(new HealthBlock(allID++, (game.match.map.w / 2) + 200, (game.match.map.h / 2) + 200, { color: '#66FF66', healthCollide: -1 }))
-    game.match.map.blocks.push(new Wave(allID++, 0, (game.match.map.h / 2), { color: '#aaaaFF', w: 48, h: 288 }))
+    game.match.map.blocks.push(new Wave(allID++, 0, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: 288, xspeed: 4, dxspeed: 4, crest: 50 }))
+    // Speed Strip
     // for (let i = 0; i < game.match.map.w / 48; i++) {
     //     game.match.map.blocks.push(new SpeedPad(allID++, (i * 48 * 10) + 24, (game.match.map.h / 2), { color: '#0066FF' }))
     // }
+    //Ball
+    // game.match.map.blocks.push(new Ball(allID++, (game.match.map.w / 2) - 200, (game.match.map.h / 2) + 200, { color: '#FFFFFF' }))
 
-    game.match.map.blocks.push(new Ball(allID++, (game.match.map.w / 2) - 200, (game.match.map.h / 2) + 200, { color: '#FFFFFF' }))
+    //Debris
+    // for (let i = 0; i < 1000; i++) {
+    //     let tempx = Math.floor(Math.random() * game.match.map.w);
+    //     let tempy = Math.floor(Math.random() * game.match.map.h);
+    //     let tempt = Math.floor(Math.random() * 2000);
+    //     game.match.map.debris.push(new Debris(allID++, tempx, tempy, { imgFile: 'img/sprites/leaf1.png', w: 12, h: 12, z: tempt }));
+    // }
+    // game.match.map.debris.push(new Debris(allID++, (game.match.map.w / 2), (game.match.map.h / 2), { imgFile: 'img/sprites/leaf1.png', w: 12, h: 12, z: 100 }));
 
+    // Race Track
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 24, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1250, (game.match.map.h / 2) - 500, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2), { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1250, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2), (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1250, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2), { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1250, (game.match.map.h / 2) - 500, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
+    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 24, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
 
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 24, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1250, (game.match.map.h / 2) - 500, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2), { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1250, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2), (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1250, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2), { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1250, (game.match.map.h / 2) - 500, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 24, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
-    game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2), game.match.goals[0])) //racer
+    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2), {target: game.match.goals[0], nameTag: 'Rais', team: 0, gfx: 'img/sprites/dark1'})) //racer
+    
+    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 1000, {target: game.player.character, nameTag: 'Rais', team: 0, gfx: 'img/sprites/dark1'})) //racer
 
+    // game.player.camera.target = game.match.npcs[game.match.npcs.length-1] //race-vision
 
-    for (let i = 0; i < 100; i++) {
-        let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
-        let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
-        let tempw = (Math.ceil(Math.random() * 2) * 48)
-        let temph = (Math.ceil(Math.random() * 2) * 48)
-        game.match.map.blocks.push(new Block(allID++, tempx, tempy, {color: '#333333', w: tempw, h: temph}))
-    }
-    for (let i = 0; i < 25; i++) {
-        let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
-        let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
-        game.match.map.blocks.push(new JumpPad(allID++, tempx, tempy, {color: '#FF6600'}))
-    }
-    for (let i = 0; i < 25; i++) {
-        let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
-        let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
-        game.match.map.blocks.push(new SpeedPad(allID++, tempx, tempy, {color: '#9999FF'}))
-    }
-    for (let i = 0; i < 10; i++) {
-        let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
-        let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
-        game.match.map.blocks.push(new HealthBlock(allID++, tempx, tempy, {color: '#660000', healthCollide: -2}))
-    }
-    for (let i = 0; i < 20; i++) {
-        let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
-        let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
-        game.match.map.blocks.push(new HealthBlock(allID++, tempx, tempy, {color: '#006600', healthCollide: 1, powerCollide: 2}))
-    }
-
-
+    // Random Map
+    // for (let i = 0; i < 100; i++) {
+    //     let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+    //     let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+    //     let tempw = (Math.ceil(Math.random() * 2) * 48)
+    //     let temph = (Math.ceil(Math.random() * 2) * 48)
+    //     game.match.map.blocks.push(new Block(allID++, tempx, tempy, {color: '#333333', w: tempw, h: temph}))
+    // }
+    // for (let i = 0; i < 25; i++) {
+    //     let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+    //     let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+    //     game.match.map.blocks.push(new JumpPad(allID++, tempx, tempy, {color: '#FF6600'}))
+    // }
+    // for (let i = 0; i < 25; i++) {
+    //     let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+    //     let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+    //     game.match.map.blocks.push(new SpeedPad(allID++, tempx, tempy, {color: '#9999FF'}))
+    // }
+    // for (let i = 0; i < 10; i++) {
+    //     let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+    //     let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+    //     game.match.map.blocks.push(new HealthBlock(allID++, tempx, tempy, {color: '#660000', healthCollide: -2}))
+    // }
+    // for (let i = 0; i < 20; i++) {
+    //     let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+    //     let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+    //     game.match.map.blocks.push(new HealthBlock(allID++, tempx, tempy, {color: '#006600', healthCollide: 1, powerCollide: 2}))
+    // }
 
     //start game loop
     //Run the step() function every 16ms (60fps)
@@ -109,7 +129,18 @@ window.onload = function () {
 
 }
 
+/*
+..######..########.########.########.
+.##....##....##....##.......##.....##
+.##..........##....##.......##.....##
+..######.....##....######...########.
+.......##....##....##.......##.......
+.##....##....##....##.......##.......
+..######.....##....########.##.......
+*/
+
 function step() {
+
     // Resize screen if needed
     // if (window.innerWidth < game.window.dw) {
     //     game.window.w = window.innerWidth;
@@ -135,7 +166,7 @@ function step() {
             if (game.match.goalIndex >= game.match.goals.length) {
                 game.match.goalIndex = 0;
                 game.match.lapEnd = ticks;
-                if (game.player.best.lap == 0 || game.player.best.lap > game.match.lapEnd - game.match.lapStart) game.player.best.lap = game.match.lapEnd - game.match.lapStart
+                if (game.player.best.lap == 0 || game.player.best.lap > game.match.lapEnd - game.match.lapStart) game.player.best.lap = game.match.lapEnd - game.match.lapStart;
                 game.match.lapStart = ticks;
             }
             goal.activeGoal = false;
@@ -148,10 +179,13 @@ function step() {
         for (const block of game.match.map.blocks) {
             block.collide([game.player.character, ...game.match.npcs, ...game.match.map.blocks])
         }
-        for (const npc of game.match.npcs) {
-            npc.collide([game.player.character, ...game.match.npcs, ...game.match.map.blocks])
+        for (const debris of game.match.map.debris) {
+            debris.collide([game.player.character, ...game.match.npcs, ...game.match.map.debris])
         }
-        game.player.character.collide([...game.match.npcs, ...game.match.map.blocks])
+        game.player.character.collide([...game.match.npcs, ...game.match.map.blocks, ...game.match.map.debris])
+        for (const npc of game.match.npcs) {
+            npc.collide([game.player.character, ...game.match.npcs, ...game.match.map.blocks, ...game.match.map.debris])
+        }
 
         //Do all steps and movement
         game.player.controller.read();
@@ -162,11 +196,35 @@ function step() {
         for (const block of game.match.map.blocks) {
             block.step();
         }
+        for (const debris of game.match.map.debris) {
+            if (debris.active) {
+                debris.step();
+            } else {
+                //Remove it from this list
+            }
+        }
     }
+
+    //Update Camera Position
+    if (game.player.camera.target) {
+        game.player.camera.x = game.player.camera.target.x;
+        game.player.camera.y = game.player.camera.target.y;
+    }
+
     //Draw game
     draw();
     ticks++;
 }
+
+/*
+.########..########.....###....##......##
+.##.....##.##.....##...##.##...##..##..##
+.##.....##.##.....##..##...##..##..##..##
+.##.....##.########..##.....##.##..##..##
+.##.....##.##...##...#########.##..##..##
+.##.....##.##....##..##.....##.##..##..##
+.########..##.....##.##.....##..###..###.
+*/
 
 function draw() {
     //Clear the canvas 
@@ -176,15 +234,21 @@ function draw() {
     //Draw Map
     game.match.map.draw(game.player.character);
 
+    //Draw goals
+    for (const goal of game.match.goals) {
+        goal.draw(game.player.character);
+    }
+
     //Draw blocks
     for (const block of game.match.map.blocks) {
         block.draw(game.player.character);
     }
 
-    //Draw goals
-    for (const goal of game.match.goals) {
-        goal.draw(game.player.character);
+    //Draw debris
+    for (const debris of game.match.map.debris) {
+        debris.draw(game.player.character);
     }
+
 
     //Draw npcs
     for (const npc of game.match.npcs) {
@@ -194,12 +258,25 @@ function draw() {
     //Draw player
     game.player.character.draw();
 
+    //Draw Map Lighting
+    game.match.map.lighting();
+
     //Draw HUD
     game.player.drawHUD();
 
     //Draw Controller HUD
     game.player.controller.draw();
 }
+
+/*
+.####.##....##.########..##.....##.########..######.
+..##..###...##.##.....##.##.....##....##....##....##
+..##..####..##.##.....##.##.....##....##....##......
+..##..##.##.##.########..##.....##....##.....######.
+..##..##..####.##........##.....##....##..........##
+..##..##...###.##........##.....##....##....##....##
+.####.##....##.##.........#######.....##.....######.
+*/
 
 function setupInputs() {
     document.addEventListener("keydown", function (event) {
@@ -228,11 +305,11 @@ function setupInputs() {
         if (event.key.toLocaleLowerCase() === " ") game.player.controller.spaceKey = 0;
     });
     window.addEventListener('gamepadconnected', (event) => {
-        // if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
+        if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
             game.player.controller.gamePad = event.gamepad.index;
     });
     window.addEventListener('gamepaddisconnected', (event) => {
-        // if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
+        if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
             game.player.controller.gamePad = null;
     });
     window.addEventListener('touchstart', (event) => {
@@ -285,6 +362,17 @@ function getCanvasRelative(e, center) {
         };
     }
 }
+
+
+/*
+ ########  #######  ##     ##  ######  ##     ##
+    ##    ##     ## ##     ## ##    ## ##     ##
+    ##    ##     ## ##     ## ##       ##     ##
+    ##    ##     ## ##     ## ##       #########
+    ##    ##     ## ##     ## ##       ##     ##
+    ##    ##     ## ##     ## ##    ## ##     ##
+    ##     #######   #######   ######  ##     ##
+*/
 
 function getTouch(event, type) {
     if (event.target == canvas) {

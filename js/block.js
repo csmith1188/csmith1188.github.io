@@ -5,32 +5,38 @@
 class Block {
     constructor(id, x, y, options) {
         this.id = id;
+        this.active = true;
         this.x = x;
         this.y = y;
         this.z = 0;
         this.w = 48;
         this.h = 48;
         this.d = 16;
+        this.shadow = 0;
         this.type = 'block';
         this.imgFile = '';  // Leave blank to add collision to a background
         this.color = '';    // Leave blank to add collision to a background
         this.img = new Image();
         this.img.src = this.imgFile;
         this.tags = ['immobile'];
+        this.runFunc = function () { return }
         if (typeof options === 'object')
             for (var key of Object.keys(options)) {
                 this[key] = options[key];
             }
+        this.img.src = this.imgFile;
     }
 
     step() {
-        return
+        this.runFunc()
     }
 
-    draw(camera, options) {
-        if (this.color || this.imgFile) {
-            let compareY = camera.y - this.y;
-            let compareX = camera.x - this.x;
+    draw(options) {
+        let compareY = game.player.camera.y - this.y;
+        let compareX = game.player.camera.x - this.x;
+        if (this.imgFile) {
+            ctx.drawImage(this.img, game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2) - this.z, this.w, this.h);
+        } else if (this.color) {
             if (game.debug) {
                 ctx.fillStyle = "#00FF00";
                 ctx.fillRect(game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2), this.w, this.h);
@@ -58,9 +64,9 @@ class Goal extends Block {
     constructor(id, x, y, options) {
         super(id, x, y, options);
         this.tags = ['immobile', 'nocollide']; //Made it nocollide so you can enter the space
-        this.active = true;
         this.activeGoal = false;
         this.type = 'goal';
+        this.touchSFX = new Audio('sfx/coin_01.wav');
     }
 
     collide(colliders, options) {
@@ -69,8 +75,10 @@ class Goal extends Block {
             if (c != this) {
                 //Goals collide infinitely upwards
                 if (Math.abs(this.x - c.x) < this.w / 2 + (c.w / 2) && Math.abs(this.y - c.y) < this.h / 2 + (c.h / 2)) {
-                    if (this.activeGoal && !c.bot) game.match.goalIndex++;
-                    else
+                    if (this.activeGoal && !c.bot) {
+                        game.match.goalIndex++;
+                        this.touchSFX.play();
+                    } else
                         if (this == c.target) {
                             if (game.match.goals.indexOf(this) + 1 >= game.match.goals.length)
                                 c.target = game.match.goals[0]
@@ -87,7 +95,6 @@ class Ball extends Block {
     constructor(id, x, y, options) {
         super(id, x, y, options);
         this.tags = ['nodamage']; //Made it nocollide so you can enter the space
-        this.active = true;
         this.type = 'ball';
         this.xspeed = 0;
         this.yspeed = 0;
@@ -169,16 +176,18 @@ class JumpPad extends Block {
     }
 }
 
-class Wave extends JumpPad {
+class Wave extends Block {
     constructor(id, x, y, options) {
         super(id, x, y, options);
+        this.tags = ['immobile', 'nocollide']; //Made it nocollide so you can enter the space
         this.xspeed = 4;
         this.yspeed = 0; //Change this if you want the wave to fall off the map -_-
         this.dxspeed = 4;
         this.dyspeed = 0; //Change this if you want the wave to fall off the map -_-
-        this.active = true;
         this.speedChange = false; //Can the speed of this be changed?
-        this.jumpBoost = 3;
+        this.crest = 0;
+        this.zforce = 1.5;
+        this.xyforce = 0.01;
     }
 
     step() {
@@ -194,6 +203,62 @@ class Wave extends JumpPad {
             if (this.xspeed < 0 && Math.abs(this.xspeed) != Math.abs(this.dxspeed)) this.xspeed = this.dxspeed * -1;
         }
     }
+
+    collide(colliders, options) {
+        // custom collide code "activates" the powerup
+        for (const c of colliders) {
+            if (c != this) {
+                if (Math.abs(this.x - c.x) < this.w / 2 + (c.w / 2) && Math.abs(this.y - c.y) < this.h / 2 + (c.h / 2) && this.z < c.d && c.z < this.d) {
+                    let compareX = c.x - this.x;
+                    let compareY = c.y - this.y;
+                    let xpeak = 1 - Math.abs(compareX) / (this.w / 2);
+                    let ypeak = 1 - Math.abs(compareY) / (this.h / 2);
+                    //Same direction
+                    if ((c.xspeed >= 0 && this.xspeed >= 0) || (c.xspeed < 0 && this.xspeed < 0))
+                        c.zspeed += Math.abs(this.zforce * xpeak) * Math.abs(c.xspeed)
+                    //Opposite
+                    else if ((c.xspeed >= 0 && this.xspeed < 0) || (c.xspeed < 0 && this.xspeed >= 0))
+                        c.zspeed += Math.abs(this.zforce * xpeak) * Math.abs(c.xspeed) * 2
+                    // c.yspeed += this.yspeed * this.xyforce * ypeak
+                    c.xspeed += this.xspeed * this.xyforce * xpeak * 2
+                    //Same direction
+                    if ((c.yspeed >= 0 && this.yspeed >= 0) || (c.yspeed < 0 && this.yspeed < 0))
+                        c.zspeed += Math.abs(this.zforce * ypeak) * Math.abs(c.yspeed)
+                    //Opposite
+                    else if ((c.yspeed >= 0 && this.yspeed < 0) || (c.yspeed < 0 && this.yspeed >= 0))
+                        c.zspeed += Math.abs(this.zforce * ypeak) * Math.abs(c.yspeed) * 2
+                    // c.yspeed += this.yspeed * this.xyforce * ypeak
+                    c.yspeed += this.yspeed * this.xyforce * xpeak * 2
+                    console.log(c.xspeed, c.yspeed, c.zspeed);
+
+                }
+            }
+        }
+    }
+
+    draw(options) {
+        let compareY = game.player.camera.y - this.y;
+        let compareX = game.player.camera.x - this.x;
+        if (this.imgFile) {
+            ctx.drawImage(this.img, game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2) - this.z, this.w, this.h);
+        } else if (this.color) {
+            if (game.debug) {
+                ctx.fillStyle = "#00FF00";
+                ctx.fillRect(game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2), this.w, this.h);
+                ctx.fillStyle = "#000000";
+                ctx.fillRect(game.window.w / 2 - compareX - 2, game.window.h / 2 - compareY - 2, 4, 4);
+            } else {
+                if (this.activeGoal) {
+                    ctx.fillStyle = this.colorActive;
+                    ctx.fillRect(game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2), this.w, this.h);
+                } else {
+                    ctx.fillStyle = this.color;
+                    ctx.fillRect(game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2), this.w, this.h);
+                }
+            }
+        }
+    }
+
 }
 
 class SpeedPad extends Block {
@@ -205,7 +270,7 @@ class SpeedPad extends Block {
     collide(colliders, options) {
         // custom collide code "activates" the powerup
         for (const c of colliders) {
-            if (c != this) {
+            if (c != c.team != undefined) {
                 if (Math.abs(this.x - c.x) < this.w / 2 + (c.w / 2) && Math.abs(this.y - c.y) < this.h / 2 + (c.h / 2) && this.z < c.d && c.z < this.d) {
                     c.xspeed *= 1.1
                     c.yspeed *= 1.1
@@ -240,13 +305,102 @@ class HealthBlock extends Block {
     }
 }
 
+class Debris extends Block {
+    constructor(id, x, y, options) {
+        super(id, x, y, options);
+        this.tags = ['nocollide', 'immobile', 'debris'];
+        this.z = 0;
+        this.xspeed = 0;
+        this.yspeed = 0;
+        this.zspeed = 0;
+        this.dxspeed = 0;
+        this.dyspeed = 0;
+        this.hover = 0;
+        this.weight = 0.01;
+        this.livetime = -1;
+        this.gravity = true;
+        this.landed = true;
+        this.wind = true;
+        this.contained = false; //Cannot leave the map boundaries
+        this.jetphys = false; //Can the speed of this be changed?
+        this.speedChange = true; //Can this have its speed changed from dspeed?
+        if (typeof options === 'object')
+            for (var key of Object.keys(options)) {
+                this[key] = options[key];
+            }
+        this.img.src = this.imgFile;
+    }
+
+    step() {
+        if (this.livetime-- == 0) {
+            this.active = false;
+            return
+        }
+
+        if (this.active) {
+            //Wind
+            if (this.wind) {
+                this.xspeed += game.match.map.xwind * (1 - this.weight);
+                this.yspeed += game.match.map.ywind * (1 - this.weight);
+                this.zspeed += game.match.map.zwind * (1 - this.weight);
+            }
+            if (this.jetphys) {
+                this.xspeed *= game.match.map.friction * this.weight;
+                this.yspeed *= game.match.map.friction * this.weight;
+            }
+
+            // Gravity is true or false ( * 0 or * 1)
+            if (this.z > 0) this.zspeed -= game.match.map.gravity * this.weight * Number(this.gravity);
+
+            this.x += this.xspeed;
+            this.y += this.yspeed;
+            this.z += this.zspeed;
+
+
+            if (this.z < this.hover * -1) {
+                this.z = this.hover * -1;
+                this.zspeed *= -1 * this.weight;
+                this.xspeed *= 0.85;
+                this.yspeed *= 0.85;
+                if (game.debug) game.match.map.blocks.push(new Block(this.x, this.y, { color: '#0000FF', tags: ['immobile', 'nocollide'] }))
+            }
+
+            if (this.contained) {
+                if (this.x > game.match.map.w) this.xspeed *= -1;
+                if (this.x < 0) this.xspeed *= -1;
+                if (this.y > game.match.map.h) this.xspeed *= -1;
+                if (this.y < 0) this.xspeed *= -1;
+            }
+
+            //Reset speed changes
+            if (!this.speedChange) {
+                if (this.xspeed > 0 && Math.abs(this.xspeed) != Math.abs(this.dxspeed)) this.xspeed = this.dxspeed;
+                if (this.xspeed < 0 && Math.abs(this.xspeed) != Math.abs(this.dxspeed)) this.xspeed = this.dxspeed * -1;
+            }
+        }
+    }
+
+    collide(colliders, options) {
+        // can be blown around
+        for (const c of colliders) {
+            if (c != this && c.team != undefined) {
+                if (Math.abs(this.x - c.x) < this.w / 2 + (c.w / 2) && Math.abs(this.y - c.y) < this.h / 2 + (c.h / 2) && this.z < c.d && c.z < this.d) {
+                    this.xspeed += c.xspeed * this.weight;
+                    this.yspeed += c.yspeed * this.weight;
+                    this.zspeed += c.zspeed * this.weight;
+                }
+            }
+        }
+    }
+
+}
+
 // class HealthItem extends Block {
 //     constructor(id, x, y, options) {
 //         super(id, x, y, options);
 //         this.tags = ['immobile', 'nocollide']; //Made it nocollide so you can enter the space
 //         this.healing = 50;
 //     }
-
 //     collide(colliders, options) {
 //         // custom collide code "activates" the powerup
 //         for (const c of colliders) {
