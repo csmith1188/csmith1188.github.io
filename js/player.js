@@ -55,6 +55,7 @@ class Player {
         ctx.fillText("Airtime: " + game.player.best.airtime, 10, 35);
         ctx.fillText("Speed:   " + game.player.best.speed, 10, 50);
         ctx.fillText("Lap:     " + game.player.best.lap, 10, 65);
+        ctx.fillText("Damage:  " + game.player.best.damage, 10, 80);
 
         // Map locators
         ctx.fillStyle = "#FF0000";

@@ -306,6 +306,7 @@ class Character {
                             this.touchSFX.volume = calcSound;
                             this.touchSFX.play();
                         }
+                        let damCalc = 0;
                         //Direction hit
                         if (Math.abs(compareX) > Math.abs(compareY)) { //side hit
                             if (this.x > c.x) this.x = c.x + c.w + 1;
@@ -314,29 +315,38 @@ class Character {
                                 if (!c.tags.includes('nodamage'))
                                     this.hp -= Math.abs(this.xspeed);
                             } else {
-                                if (Math.abs(this.xspeed) > game.match.map.collideDamageSpeed) c.hp -= Math.abs(this.xspeed);
+                                if (Math.abs(this.xspeed) > game.match.map.collideDamageSpeed) {
+                                    c.hp -= Math.abs(this.xspeed);
+                                    damCalc += Math.abs(this.xspeed);
+                                }
                                 if (Math.abs(c.xspeed) > game.match.map.collideDamageSpeed) this.hp -= Math.abs(c.xspeed);
                                 c.xspeed *= -1;
                                 c.xspeed += this.xspeed;
                             }
                             if (!c.tags.includes('nobounce'))
-                                this.xspeed *= -1;
+                            this.xspeed *= -1;
                         } else { //top/bottom hit
                             if (this.y > c.y) this.y = c.y + c.h + 1;
                             else this.y = c.y - (this.h / 2) - (c.h / 2) - 1;
                             if (c.tags.includes('immobile')) {
                                 if (!c.tags.includes('nodamage'))
-                                    this.hp -= Math.abs(this.yspeed);
+                                this.hp -= Math.abs(this.yspeed);
                             } else {
-                                if (Math.abs(this.yspeed) > game.match.map.collideDamageSpeed) c.hp -= Math.abs(this.yspeed);
+                                if (Math.abs(this.yspeed) > game.match.map.collideDamageSpeed) {
+                                    c.hp -= Math.abs(this.yspeed);
+                                    damCalc += Math.abs(this.yspeed);
+                                }
                                 if (Math.abs(c.yspeed) > game.match.map.collideDamageSpeed) this.hp -= Math.abs(c.yspeed);
                                 c.yspeed *= -1;
                                 c.yspeed += this.yspeed;
                             }
                             if (!c.tags.includes('nobounce'))
-                                this.yspeed *= -1;
+                            this.yspeed *= -1;
                         }
                         // NEEDS TOP HIT! Goomba stomp style
+                        console.log(damCalc);
+                        if (!this.bot)
+                        if (game.player.best.damage < damCalc) game.player.best.damage = damCalc
                     }
                 }
             }
@@ -346,8 +356,8 @@ class Character {
 
 
 /*
-      :::::::::: ::::    ::: ::::::::::   :::   :::  :::   :::
-     :+:        :+:+:   :+: :+:         :+:+: :+:+: :+:   :+:
+:::::::::: ::::    ::: ::::::::::   :::   :::  :::   :::
+:+:        :+:+:   :+: :+:         :+:+: :+:+: :+:   :+:
     +:+        :+:+:+  +:+ +:+        +:+ +:+:+ +:+ +:+ +:+
    +#++:++#   +#+ +:+ +#+ +#++:++#   +#+  +:+  +#+  +#++:
   +#+        +#+  +#+#+# +#+        +#+       +#+   +#+
@@ -397,7 +407,6 @@ class NPC extends Character {
                 if (!c.tags.includes('debris') && !c.tags.includes('nocollide') && Math.abs(this.x - c.x) < this.w / 2 + (c.w / 2) + this.lookAhead && Math.abs(this.y - c.y) < this.h / 2 + (c.h / 2) + this.lookAhead && this.z < c.d && c.z < this.d) {
                     // if (this.power >= this.jumpCost) {
                     this.zspeed += 7
-                    console.log(this.zspeed);
                     this.power -= this.jumpCost
                     // }
                 }
@@ -428,7 +437,6 @@ class NPC extends Character {
             if (this.target.team !== undefined) {
                 if (this.target.team == this.team) this.formationRange = this.dformationRange;
                 else this.formationRange = 0;
-                // console.log(this.target);
                 if (this.target.lastColNPC)
                     if (this.target.lastColNPC.team != this.team)
                         this.target = this.target.lastColNPC;
