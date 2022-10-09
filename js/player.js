@@ -95,10 +95,10 @@ class Player {
         ctx.fillRect(game.window.w / 2 - compareX - (game.player.character.w / 2) + 1, game.window.h / 2 - compareY - (game.player.character.h / 2) + 5 + 49, lungeBar, 4);
 
         //Speed bar
-        let calcSpeed = (((Math.abs(this.character.xspeed) + Math.abs(this.character.yspeed)) / 2) / game.match.map.maxSpeed) * this.hud.barW;
+        let calcSpeed = (this.character.xytrueSpeed() / game.match.map.maxSpeed) * this.hud.barW;
         if (calcSpeed >= (this.character.maxSpeed / game.match.map.maxSpeed) * this.hud.barW) {
             ctx.fillStyle = "#FF9900";
-        } else if (Math.abs(this.character.xspeed) >= game.match.map.collideDamageSpeed || Math.abs(this.character.xspeed) >= game.match.map.collideDamageSpeed) {
+        } else if (Math.abs(this.character.xspeed) >= game.match.map.collideDamageSpeed || Math.abs(this.character.yspeed) >= game.match.map.collideDamageSpeed) {
             ctx.fillStyle = "#FFFF00";
         } else {
             ctx.fillStyle = "#00FF00";

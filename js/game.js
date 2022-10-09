@@ -6,6 +6,7 @@ class Game {
             dw: 900,
             dh: 600,
             paused: false,
+            gameover: false,
             debug: false
         }
     }

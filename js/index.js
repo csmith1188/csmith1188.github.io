@@ -10,13 +10,13 @@ let ticks = 0;
 
 
 /*
-..######..########.########.##.....##.########.
-.##....##.##..........##....##.....##.##.....##
-.##.......##..........##....##.....##.##.....##
-..######..######......##....##.....##.########.
-.......##.##..........##....##.....##.##.......
-.##....##.##..........##....##.....##.##.......
-..######..########....##.....#######..##.......
+      ::::::::  :::::::::: ::::::::::: :::    ::: :::::::::
+    :+:    :+: :+:            :+:     :+:    :+: :+:    :+:
+   +:+        +:+            +:+     +:+    +:+ +:+    +:+
+  +#++:++#++ +#++:++#       +#+     +#+    +:+ +#++:++#+
+        +#+ +#+            +#+     +#+    +#+ +#+
+#+#    #+# #+#            #+#     #+#    #+# #+#
+########  ##########     ###      ########  ###
 */
 
 window.onload = function () {
@@ -31,6 +31,7 @@ window.onload = function () {
 
     game.match = new Match();
     game.match.map = new Map();
+    // game.match.map.postLoad();
 
     //Player
     game.player = new Player();
@@ -38,88 +39,17 @@ window.onload = function () {
     game.player.character = new Character(allID++, (game.match.map.w / 2), (game.match.map.h / 2));
     game.player.camera = new Camera({ target: game.player.character });
 
-    //Enemy
-    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, {target: game.player.character, nameTag: 'Kevin', gfx: 'img/sprites/dark2'})) //Kevin
+
+    makeGame(['waves', 'track', 'ramps', '4v4', 'randommap'])
+    //NPC
+    // game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, {target: game.player.character, nameTag: 'Kevin', gfx: 'img/sprites/dark2'})) //Kevin
+
     // game.player.camera.target = game.match.npcs[game.match.npcs.length-1] //Kevin-vision
-    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) + 500, {target: game.match.npcs[game.match.npcs.length-1], nameTag: 'Fren', team: 0})) //Anti-Kevin
+    // game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) + 500, {target: game.match.npcs[game.match.npcs.length-1], nameTag: 'Fren', team: 0})) //Anti-Kevin
 
-    //Blocks
-    // game.match.map.blocks.push(new Block(allID++, (game.match.map.w / 2) + 100, (game.match.map.h / 2), {color: '#0000FF'}))
-    // game.match.map.blocks.push(new Block(allID++, (game.match.map.w / 2), (game.match.map.h / 2), {color: '#FF9900', w: 48, h: 96}))
-    // game.match.map.blocks.push(new JumpPad(allID++, (game.match.map.w / 2) + 100, (game.match.map.h / 2) + 300, {color: '#FF9900'}))
-    // game.match.map.blocks.push(new HealthBlock(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2) + 500, {color: '#990000', healthCollide: 2}))
-    // game.match.map.blocks.push(new HealthBlock(allID++, (game.match.map.w / 2) + 200, (game.match.map.h / 2) + 200, {color: '#996666', healthCollide: 20, tags: ['immobile']}))
-    // game.match.map.blocks.push(new HealthBlock(allID++, (game.match.map.w / 2) + 200, (game.match.map.h / 2) + 200, { color: '#66FF66', healthCollide: -1 }))
-    game.match.map.blocks.push(new Wave(allID++, 0, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: 288, xspeed: 4, dxspeed: 4, crest: 50 }))
-    // Speed Strip
-    // for (let i = 0; i < game.match.map.w / 48; i++) {
-    //     game.match.map.blocks.push(new SpeedPad(allID++, (i * 48 * 10) + 24, (game.match.map.h / 2), { color: '#0066FF' }))
-    // }
-    //Ball
-    // game.match.map.blocks.push(new Ball(allID++, (game.match.map.w / 2) - 200, (game.match.map.h / 2) + 200, { color: '#FFFFFF' }))
+    // game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) + 500, { target: game.player.character, nameTag: 'Fren', team: 0 })) //Anti-Kevin
 
-    //Debris
-    // for (let i = 0; i < 1000; i++) {
-    //     let tempx = Math.floor(Math.random() * game.match.map.w);
-    //     let tempy = Math.floor(Math.random() * game.match.map.h);
-    //     let tempt = Math.floor(Math.random() * 2000);
-    //     game.match.map.debris.push(new Debris(allID++, tempx, tempy, { imgFile: 'img/sprites/leaf1.png', w: 12, h: 12, z: tempt }));
-    // }
-    // game.match.map.debris.push(new Debris(allID++, (game.match.map.w / 2), (game.match.map.h / 2), { imgFile: 'img/sprites/leaf1.png', w: 12, h: 12, z: 100 }));
-
-    // Race Track
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 24, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1250, (game.match.map.h / 2) - 500, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2), { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1250, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2), (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1250, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2), { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1250, (game.match.map.h / 2) - 500, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144}))
-    // game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 24, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
-
-    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2), {target: game.match.goals[0], nameTag: 'Rais', team: 0, gfx: 'img/sprites/dark1'})) //racer
-    
-    // game.match.npcs.push(new Enemy(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 1000, {target: game.player.character, nameTag: 'Rais', team: 0, gfx: 'img/sprites/dark1'})) //racer
-
-    // game.player.camera.target = game.match.npcs[game.match.npcs.length-1] //race-vision
-
-    // Random Map
-    // for (let i = 0; i < 100; i++) {
-    //     let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
-    //     let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
-    //     let tempw = (Math.ceil(Math.random() * 2) * 48)
-    //     let temph = (Math.ceil(Math.random() * 2) * 48)
-    //     game.match.map.blocks.push(new Block(allID++, tempx, tempy, {color: '#333333', w: tempw, h: temph}))
-    // }
-    // for (let i = 0; i < 25; i++) {
-    //     let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
-    //     let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
-    //     game.match.map.blocks.push(new JumpPad(allID++, tempx, tempy, {color: '#FF6600'}))
-    // }
-    // for (let i = 0; i < 25; i++) {
-    //     let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
-    //     let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
-    //     game.match.map.blocks.push(new SpeedPad(allID++, tempx, tempy, {color: '#9999FF'}))
-    // }
-    // for (let i = 0; i < 10; i++) {
-    //     let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
-    //     let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
-    //     game.match.map.blocks.push(new HealthBlock(allID++, tempx, tempy, {color: '#660000', healthCollide: -2}))
-    // }
-    // for (let i = 0; i < 20; i++) {
-    //     let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
-    //     let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
-    //     game.match.map.blocks.push(new HealthBlock(allID++, tempx, tempy, {color: '#006600', healthCollide: 1, powerCollide: 2}))
-    // }
+    // game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 1000, { target: game.player.character, nameTag: 'Fren', team: 0, gfx: 'img/sprites/dark1' })) //racer
 
     //start game loop
     //Run the step() function every 16ms (60fps)
@@ -130,13 +60,13 @@ window.onload = function () {
 }
 
 /*
-..######..########.########.########.
-.##....##....##....##.......##.....##
-.##..........##....##.......##.....##
-..######.....##....######...########.
-.......##....##....##.......##.......
-.##....##....##....##.......##.......
-..######.....##....########.##.......
+      :::::::: ::::::::::: :::::::::: :::::::::
+    :+:    :+:    :+:     :+:        :+:    :+:
+   +:+           +:+     +:+        +:+    +:+
+  +#++:++#++    +#+     +#++:++#   +#++:++#+
+        +#+    +#+     +#+        +#+
+#+#    #+#    #+#     #+#        #+#
+########     ###     ########## ###
 */
 
 function step() {
@@ -175,6 +105,9 @@ function step() {
             goal.collide([game.player.character, ...game.match.npcs])
         }
 
+        game.match.step();
+        game.match.map.step();
+
         //Do all collision. It has to be in this order, or else pads/blocks won't activate for players and npcs
         for (const block of game.match.map.blocks) {
             block.collide([game.player.character, ...game.match.npcs, ...game.match.map.blocks])
@@ -205,6 +138,23 @@ function step() {
         }
     }
 
+    // Move camera to next sensible target when player character is inactive or missing
+    if (!game.player.character.active) {
+        game.gameover = true;
+        if (game.player.character.lastColNPC)
+            if (game.player.character.lastColNPC.active)
+                game.player.camera.target = game.player.character.lastColNPC
+            else
+                for (const npc of game.match.npcs) {
+                    if (npc.active && npc.team == game.player.character.team)
+                        game.player.camera.target = npc
+                }
+        if (!game.player.camera.target)
+            for (const npc of game.match.npcs) {
+                if (npc.active)
+                    game.player.camera.target = npc
+            }
+    }
     //Update Camera Position
     if (game.player.camera.target) {
         game.player.camera.x = game.player.camera.target.x;
@@ -217,13 +167,13 @@ function step() {
 }
 
 /*
-.########..########.....###....##......##
-.##.....##.##.....##...##.##...##..##..##
-.##.....##.##.....##..##...##..##..##..##
-.##.....##.########..##.....##.##..##..##
-.##.....##.##...##...#########.##..##..##
-.##.....##.##....##..##.....##.##..##..##
-.########..##.....##.##.....##..###..###.
+      :::::::::  :::::::::      :::     :::       :::
+     :+:    :+: :+:    :+:   :+: :+:   :+:       :+:
+    +:+    +:+ +:+    +:+  +:+   +:+  +:+       +:+
+   +#+    +:+ +#++:++#:  +#++:++#++: +#+  +:+  +#+
+  +#+    +#+ +#+    +#+ +#+     +#+ +#+ +#+#+ +#+
+ #+#    #+# #+#    #+# #+#     #+#  #+#+# #+#+#
+#########  ###    ### ###     ###   ###   ###
 */
 
 function draw() {
@@ -269,15 +219,15 @@ function draw() {
 }
 
 /*
-.####.##....##.########..##.....##.########..######.
-..##..###...##.##.....##.##.....##....##....##....##
-..##..####..##.##.....##.##.....##....##....##......
-..##..##.##.##.########..##.....##....##.....######.
-..##..##..####.##........##.....##....##..........##
-..##..##...###.##........##.....##....##....##....##
-.####.##....##.##.........#######.....##.....######.
+      ::::::::::: ::::    ::: :::::::::  :::    ::: ::::::::::: ::::::::
+         :+:     :+:+:   :+: :+:    :+: :+:    :+:     :+:    :+:    :+:
+        +:+     :+:+:+  +:+ +:+    +:+ +:+    +:+     +:+    +:+
+       +#+     +#+ +:+ +#+ +#++:++#+  +#+    +:+     +#+    +#++:++#++
+      +#+     +#+  +#+#+# +#+        +#+    +#+     +#+           +#+
+     #+#     #+#   #+#+# #+#        #+#    #+#     #+#    #+#    #+#
+########### ###    #### ###         ########      ###     ########
 */
-
+// Collect all input data and send it to the controller for better handling
 function setupInputs() {
     document.addEventListener("keydown", function (event) {
         game.player.controller.touch.enabled = false;
@@ -305,11 +255,11 @@ function setupInputs() {
         if (event.key.toLocaleLowerCase() === " ") game.player.controller.spaceKey = 0;
     });
     window.addEventListener('gamepadconnected', (event) => {
-        if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
+        // if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
             game.player.controller.gamePad = event.gamepad.index;
     });
     window.addEventListener('gamepaddisconnected', (event) => {
-        if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
+        // if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
             game.player.controller.gamePad = null;
     });
     window.addEventListener('touchstart', (event) => {
@@ -365,13 +315,13 @@ function getCanvasRelative(e, center) {
 
 
 /*
- ########  #######  ##     ##  ######  ##     ##
-    ##    ##     ## ##     ## ##    ## ##     ##
-    ##    ##     ## ##     ## ##       ##     ##
-    ##    ##     ## ##     ## ##       #########
-    ##    ##     ## ##     ## ##       ##     ##
-    ##    ##     ## ##     ## ##    ## ##     ##
-    ##     #######   #######   ######  ##     ##
+  ::::::::::: ::::::::  :::    :::  ::::::::  :::    :::
+     :+:    :+:    :+: :+:    :+: :+:    :+: :+:    :+:
+    +:+    +:+    +:+ +:+    +:+ +:+        +:+    +:+
+   +#+    +#+    +:+ +#+    +:+ +#+        +#++:++#++
+  +#+    +#+    +#+ +#+    +#+ +#+        +#+    +#+
+ #+#    #+#    #+# #+#    #+# #+#    #+# #+#    #+#
+###     ########   ########   ########  ###    ###
 */
 
 function getTouch(event, type) {
@@ -411,5 +361,129 @@ function getTouch(event, type) {
             game.player.controller.upTouch = 0;
             game.player.controller.downTouch = 0;
         }
+    }
+}
+
+/*
+      ::::::::      :::       :::   :::   ::::::::::            :::   :::    ::::::::  :::::::::  :::::::::: ::::::::
+    :+:    :+:   :+: :+:    :+:+: :+:+:  :+:                  :+:+: :+:+:  :+:    :+: :+:    :+: :+:       :+:    :+:
+   +:+         +:+   +:+  +:+ +:+:+ +:+ +:+                 +:+ +:+:+ +:+ +:+    +:+ +:+    +:+ +:+       +:+
+  :#:        +#++:++#++: +#+  +:+  +#+ +#++:++#            +#+  +:+  +#+ +#+    +:+ +#+    +:+ +#++:++#  +#++:++#++
+ +#+   +#+# +#+     +#+ +#+       +#+ +#+                 +#+       +#+ +#+    +#+ +#+    +#+ +#+              +#+
+#+#    #+# #+#     #+# #+#       #+# #+#                 #+#       #+# #+#    #+# #+#    #+# #+#       #+#    #+#
+########  ###     ### ###       ### ##########          ###       ###  ########  #########  ########## ########
+*/
+
+function makeGame(type) {
+
+    if (type.includes('randommap')) {
+        // Random Map
+        for (let i = 0; i < 100; i++) {
+            let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+            let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+            let tempw = (Math.ceil(Math.random() * 2) * 48)
+            let temph = (Math.ceil(Math.random() * 2) * 48)
+            game.match.map.blocks.push(new Block(allID++, tempx, tempy, { color: '#333333', w: tempw, h: temph }))
+        }
+        for (let i = 0; i < 25; i++) {
+            let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+            let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+            game.match.map.blocks.push(new JumpPad(allID++, tempx, tempy, { color: '#FF6600' }))
+        }
+        for (let i = 0; i < 25; i++) {
+            let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+            let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+            game.match.map.blocks.push(new SpeedPad(allID++, tempx, tempy, { color: '#9999FF' }))
+        }
+        for (let i = 0; i < 10; i++) {
+            let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+            let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+            game.match.map.blocks.push(new HealthBlock(allID++, tempx, tempy, { color: '#660000', healthCollide: -2 }))
+        }
+        for (let i = 0; i < 20; i++) {
+            let tempx = (Math.floor(Math.random() * (game.match.map.w / 48)) * 48) + 24
+            let tempy = (Math.floor(Math.random() * (game.match.map.h / 48)) * 48) + 24
+            game.match.map.blocks.push(new HealthBlock(allID++, tempx, tempy, { color: '#006600', healthCollide: 1, powerCollide: 2 }))
+        }
+    }
+    if (type.includes('track')) {
+        // Race Track
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 24, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1250, (game.match.map.h / 2) - 500, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2), { color: '#000066', colorActive: '#0000FF', w: 144, h: 24 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1250, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) - 500, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2), (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1250, (game.match.map.h / 2) + 750, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2), { color: '#000066', colorActive: '#0000FF', w: 144, h: 24 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1250, (game.match.map.h / 2) - 500, { color: '#000066', colorActive: '#0000FF', w: 144, h: 24 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
+        game.match.goals.push(new Goal(allID++, (game.match.map.w / 2) + 24, (game.match.map.h / 2) - 1000, { color: '#000066', colorActive: '#0000FF', w: 24, h: 144 }))
+
+        // game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2), { target: game.match.goals[0], nameTag: 'Rais', team: 0, gfx: 'img/sprites/dark1' })) //racer
+
+        // game.player.camera.target = game.match.npcs[game.match.npcs.length - 1] //race-vision
+    }
+    if (type.includes('blocks')) {
+        //Blocks
+        game.match.map.blocks.push(new Block(allID++, (game.match.map.w / 2) + 100, (game.match.map.h / 2), { color: '#0000FF' }))
+        game.match.map.blocks.push(new Block(allID++, (game.match.map.w / 2), (game.match.map.h / 2), { color: '#FF9900', w: 48, h: 96 }))
+        game.match.map.blocks.push(new JumpPad(allID++, (game.match.map.w / 2) + 100, (game.match.map.h / 2) + 300, { color: '#FF9900' }))
+        game.match.map.blocks.push(new HealthBlock(allID++, (game.match.map.w / 2) + 500, (game.match.map.h / 2) + 500, { color: '#990000', healthCollide: 2 }))
+        game.match.map.blocks.push(new HealthBlock(allID++, (game.match.map.w / 2) + 200, (game.match.map.h / 2) + 200, { color: '#996666', healthCollide: 20, tags: ['immobile'] }))
+        game.match.map.blocks.push(new HealthBlock(allID++, (game.match.map.w / 2) + 200, (game.match.map.h / 2) + 200, { color: '#66FF66', healthCollide: -1 }))
+        // Speed Strip
+        for (let i = 0; i < game.match.map.w / 48; i++) {
+            game.match.map.blocks.push(new SpeedPad(allID++, (i * 48 * 10) + 24, (game.match.map.h / 2), { color: '#0066FF' }))
+        }
+        //Ball
+        game.match.map.blocks.push(new Ball(allID++, (game.match.map.w / 2) - 200, (game.match.map.h / 2) + 200, { color: '#FFFFFF' }))
+    }
+    if (type.includes('debris')) {
+        //Debris
+        for (let i = 0; i < 1000; i++) {
+            let tempx = Math.floor(Math.random() * game.match.map.w);
+            let tempy = Math.floor(Math.random() * game.match.map.h);
+            let tempt = Math.floor(Math.random() * 2000);
+            game.match.map.debris.push(new Debris(allID++, tempx, tempy, { imgFile: 'img/sprites/leaf1.png', w: 12, h: 12, z: tempt }));
+        }
+        game.match.map.debris.push(new Debris(allID++, (game.match.map.w / 2), (game.match.map.h / 2), { imgFile: 'img/sprites/leaf1.png', w: 12, h: 12, z: 100 }));
+    }
+    if (type.includes('waves')) {
+        game.match.map.blocks.push(new Wave(allID++, 0, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: game.match.map.h, xspeed: 6, dxspeed: 6, repeat: 120, startDelay: 0 }))
+        game.match.map.blocks.push(new Wave(allID++, 0, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: game.match.map.h, xspeed: 6, dxspeed: 6, repeat: 120, startDelay: 300 }))
+        game.match.map.blocks.push(new Wave(allID++, 0, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: game.match.map.h, xspeed: 6, dxspeed: 6, repeat: 120, startDelay: 360 }))
+    }
+    if (type.includes('fortnite')) {
+        for (let i = 0; i < 20; i++) {
+            let tempx = Math.floor(Math.random() * game.match.map.w);
+            let tempy = Math.floor(Math.random() * game.match.map.h);
+            game.match.npcs.push(new NPC(allID++, tempx, tempy, { target: game.player.character, nameTag: 'Kevin ' + (i + 1), gfx: 'img/sprites/dark2' })) //Kevin
+        }
+        for (let i = 0; i < 20; i++) {
+            let tempx = Math.floor(Math.random() * game.match.map.w);
+            let tempy = Math.floor(Math.random() * game.match.map.h);
+            game.match.npcs.push(new NPC(allID++, tempx, tempy, { target: null, nameTag: 'Frendo ' + (i + 1), team: 0 })) //Anti-Kevin
+        }
+    }
+    if (type.includes('ramps')) {
+        game.match.map.blocks.push(new Wave(allID++, 7200 / 4, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: 400 }))
+        game.match.map.blocks.push(new Wave(allID++, 7200 / 2, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: 400 }))
+        game.match.map.blocks.push(new Wave(allID++, 7200 / 4 + 7200 / 2, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: 400 }))
+    }
+    if (type.includes('4v4')) {
+        game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) - 1000, { target: game.player.character, nameTag: 'Jaysin', gfx: 'img/sprites/dark2' })) //Kevin
+        game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) - 2000, { target: game.match.npcs[game.match.npcs.length - 1], nameTag: 'Jayson', gfx: 'img/sprites/dark2' })) //Kevin
+        game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 1000, { target: game.match.npcs[game.match.npcs.length - 2], nameTag: 'Jason', gfx: 'img/sprites/dark2' })) //Kevin
+        game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 2000, { target: game.match.npcs[game.match.npcs.length - 3], nameTag: 'Jacob', gfx: 'img/sprites/dark2' })) //Kevin
+        game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) - 1500, { target: game.player.character, nameTag: 'Logan', team: 0 })) //Anti-Kevin
+        game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2), { target: game.player.character, nameTag: 'Logan', team: 0 })) //Anti-Kevin
+        game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) + 1500, { target: game.player.character, nameTag: 'Logan', team: 0 })) //Anti-Kevin
     }
 }

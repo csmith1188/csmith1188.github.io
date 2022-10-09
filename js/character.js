@@ -1,7 +1,17 @@
+/*
+      ::::::::  :::    :::     :::     :::::::::      :::      :::::::: ::::::::::: :::::::::: :::::::::
+    :+:    :+: :+:    :+:   :+: :+:   :+:    :+:   :+: :+:   :+:    :+:    :+:     :+:        :+:    :+:
+   +:+        +:+    +:+  +:+   +:+  +:+    +:+  +:+   +:+  +:+           +:+     +:+        +:+    +:+
+  +#+        +#++:++#++ +#++:++#++: +#++:++#:  +#++:++#++: +#+           +#+     +#++:++#   +#++:++#:
+ +#+        +#+    +#+ +#+     +#+ +#+    +#+ +#+     +#+ +#+           +#+     +#+        +#+    +#+
+#+#    #+# #+#    #+# #+#     #+# #+#    #+# #+#     #+# #+#    #+#    #+#     #+#        #+#    #+#
+########  ###    ### ###     ### ###    ### ###     ###  ########     ###     ########## ###    ###
+*/
 class Character {
     constructor(id, spawnx, spawny) {
         this.id = id;
         this.active = true;
+        this.cleanup = true;
         this.team = 0;
         //Location
         this.x = spawnx;
@@ -15,6 +25,11 @@ class Character {
         this.xspeed = 0;
         this.yspeed = 0;
         this.zspeed = 0;
+        this.xspeed = 0;
+        this.yspeed = 0;
+        this.xytrueSpeed = function () { return (((Math.abs(this.xspeed) + Math.abs(this.yspeed)) / 2)) }
+        this.trueSpeed = function () { return (((Math.abs(this.xspeed) + Math.abs(this.yspeed) + Math.abs(this.zspeed)) / 3)) }
+        this.zspeed = 0;
         this.maxSpeed = 8;
         this.speedMulti = 0.25;
         this.frictionMulti = 1;
@@ -23,7 +38,9 @@ class Character {
         this.lungeCost = 100;
         this.jumpCost = 25;
         this.airtime = 0;
-        this.weight = 1;
+        this.wind = true;
+        this.landable = true;
+        this.weight = 0.1;
         //Stats
         this.hp = 100;
         this.hp_max = 100;
@@ -37,6 +54,17 @@ class Character {
         this.img.src = this.gfx + '.png'
         this.bot = false;
         this.tags = [];
+        this.shadow = {
+            active: true,
+            w: 48,
+            h: 24,
+            d: 200,
+            x: 0,
+            y: this.h / 2,
+        }
+        this.shadowImg = new Image();
+        this.shadowImg.src = "img/sprites/shadow.png";
+        this.exhaust = 0;
         //SFX
         this.touchSFX = new Audio('sfx/hardhit_01.wav');
         this.jumpSFX = new Audio('sfx/jump_01.wav');
@@ -47,13 +75,25 @@ class Character {
         this.lastColNPC = null;
     }
 
+    /*
+          :::::::: ::::::::::: :::::::::: :::::::::
+        :+:    :+:    :+:     :+:        :+:    :+:
+       +:+           +:+     +:+        +:+    +:+
+      +#++:++#++    +#+     +#++:++#   +#++:++#+
+            +#+    +#+     +#+        +#+
+    #+#    #+#    #+#     #+#        #+#
+    ########     ###     ########## ###
+    */
     step(controller) {
         if (this.active) {
-            if (this.power < this.power_max) this.power++;
+            if (this.power < this.power_max)
+                if (Math.abs(this.xspeed) > game.match.map.collideDamageSpeed || Math.abs(this.yspeed) > game.match.map.collideDamageSpeed)
+                    this.power++;
+                else
+                    this.power += 3;
             //Wind
-            this.xspeed += game.match.map.xwind * (1 - this.weight);
-            this.yspeed += game.match.map.ywind * (1 - this.weight);
-            this.zspeed += game.match.map.zwind * (1 - this.weight);
+            // this.xspeed += game.match.map.xwind * (1 - this.weight);
+            // this.yspeed += game.match.map.ywind * (1 - this.weight);
             // Friction
             this.xspeed *= game.match.map.friction * this.frictionMulti;
             this.yspeed *= game.match.map.friction * this.frictionMulti;
@@ -68,8 +108,8 @@ class Character {
                 this.airtime = 0;
             }
             if (this.z < 0) this.zspeed += game.match.map.gravity;
-            if (Math.abs(this.z) < 4) this.zspeed *= 0.8
-            if (Math.abs(this.zspeed) < 0.2 && Math.abs(this.z) < 2) {
+            // if (Math.abs(this.z) < 4) this.zspeed *= 0.8
+            if (Math.abs(this.zspeed) < 0.2 && Math.abs(this.z) < 4) {
                 this.zspeed = 0;
                 this.z = 0;
             }
@@ -90,17 +130,26 @@ class Character {
                 if (this.jumpSFX.duration <= 0 || this.jumpSFX.paused)
                     this.jumpSFX.play();
             if (this.z < this.hover * -1) {
+                this.brakeSFX.play();
                 this.z = this.hover * -1;
                 this.zspeed *= -1;
                 this.xspeed *= 0.85;
                 this.yspeed *= 0.85;
-                if (game.debug) game.match.map.blocks.push(new Block(this.x, this.y, { color: '#0000FF', tags: ['immobile', 'nocollide'] }))
-                game.match.map.blocks.push(new Block(this.x, this.y, { color: '#0000FF', tags: ['immobile', 'nocollide'] }))
-
+                let tempx = (Math.random() * 3) - 1.5;
+                let tempz = (Math.random() * 3) - 1.5;
+                game.match.map.debris.push(new Debris(allID++, this.x, this.y + (this.h / 2), { wind: false, w: 16, h: 12, z: this.z, color: '#995500', livetime: 60, alwaysDying: true, landable: true }))
+                game.match.map.debris.push(new Debris(allID++, this.x, this.y + (this.h / 2), { wind: false, w: 6, h: 6, xspeed: tempx, zspeed: 5 + tempz, z: this.z + this.hover, color: '#995500', livetime: 60, alwaysDying: true, landable: true }))
             }
+
+
+            //Particle FX
+            let tempx = (Math.random() * 1) - 0.5;
+            let tempy = (Math.random() * 1) - 0.5;
+            if (ticks % 4 == 0) game.match.map.debris.push(new Debris(allID++, this.x + this.exhaust, this.y, { w: 6, h: 6, xspeed: tempx, yspeed: tempy, z: this.z, color: '#dddddd', livetime: 30, alwaysDying: true, landable: false }));
+
             // Break your records!
             if (!this.bot && game.player.best.air < this.z) game.player.best.air = this.z
-            if (!this.bot && game.player.best.speed < (Math.abs(this.xspeed) + Math.abs(this.xspeed)) / 2) game.player.best.speed = (Math.abs(this.xspeed) + Math.abs(this.xspeed)) / 2
+            if (!this.bot && game.player.best.speed < this.xytrueSpeed()) game.player.best.speed = this.xytrueSpeed()
 
             // Check for out of bounds
             if (this.x + (this.w / 2) > game.match.map.w) {
@@ -125,22 +174,41 @@ class Character {
             }
 
             //Check HP
-            if (this.hp <= 0) {
+            if (this.hp <= 0) { //Dead
                 this.active = false;
+                this.brakeSFX.play();
+                game.match.map.debris.push(new Debris(allID++, this.x, this.y + (this.h / 2), { frictionMulti: 0.5, w: 36, h: 12, z: this.z, xspeed: this.xspeed, yspeed: this.yspeed, zspeed: this.zspeed, weight: this.weight, color: '#990000', livetime: 600, alwaysDying: true, landable: true }))
+
             }
         }
     }
 
+
+    /*
+              :::     :::::::::::
+           :+: :+:       :+:
+         +:+   +:+      +:+
+       +#++:++#++:     +#+
+      +#+     +#+     +#+
+     #+#     #+#     #+#
+    ###     ### ###########
+    */
     AI() {
         return
     }
 
     userInput(controller) {
+        //Airborne
+        if (this.z > game.match.map.windH) {
+            controller.right *= 0.1;
+            controller.left *= 0.1;
+            controller.up *= 0.1;
+            controller.down *= 0.1;
+        }
         // Brakes
         if (controller.shift) this.zspeed -= this.brakes * 3;
-        if (controller.shift)
-            // if (this.brakeSFX.duration <= 0 || this.brakeSFX.paused)
-            this.brakeSFX.play();
+        // if (controller.shift)
+        //     this.brakeSFX.play();
         // Lunge
         if (controller.alt.current != controller.alt.last && this.power >= this.lungeCost) {
             if (controller.alt.current) {
@@ -165,32 +233,70 @@ class Character {
         if (controller.up && this.yspeed > this.maxSpeed * -1) this.yspeed -= controller.up * this.speedMulti;
         else if (controller.down && this.yspeed < this.maxSpeed) this.yspeed += controller.down * this.speedMulti;
         // Change the graphics based on direction
-        if (controller.left < controller.right) this.img.src = this.gfx + '.png';
-        if (controller.left > controller.right) this.img.src = this.leftgfx + '.png';
-    }
-
-    draw() {
-        if (game.debug) {
-            ctx.fillStyle = "#FF0000";
-            ctx.fillRect((game.window.w / 2) - (this.w / 2), (game.window.h / 2) - (this.h / 2), this.w, this.h);
-            ctx.fillStyle = "#000000";
-            ctx.fillRect((game.window.w / 2) - 2, (game.window.h / 2) - 2, 4, 4);
-        } else {
-            let compareX = game.player.camera.x - this.x;
-            let compareY = game.player.camera.y - this.y;
-            ctx.drawImage(this.img, game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2) - this.z, this.w, this.h);
-
+        if (controller.left < controller.right) {
+            this.img.src = this.gfx + '.png';
+            this.exhaust = - (this.w / 2)
+        }
+        if (controller.left > controller.right) {
+            this.img.src = this.leftgfx + '.png';
+            this.exhaust = (this.w / 2)
         }
     }
 
+    /*
+          :::::::::  :::::::::      :::     :::       :::
+         :+:    :+: :+:    :+:   :+: :+:   :+:       :+:
+        +:+    +:+ +:+    +:+  +:+   +:+  +:+       +:+
+       +#+    +:+ +#++:++#:  +#++:++#++: +#+  +:+  +#+
+      +#+    +#+ +#+    +#+ +#+     +#+ +#+ +#+#+ +#+
+     #+#    #+# #+#    #+# #+#     #+#  #+#+# #+#+#
+    #########  ###    ### ###     ###   ###   ###
+    */
+    draw() {
+        let compareX = game.player.camera.x - this.x;
+        let compareY = game.player.camera.y - this.y;
+        let compareZ = game.player.camera.z - this.z;
+        if (game.debug) {
+            ctx.fillStyle = "#FF0000";
+            ctx.fillRect(game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2), this.w, this.h);
+            ctx.fillStyle = "#0000FF";
+            ctx.fillRect(game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2) - this.z, this.w, this.h);
+            ctx.fillStyle = "#000000";
+            ctx.fillRect((game.window.w / 2) - 2, (game.window.h / 2) - 2, 4, 4);
+        } else {
+            this.shadow.w = (this.w - this.hover) * (1 - (((this.z > this.shadow.d) ? this.shadow.d : this.z) / this.shadow.d));
+            this.shadow.h = this.shadow.w / 2;
+            ctx.globalAlpha = 0.5;
+            ctx.drawImage(this.shadowImg, game.window.w / 2 - compareX - (this.shadow.w / 2), game.window.h / 2 - compareY - (this.shadow.h / 2) + this.shadow.y, this.shadow.w, this.shadow.h);
+            ctx.globalAlpha = 1;
+            ctx.drawImage(this.img, game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2) - this.z, this.w, this.h);
+        }
+    }
+
+    /*
+          ::::::::   ::::::::  :::        :::        ::::::::::: :::::::::  ::::::::::
+        :+:    :+: :+:    :+: :+:        :+:            :+:     :+:    :+: :+:
+       +:+        +:+    +:+ +:+        +:+            +:+     +:+    +:+ +:+
+      +#+        +#+    +:+ +#+        +#+            +#+     +#+    +:+ +#++:++#
+     +#+        +#+    +#+ +#+        +#+            +#+     +#+    +#+ +#+
+    #+#    #+# #+#    #+# #+#        #+#            #+#     #+#    #+# #+#
+    ########   ########  ########## ########## ########### #########  ##########
+    */
     collide(colliders) {
         for (const c of colliders) {
             if (c != this) {
-                if (Math.abs(this.x - c.x) < this.w / 2 + (c.w / 2) && Math.abs(this.y - c.y) < this.h / 2 + (c.h / 2) && this.z < c.d && c.z < this.d) {
+                if (!c.tags.includes('debris') && c.team !== this.team && Math.abs(this.x - c.x) < this.w / 2 + (c.w / 2) && Math.abs(this.y - c.y) < this.h / 2 + (c.h / 2) && this.z < c.d && c.z < this.d) {
                     // THERE WAS A COLLISION!
                     // Remember the things you collided with
-                    if (c.team !== undefined) this.lastColNPC = c; //Only npcs have teams
-                    else if (!c.tags.includes('debris')) this.lastColBlock = c;
+                    //Only npcs have teams
+                    if (c.team !== undefined) {
+                        this.lastColNPC = c;
+                        c.lastColNPC = this;
+                    }
+                    else {
+                        this.lastColBlock = c;
+                        c.lastColBlock = this;
+                    }
                     let compareY = c.y - this.y;
                     let compareX = c.x - this.x;
                     if (!c.tags.includes('nocollide')) {
@@ -230,7 +336,7 @@ class Character {
                             if (!c.tags.includes('nobounce'))
                                 this.yspeed *= -1;
                         }
-                        // NEEDS TOP HIT!
+                        // NEEDS TOP HIT! Goomba stomp style
                     }
                 }
             }
@@ -238,17 +344,23 @@ class Character {
     }
 }
 
-// AI
-// Slow down overall speed if many obstructions in region
-// Scan for objects that get closer
-// Brake and Strafe away from obstacles while chasing
-// Boost or shoot if you can draw a straight line with no collision
 
-class Enemy extends Character {
+/*
+      :::::::::: ::::    ::: ::::::::::   :::   :::  :::   :::
+     :+:        :+:+:   :+: :+:         :+:+: :+:+: :+:   :+:
+    +:+        :+:+:+  +:+ +:+        +:+ +:+:+ +:+ +:+ +:+
+   +#++:++#   +#+ +:+ +#+ +#++:++#   +#+  +:+  +#+  +#++:
+  +#+        +#+  +#+#+# +#+        +#+       +#+   +#+
+ #+#        #+#   #+#+# #+#        #+#       #+#   #+#
+########## ###    #### ########## ###       ###   ###
+*/
+class NPC extends Character {
     constructor(id, spawnx, spawny, options) {
         super(id, spawnx, spawny);
         this.team = 1;
-        this.formationRange = 0;
+        this.formationRange = 50;
+        this.dformationRange = 50;
+        this.lookAhead = 50;
         this.nameTag = '';
         this.bot = true;
         this.target = null;
@@ -267,64 +379,114 @@ class Enemy extends Character {
                 this[key] = options[key];
             }
         this.leftgfx = this.gfx + '_l'; // Set this after options so you only have to set gfx
-        this.img.src = this.gfx
+        this.img.src = this.gfx + '.png'
     }
 
+    /*
+              :::     :::::::::::
+           :+: :+:       :+:
+         +:+   +:+      +:+
+       +#++:++#++:     +#+
+      +#+     +#+     +#+
+     #+#     #+#     #+#
+    ###     ### ###########
+    */
     AI() {
+        for (const c of game.match.map.blocks) {
+            if (c != this) {
+                if (!c.tags.includes('debris') && !c.tags.includes('nocollide') && Math.abs(this.x - c.x) < this.w / 2 + (c.w / 2) + this.lookAhead && Math.abs(this.y - c.y) < this.h / 2 + (c.h / 2) + this.lookAhead && this.z < c.d && c.z < this.d) {
+                    // if (this.power >= this.jumpCost) {
+                    this.zspeed += 7
+                    console.log(this.zspeed);
+                    this.power -= this.jumpCost
+                    // }
+                }
+            }
+        }
         if (this.target) {
+            if (this.target.type == 'goal') this.formationRange = 0;
             if (Math.abs(this.x - this.target.x) < this.w / 2 + (this.target.w / 2) + this.formationRange && Math.abs(this.y - this.target.y) < this.h / 2 + (this.target.h / 2) + this.formationRange && this.z < this.target.d && this.target.z < this.d) {
-                //Already there
+                this.inFormation = true;
             } else {
                 let compareX = this.target.x - this.x;
                 let compareY = this.target.y - this.y;
+                let speed = this.speedMulti;
+                if (this.z > game.match.map.windH)
+                    speed *= 0.1;
                 if (compareX > 0 && this.xspeed < this.maxSpeed) {
-                    this.xspeed += this.speedMulti;
+                    this.xspeed += speed;
                     this.img.src = this.gfx + '.png';
                 }
                 else if (compareX <= 0 && this.xspeed > this.maxSpeed * -1) {
-                    this.xspeed -= this.speedMulti;
+                    this.xspeed -= speed;
                     this.img.src = this.leftgfx + '.png';
                 }
-                if (compareY < 0 && this.yspeed > this.maxSpeed * -1) this.yspeed -= this.speedMulti;
-                else if (compareY >= 0 && this.yspeed < this.maxSpeed) this.yspeed += this.speedMulti;
+                if (compareY < 0 && this.yspeed > this.maxSpeed * -1) this.yspeed -= speed;
+                else if (compareY >= 0 && this.yspeed < this.maxSpeed) this.yspeed += speed;
             }
 
             if (this.target.team !== undefined) {
-                if (this.target.team == this.team) this.formationRange = 100;
+                if (this.target.team == this.team) this.formationRange = this.dformationRange;
                 else this.formationRange = 0;
-                //The player can never receive a lastCOLNPC because the npc always hits first. this is also why kevin hits so hard
                 // console.log(this.target);
                 if (this.target.lastColNPC)
                     if (this.target.lastColNPC.team != this.team)
                         this.target = this.target.lastColNPC;
             }
 
-            if (!this.target.active) {
-                this.target = null;
-                if (game.player.character.team != this.team && !game.player.character.active) {
-                    this.target = game.player.character;
-                } else {
-                    for (const npc of game.match.npcs) {
-                        if (npc.active && npc.team != this.team) {
-                            this.target = npc
-                        }
-                    }
-                    if (!this.target) this.target = game.match.goals[0];
-                    if (!this.target) this.target = this;
-                }
-            }
+            //If my target is not active
+            if (!this.target.active) this.findTarget();
+        } else {
+            this.findTarget();
         }
     }
 
+    findTarget() {
+        this.target = null;
+        // If the player is active, rally to them or attack them
+        if (game.player.character.active) {
+            this.target = game.player.character;
+        }
+        // Look for another NPC to attack!
+        for (const npc of game.match.npcs) {
+            if (npc.active && npc.team != this.team) this.target = npc;
+        }
+        // Look for a goal to race through?
+        if (!this.target) this.target = game.match.goals[0];
+        //Try to get back into formation
+        if (!this.target)
+            for (const npc of game.match.npcs) {
+                if (npc.active && npc.team == this.team) this.target = npc;
+            }
+        // Target itself?
+        if (!this.target) this.target = this;
+    }
+
+    /*
+          :::::::::  :::::::::      :::     :::       :::
+         :+:    :+: :+:    :+:   :+: :+:   :+:       :+:
+        +:+    +:+ +:+    +:+  +:+   +:+  +:+       +:+
+       +#+    +:+ +#++:++#:  +#++:++#++: +#+  +:+  +#+
+      +#+    +#+ +#+    +#+ +#+     +#+ +#+ +#+#+ +#+
+     #+#    #+# #+#    #+# #+#     #+#  #+#+# #+#+#
+    #########  ###    ### ###     ###   ###   ###
+    */
     draw() {
         let compareY = game.player.camera.y - this.y;
         let compareX = game.player.camera.x - this.x;
         if (game.debug) {
             ctx.fillStyle = "#00FF00";
             ctx.fillRect(game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2), this.w, this.h);
+            ctx.fillStyle = "#0000FF";
+            ctx.fillRect(game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2) + this.z, this.w, this.h);
             ctx.fillStyle = "#000000";
             ctx.fillRect(game.window.w / 2 - compareX - 2, game.window.h / 2 - compareY - 2, 4, 4);
         } else {
+            this.shadow.w = (this.w - this.hover) * (1 - (((this.z > this.shadow.d) ? this.shadow.d : this.z) / this.shadow.d));
+            this.shadow.h = this.shadow.w / 2;
+            ctx.globalAlpha = 0.5;
+            ctx.drawImage(this.shadowImg, game.window.w / 2 - compareX - (this.shadow.w / 2), game.window.h / 2 - compareY - (this.shadow.h / 2) + this.shadow.y, this.shadow.w, this.shadow.h);
+            ctx.globalAlpha = 1;
             ctx.drawImage(this.img, game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2) - this.z, this.w, this.h);
         }
 
