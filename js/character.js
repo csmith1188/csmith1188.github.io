@@ -25,18 +25,15 @@ class Character {
         this.xspeed = 0;
         this.yspeed = 0;
         this.zspeed = 0;
-        this.xspeed = 0;
-        this.yspeed = 0;
         this.xytrueSpeed = function () { return (((Math.abs(this.xspeed) + Math.abs(this.yspeed)) / 2)) }
         this.trueSpeed = function () { return (((Math.abs(this.xspeed) + Math.abs(this.yspeed) + Math.abs(this.zspeed)) / 3)) }
-        this.zspeed = 0;
         this.maxSpeed = 8;
         this.speedMulti = 0.25;
         this.frictionMulti = 1;
-        this.brakes = 0.5;
+        this.brakes = 1.5;
         this.lungeSpeed = 5;
         this.lungeCost = 100;
-        this.jumpCost = 25;
+        this.jumpCost = 20;
         this.airtime = 0;
         this.wind = true;
         this.landable = true;
@@ -86,11 +83,13 @@ class Character {
     */
     step(controller) {
         if (this.active) {
-            if (this.power < this.power_max)
-                if (Math.abs(this.xspeed) > game.match.map.collideDamageSpeed || Math.abs(this.yspeed) > game.match.map.collideDamageSpeed)
+            if (this.power < this.power_max) {
+                if (Math.abs(this.xspeed) <= game.match.map.collideDamageSpeed && Math.abs(this.yspeed) <= game.match.map.collideDamageSpeed)
                     this.power++;
-                else
-                    this.power += 3;
+                if (this.zspeed < 0)
+                    this.power -= this.zspeed;
+                if (this.power > this.power_max) this.power = this.power_max;
+            }
             //Wind
             // this.xspeed += game.match.map.xwind * (1 - this.weight);
             // this.yspeed += game.match.map.ywind * (1 - this.weight);
@@ -109,7 +108,7 @@ class Character {
             }
             if (this.z < 0) this.zspeed += game.match.map.gravity;
             // if (Math.abs(this.z) < 4) this.zspeed *= 0.8
-            if (Math.abs(this.zspeed) < 0.2 && Math.abs(this.z) < 4) {
+            if (Math.abs(this.zspeed) < 0.5 && Math.abs(this.z) < 2) {
                 this.zspeed = 0;
                 this.z = 0;
             }
@@ -133,8 +132,8 @@ class Character {
                 this.brakeSFX.play();
                 this.z = this.hover * -1;
                 this.zspeed *= -1;
-                this.xspeed *= 0.85;
-                this.yspeed *= 0.85;
+                this.xspeed *= game.match.map.groundFriction;
+                this.yspeed *= game.match.map.groundFriction;
                 let tempx = (Math.random() * 3) - 1.5;
                 let tempz = (Math.random() * 3) - 1.5;
                 game.match.map.debris.push(new Debris(allID++, this.x, this.y + (this.h / 2), { wind: false, w: 16, h: 12, z: this.z, color: '#995500', livetime: 60, alwaysDying: true, landable: true }))
@@ -206,7 +205,7 @@ class Character {
             controller.down *= 0.1;
         }
         // Brakes
-        if (controller.shift) this.zspeed -= this.brakes * 3;
+        if (controller.shift) this.zspeed -= this.brakes;
         // if (controller.shift)
         //     this.brakeSFX.play();
         // Lunge
@@ -271,6 +270,17 @@ class Character {
             ctx.globalAlpha = 1;
             ctx.drawImage(this.img, game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2) - this.z, this.w, this.h);
         }
+
+        // In case I want to use arches for power bars or abilities
+        // ctx.strokeStyle = 'blue';
+        // ctx.fillStyle = 'rgba(128,128,255,0.1)';
+        // ctx.lineWidth = 2;
+
+        // ctx.beginPath();
+        // ctx.arc(game.window.w / 2 - compareX, game.window.h / 2 - compareY - this.z, 48, 0, 2 * Math.PI);
+
+        // ctx.stroke();
+        // ctx.fill();
     }
 
     /*
@@ -337,6 +347,7 @@ class Character {
                                 this.yspeed *= -1;
                         }
                         // NEEDS TOP HIT! Goomba stomp style
+                        if (!this.bot && game.player.best.damage < damCalc) game.player.best.damage = damCalc
                     }
                 }
             }
