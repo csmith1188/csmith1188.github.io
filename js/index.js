@@ -41,8 +41,8 @@ window.onload = function () {
     game.player.camera = new Camera({ target: game.player.character });
 
 
-    // makeGame(['pool', 'waves', 'track', 'ramps', '2v2', 'randommap'])
-    makeGame(['pool', 'dummy'])
+    makeGame(['pool', 'waves', 'track', 'ramps', '2v2', 'randommap'])
+    //makeGame(['pool', 'dummy'])
 
 
 
