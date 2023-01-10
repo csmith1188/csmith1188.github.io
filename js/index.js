@@ -36,11 +36,16 @@ window.onload = function () {
     //Player
     game.player = new Player();
     game.player.controller = new Controller();
+    // game.player.character = new Character(allID++, 24, 24);
     game.player.character = new Character(allID++, (game.match.map.w / 2), (game.match.map.h / 2));
     game.player.camera = new Camera({ target: game.player.character });
 
 
-    makeGame(['waves', 'track', 'ramps', '4v4', 'randommap'])
+    // makeGame(['pool', 'waves', 'track', 'ramps', '2v2', 'randommap'])
+    makeGame(['pool', 'dummy'])
+
+
+
     //NPC
     // game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 500, {target: game.player.character, nameTag: 'Kevin', gfx: 'img/sprites/dark2'})) //Kevin
 
@@ -184,14 +189,14 @@ function draw() {
     //Draw Map
     game.match.map.draw(game.player.character);
 
-    //Draw goals
-    for (const goal of game.match.goals) {
-        goal.draw(game.player.character);
-    }
-
     //Draw blocks
     for (const block of game.match.map.blocks) {
         block.draw(game.player.character);
+    }
+    
+    //Draw goals
+    for (const goal of game.match.goals) {
+        goal.draw(game.player.character);
     }
 
     //Draw debris
@@ -255,12 +260,10 @@ function setupInputs() {
         if (event.key.toLocaleLowerCase() === " ") game.player.controller.spaceKey = 0;
     });
     window.addEventListener('gamepadconnected', (event) => {
-        // if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
-            game.player.controller.gamePad = event.gamepad.index;
+        game.player.controller.gamePad = event.gamepad.index;
     });
     window.addEventListener('gamepaddisconnected', (event) => {
-        // if (event.gamepad.id == "Xbox 360 Controller (XInput STANDARD GAMEPAD)")
-            game.player.controller.gamePad = null;
+        game.player.controller.gamePad = null;
     });
     window.addEventListener('touchstart', (event) => {
         event.preventDefault();
@@ -376,6 +379,10 @@ function getTouch(event, type) {
 
 function makeGame(type) {
 
+    if (type.includes('pool')) {
+        game.match.map.blocks.push(new PolyBlock(allID++, (game.match.map.w / 2), (game.match.map.h / 2), { coords: [[0, 200], [300, 500], [0, 800], [-300, 500]], splash: '#ccccee', color: '#3366ff' }))
+        game.match.map.blocks.push(new PolyBlock(allID++, (game.match.map.w / 2), (game.match.map.h / 2), { coords: [[0, 800], [300, 1100], [0, 1400], [-300, 1100]], splash: '#ccccee', color: '#3366ff' }))
+    }
     if (type.includes('randommap')) {
         // Random Map
         for (let i = 0; i < 100; i++) {
@@ -456,17 +463,17 @@ function makeGame(type) {
         game.match.map.debris.push(new Debris(allID++, (game.match.map.w / 2), (game.match.map.h / 2), { imgFile: 'img/sprites/leaf1.png', w: 12, h: 12, z: 100 }));
     }
     if (type.includes('waves')) {
-        game.match.map.blocks.push(new Wave(allID++, 0, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: game.match.map.h, xspeed: 6, dxspeed: 6, repeat: 120, startDelay: 0 }))
-        game.match.map.blocks.push(new Wave(allID++, 0, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: game.match.map.h, xspeed: 6, dxspeed: 6, repeat: 120, startDelay: 300 }))
-        game.match.map.blocks.push(new Wave(allID++, 0, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: game.match.map.h, xspeed: 6, dxspeed: 6, repeat: 120, startDelay: 360 }))
+        game.match.map.blocks.push(new Wave(allID++, 0, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: game.match.map.h, xspeed: 6, dxspeed: 6, repeat: true, startDelay: 0 }))
+        game.match.map.blocks.push(new Wave(allID++, 0, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: game.match.map.h, xspeed: 6, dxspeed: 6, repeat: true, startDelay: 300 }))
+        game.match.map.blocks.push(new Wave(allID++, 0, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: game.match.map.h, xspeed: 6, dxspeed: 6, repeat: true, startDelay: 360 }))
     }
     if (type.includes('fortnite')) {
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 50; i++) {
             let tempx = Math.floor(Math.random() * game.match.map.w);
             let tempy = Math.floor(Math.random() * game.match.map.h);
             game.match.npcs.push(new NPC(allID++, tempx, tempy, { target: game.player.character, nameTag: 'Kevin ' + (i + 1), gfx: 'img/sprites/dark2' })) //Kevin
         }
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 50; i++) {
             let tempx = Math.floor(Math.random() * game.match.map.w);
             let tempy = Math.floor(Math.random() * game.match.map.h);
             game.match.npcs.push(new NPC(allID++, tempx, tempy, { target: null, nameTag: 'Frendo ' + (i + 1), team: 0 })) //Anti-Kevin
@@ -476,6 +483,14 @@ function makeGame(type) {
         game.match.map.blocks.push(new Wave(allID++, 7200 / 4, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: 400 }))
         game.match.map.blocks.push(new Wave(allID++, 7200 / 2, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: 400 }))
         game.match.map.blocks.push(new Wave(allID++, 7200 / 4 + 7200 / 2, (game.match.map.h / 2), { color: '#aaaaFF', w: 100, h: 400 }))
+    }
+    if (type.includes('dummy')) {
+        game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) + 100, (game.match.map.h / 2) - 100, { active: false, cleanup: false, target: game.player.character, nameTag: 'Kevin', gfx: 'img/sprites/dark2' })) //Kevin
+    }
+    if (type.includes('2v2')) {
+        game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) - 1000, { target: game.player.character, nameTag: 'Jaysin', gfx: 'img/sprites/dark2' })) //Kevin
+        game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) + 1000, { target: game.match.npcs[game.match.npcs.length - 2], nameTag: 'Jason', gfx: 'img/sprites/dark2' })) //Kevin
+        game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) - 1000, (game.match.map.h / 2) - 1000, { target: game.player.character, nameTag: 'Logan', team: 0 })) //Anti-Kevin
     }
     if (type.includes('4v4')) {
         game.match.npcs.push(new NPC(allID++, (game.match.map.w / 2) + 1000, (game.match.map.h / 2) - 1000, { target: game.player.character, nameTag: 'Jaysin', gfx: 'img/sprites/dark2' })) //Kevin

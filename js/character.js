@@ -25,18 +25,15 @@ class Character {
         this.xspeed = 0;
         this.yspeed = 0;
         this.zspeed = 0;
-        this.xspeed = 0;
-        this.yspeed = 0;
         this.xytrueSpeed = function () { return (((Math.abs(this.xspeed) + Math.abs(this.yspeed)) / 2)) }
         this.trueSpeed = function () { return (((Math.abs(this.xspeed) + Math.abs(this.yspeed) + Math.abs(this.zspeed)) / 3)) }
-        this.zspeed = 0;
         this.maxSpeed = 8;
         this.speedMulti = 0.25;
         this.frictionMulti = 1;
-        this.brakes = 0.5;
+        this.brakes = 1.5;
         this.lungeSpeed = 5;
         this.lungeCost = 100;
-        this.jumpCost = 25;
+        this.jumpCost = 20;
         this.airtime = 0;
         this.wind = true;
         this.landable = true;
@@ -86,11 +83,13 @@ class Character {
     */
     step(controller) {
         if (this.active) {
-            if (this.power < this.power_max)
-                if (Math.abs(this.xspeed) > game.match.map.collideDamageSpeed || Math.abs(this.yspeed) > game.match.map.collideDamageSpeed)
+            if (this.power < this.power_max) {
+                if (Math.abs(this.xspeed) <= game.match.map.collideDamageSpeed && Math.abs(this.yspeed) <= game.match.map.collideDamageSpeed)
                     this.power++;
-                else
-                    this.power += 3;
+                if (this.zspeed < 0)
+                    this.power -= this.zspeed;
+                if (this.power > this.power_max) this.power = this.power_max;
+            }
             //Wind
             // this.xspeed += game.match.map.xwind * (1 - this.weight);
             // this.yspeed += game.match.map.ywind * (1 - this.weight);
@@ -109,7 +108,7 @@ class Character {
             }
             if (this.z < 0) this.zspeed += game.match.map.gravity;
             // if (Math.abs(this.z) < 4) this.zspeed *= 0.8
-            if (Math.abs(this.zspeed) < 0.2 && Math.abs(this.z) < 4) {
+            if (Math.abs(this.zspeed) < 0.5 && Math.abs(this.z) < 2) {
                 this.zspeed = 0;
                 this.z = 0;
             }
@@ -133,8 +132,8 @@ class Character {
                 this.brakeSFX.play();
                 this.z = this.hover * -1;
                 this.zspeed *= -1;
-                this.xspeed *= 0.85;
-                this.yspeed *= 0.85;
+                this.xspeed *= game.match.map.groundFriction;
+                this.yspeed *= game.match.map.groundFriction;
                 let tempx = (Math.random() * 3) - 1.5;
                 let tempz = (Math.random() * 3) - 1.5;
                 game.match.map.debris.push(new Debris(allID++, this.x, this.y + (this.h / 2), { wind: false, w: 16, h: 12, z: this.z, color: '#995500', livetime: 60, alwaysDying: true, landable: true }))
@@ -206,7 +205,7 @@ class Character {
             controller.down *= 0.1;
         }
         // Brakes
-        if (controller.shift) this.zspeed -= this.brakes * 3;
+        if (controller.shift) this.zspeed -= this.brakes;
         // if (controller.shift)
         //     this.brakeSFX.play();
         // Lunge
@@ -271,6 +270,17 @@ class Character {
             ctx.globalAlpha = 1;
             ctx.drawImage(this.img, game.window.w / 2 - compareX - (this.w / 2), game.window.h / 2 - compareY - (this.h / 2) - this.z, this.w, this.h);
         }
+
+        // In case I want to use arches for power bars or abilities
+        // ctx.strokeStyle = 'blue';
+        // ctx.fillStyle = 'rgba(128,128,255,0.1)';
+        // ctx.lineWidth = 2;
+
+        // ctx.beginPath();
+        // ctx.arc(game.window.w / 2 - compareX, game.window.h / 2 - compareY - this.z, 48, 0, 2 * Math.PI);
+
+        // ctx.stroke();
+        // ctx.fill();
     }
 
     /*
@@ -300,53 +310,55 @@ class Character {
                     let compareY = c.y - this.y;
                     let compareX = c.x - this.x;
                     if (!c.tags.includes('nocollide')) {
+                        let damCalc = 0;
                         // Volume by distance
                         let calcSound = 1; //Couldn't figure it out. Plz help my poor ears
                         if (calcSound > 0) {
                             this.touchSFX.volume = calcSound;
                             this.touchSFX.play();
                         }
-                        let damCalc = 0;
                         //Direction hit
                         if (Math.abs(compareX) > Math.abs(compareY)) { //side hit
-                            if (this.x > c.x) this.x = c.x + c.w + 1;
+                            if (this.x > c.x) this.x = c.x + c.w + 1; // Move this outside of the collider's space
                             else this.x = c.x - (this.w / 2) - (c.w / 2) - 1;
                             if (c.tags.includes('immobile')) {
-                                if (!c.tags.includes('nodamage'))
-                                    this.hp -= Math.abs(this.xspeed);
-                            } else {
-                                if (Math.abs(this.xspeed) > game.match.map.collideDamageSpeed) {
-                                    c.hp -= Math.abs(this.xspeed);
-                                    damCalc += Math.abs(this.xspeed);
+                                if (!c.tags.includes('nodamage')) {
+                                    damCalc = Math.abs(this.xspeed)
+                                    this.hp -= damCalc;
                                 }
+                            } else {
+                                if (Math.abs(this.xspeed) > game.match.map.collideDamageSpeed)  {
+                                    damCalc = Math.abs(this.xspeed)
+                                    c.hp -= damCalc
+                                };
                                 if (Math.abs(c.xspeed) > game.match.map.collideDamageSpeed) this.hp -= Math.abs(c.xspeed);
                                 c.xspeed *= -1;
                                 c.xspeed += this.xspeed;
                             }
                             if (!c.tags.includes('nobounce'))
-                            this.xspeed *= -1;
+                                this.xspeed *= -1;
                         } else { //top/bottom hit
                             if (this.y > c.y) this.y = c.y + c.h + 1;
                             else this.y = c.y - (this.h / 2) - (c.h / 2) - 1;
                             if (c.tags.includes('immobile')) {
-                                if (!c.tags.includes('nodamage'))
-                                this.hp -= Math.abs(this.yspeed);
+                                if (!c.tags.includes('nodamage')) {
+                                    damCalc = Math.abs(this.yspeed)
+                                    this.hp -= damCalc;
+                                }
                             } else {
                                 if (Math.abs(this.yspeed) > game.match.map.collideDamageSpeed) {
-                                    c.hp -= Math.abs(this.yspeed);
-                                    damCalc += Math.abs(this.yspeed);
+                                    damCalc = Math.abs(this.yspeed);
+                                    c.hp -= damCalc;
                                 }
                                 if (Math.abs(c.yspeed) > game.match.map.collideDamageSpeed) this.hp -= Math.abs(c.yspeed);
                                 c.yspeed *= -1;
                                 c.yspeed += this.yspeed;
                             }
                             if (!c.tags.includes('nobounce'))
-                            this.yspeed *= -1;
+                                this.yspeed *= -1;
                         }
                         // NEEDS TOP HIT! Goomba stomp style
-                        console.log(damCalc);
-                        if (!this.bot)
-                        if (game.player.best.damage < damCalc) game.player.best.damage = damCalc
+                        if (!this.bot && game.player.best.damage < damCalc) game.player.best.damage = damCalc;
                     }
                 }
             }
@@ -356,8 +368,8 @@ class Character {
 
 
 /*
-:::::::::: ::::    ::: ::::::::::   :::   :::  :::   :::
-:+:        :+:+:   :+: :+:         :+:+: :+:+: :+:   :+:
+      :::::::::: ::::    ::: ::::::::::   :::   :::  :::   :::
+     :+:        :+:+:   :+: :+:         :+:+: :+:+: :+:   :+:
     +:+        :+:+:+  +:+ +:+        +:+ +:+:+ +:+ +:+ +:+
    +#++:++#   +#+ +:+ +#+ +#++:++#   +#+  +:+  +#+  +#++:
   +#+        +#+  +#+#+# +#+        +#+       +#+   +#+
@@ -407,6 +419,7 @@ class NPC extends Character {
                 if (!c.tags.includes('debris') && !c.tags.includes('nocollide') && Math.abs(this.x - c.x) < this.w / 2 + (c.w / 2) + this.lookAhead && Math.abs(this.y - c.y) < this.h / 2 + (c.h / 2) + this.lookAhead && this.z < c.d && c.z < this.d) {
                     // if (this.power >= this.jumpCost) {
                     this.zspeed += 7
+                    console.log(this.zspeed);
                     this.power -= this.jumpCost
                     // }
                 }
@@ -437,6 +450,7 @@ class NPC extends Character {
             if (this.target.team !== undefined) {
                 if (this.target.team == this.team) this.formationRange = this.dformationRange;
                 else this.formationRange = 0;
+                // console.log(this.target);
                 if (this.target.lastColNPC)
                     if (this.target.lastColNPC.team != this.team)
                         this.target = this.target.lastColNPC;

@@ -5,9 +5,11 @@ class Game {
             h: 600,
             dw: 900,
             dh: 600,
-            paused: false,
-            gameover: false,
-            debug: false
+            cx: this.w / 2,
+            cy: this.h / 2,
         }
+        this.paused = false;
+        this.gameover = false;
+        this.debug = false;
     }
 }

@@ -22,8 +22,8 @@ class Player {
         ctx.fillStyle = "#000000";
         if (game.debug) {
             ctx.font = '12px consolas';
-            ctx.fillText(this.character.x, 10, 80);
-            ctx.fillText(this.character.y, 10, 95);
+            ctx.fillText(this.character.x, 10, 150);
+            ctx.fillText(this.character.y, 10, 160);
             let aimX = game.player.controller.aimX;
             let aimY = game.player.controller.aimY;
             if (aimX > 100) aimX = 100;
@@ -50,12 +50,17 @@ class Player {
             */
         }
 
-        ctx.font = '12px consolas';
-        ctx.fillText("Air:     " + game.player.best.air, 10, 20);
-        ctx.fillText("Airtime: " + game.player.best.airtime, 10, 35);
-        ctx.fillText("Speed:   " + game.player.best.speed, 10, 50);
-        ctx.fillText("Lap:     " + game.player.best.lap, 10, 65);
-        ctx.fillText("Damage:  " + game.player.best.damage, 10, 80);
+        ctx.font = '15px Jura';
+        ctx.fillText("Air:     ", 10, 20);
+        ctx.fillText(game.player.best.air.toFixed(2), 100, 20);
+        ctx.fillText("Airtime: ", 10, 35);
+        ctx.fillText(game.player.best.airtime.toFixed(2), 100, 35);
+        ctx.fillText("Speed:   ", 10, 50);
+        ctx.fillText(game.player.best.speed.toFixed(2), 100, 50);
+        ctx.fillText("Lap:     ", 10, 65);
+        ctx.fillText(game.player.best.lap.toFixed(2), 100, 65);
+        ctx.fillText("Damage:  ", 10, 80);
+        ctx.fillText(game.player.best.damage.toFixed(2), 100, 80);
 
         // Map locators
         ctx.fillStyle = "#FF0000";
@@ -67,7 +72,7 @@ class Player {
 
         //Background
         ctx.fillStyle = "#000000";
-        ctx.fillRect(game.window.w / 2 - compareX - (game.player.character.w / 2), game.window.h / 2 - compareY - (game.player.character.h / 2) + 48, this.hud.barW + 2, 16);
+        ctx.fillRect(game.window.w / 2 - compareX - (game.player.character.w / 2), game.window.h / 2 - compareY - (game.player.character.h / 2) + 56, this.hud.barW + 2, 16);
         //Health Bar
         let healthBar = (this.character.hp / this.character.hp_max) * this.hud.barW;
         if (healthBar >= this.hud.barW) {
@@ -83,7 +88,7 @@ class Player {
             healthBar = 1;
             ctx.fillStyle = "#FF0000";
         }
-        ctx.fillRect(game.window.w / 2 - compareX - (game.player.character.w / 2) + 1, game.window.h / 2 - compareY - (game.player.character.h / 2) + 49, healthBar, 4);
+        ctx.fillRect(game.window.w / 2 - compareX - (game.player.character.w / 2) + 1, game.window.h / 2 - compareY - (game.player.character.h / 2) + 57, healthBar, 4);
 
         //power bar
         let lungeBar = (this.character.power / this.character.power_max) * this.hud.barW;
@@ -93,7 +98,7 @@ class Player {
         } else {
             ctx.fillStyle = "#9999FF";
         }
-        ctx.fillRect(game.window.w / 2 - compareX - (game.player.character.w / 2) + 1, game.window.h / 2 - compareY - (game.player.character.h / 2) + 5 + 49, lungeBar, 4);
+        ctx.fillRect(game.window.w / 2 - compareX - (game.player.character.w / 2) + 1, game.window.h / 2 - compareY - (game.player.character.h / 2) + 5 + 57, lungeBar, 4);
 
         //Speed bar
         let calcSpeed = (this.character.xytrueSpeed() / game.match.map.maxSpeed) * this.hud.barW;
@@ -104,6 +109,18 @@ class Player {
         } else {
             ctx.fillStyle = "#00FF00";
         }
-        ctx.fillRect(game.window.w / 2 - compareX - (game.player.character.w / 2) + 1, game.window.h / 2 - compareY - (game.player.character.h / 2) + 10 + 49, calcSpeed, 4);
+        ctx.fillRect(game.window.w / 2 - compareX - (game.player.character.w / 2) + 1, game.window.h / 2 - compareY - (game.player.character.h / 2) + 10 + 57, calcSpeed, 4);
+
+        // In case I want to use arches for power bars or abilities
+        // ctx.strokeStyle = 'red';
+        // ctx.fillStyle = 'rgba(255,0,0,0.1)';
+        // ctx.lineWidth = 5;
+    
+        // ctx.beginPath();
+        // ctx.arc(game.window.w / 2, game.window.h / 2, 48, 0, 2 * Math.PI);
+    
+        // ctx.stroke();
+        // ctx.fill();
+
     }
 }
