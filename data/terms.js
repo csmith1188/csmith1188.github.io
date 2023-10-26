@@ -3,7 +3,7 @@ const Terms = [
         name: "Arena",
         alternates: [],
         text: "A coordoned off section of play, where the Arena Stack is placed, throws can be made, and pucks can land. A standard Arena is a minimum of 11\"x8.5\" (the size of a sheet of standard letter paper), on a hard surface (typically wood), inside of an open box that is at least 4 inches deep.",
-        notes: ["Rules for setting up the Arena are in the Setup portion of your Game Mode."]
+        notes: ["Rules for setting up the Arena are in the Setup portion of your Battle."]
     },
     {
         name: "Arena Stack",
@@ -96,10 +96,16 @@ const Terms = [
         notes: []
     },
     {
+        name: "HM Move",
+        alternates: [],
+        text: "In a Battle, treat this Slammer as though it had the HM Move Item Puck in your Power Stack. If it is a Support Ability, you must choose this Slammer.\nIn an Adventure, if you possess this Slammer, you may make Move Actions as though you also possess the HM Move Item Puck.",
+        notes: []
+    },
+    {
         name: "Item Puck",
         alternates: ["Items"],
-        text: "The pucks that can be used by a player to refill the Arena Stack.",
-        notes: ["Any puck that is listed in the PuckMart, or is listed as a suitable proxy for one. It has the special rules listed for that puck."]
+        text: "Any puck that is listed in the PuckMart, or is listed as a suitable proxy for one. It has the special rules listed for that puck.",
+        notes: [""]
     },
     {
         name: "Knock Out",
@@ -183,7 +189,7 @@ const Terms = [
         name: "Puck",
         alternates: [],
         text: "A plastic or paper puck 41.37mm in diameter and at least 1.6mm thick, with a face side that has a graphic, and a back side that is blank or has a serial number on it.",
-        notes: ["If puck is reccessed, no part of the reccess can be deeper than 0.8mm, the recess must be more than at least 1mm from the oute edge of the puck, and cannot cover more than half the surface area of the puck face.", "All pucks must be able to lay flat. If a puck's entire face cannot touch the flat bottom surface of the Arena, it cannot be selected as a Legal Puck for any Game Mode."]
+        notes: ["If puck is reccessed, no part of the reccess can be deeper than 0.8mm, the recess must be more than at least 1mm from the oute edge of the puck, and cannot cover more than half the surface area of the puck face.", "All pucks must be able to lay flat. If a puck's entire face cannot touch the flat bottom surface of the Arena, it cannot be selected as a Legal Puck for any Battle."]
     },
     {
         name: "Restack",

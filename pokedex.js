@@ -7,7 +7,7 @@
 <div id="content"></div>
 
 <script src="data/connections.js"></script>
-<script src="data/gamemodes.js"></script>
+<script src="data/battles.js"></script>
 <script src="data/mart.js"></script>
 <script src="data/pucks.js"></script>
 <script src="data/slammers.js"></script>
@@ -20,7 +20,7 @@
 
 <script>
     printSection();
-    printGameMode();
+    printBattle();
     printTerm();
     printPuck();
     printSlammer();
@@ -65,30 +65,30 @@ function printSection(sectionToFind, erase) {
     } //End Intro
 }
 
-// print from GameModes
-// gameModeToFind: which key in GameModes to print (false for all)
+// print from Battles
+// battleToFind: which key in Battles to print (false for all)
 // erase: clear the previous content (true/false)
-function printGameMode(gameModeToFind, erase) {
+function printBattle(battleToFind, erase) {
     if (erase)
         contentBox.innerHTML = "";
 
-    let GameModesToSearch = GameModes;
+    let BattlesToSearch = Battles;
 
-    // If a gameMode was provided, find it and put it in a list
-    if (gameModeToFind)
-        GameModesToSearch = [GameModes.find((gameModeSearch) => gameModeSearch.name == gameModeToFind)];
-    // If you couldn't find that gameMode, revert back to all
-    if (!GameModesToSearch)
-        GameModesToSearch = GameModes;
+    // If a battle was provided, find it and put it in a list
+    if (battleToFind)
+        BattlesToSearch = [Battles.find((battleSearch) => battleSearch.name == battleToFind)];
+    // If you couldn't find that battle, revert back to all
+    if (!BattlesToSearch)
+        BattlesToSearch = Battles;
 
-    //Game Modes
-    let gameModeHeader = document.createElement("h1");
-    gameModeHeader.innerText = "Game Modes";
-    contentBox.appendChild(gameModeHeader);
+    //Battles
+    let battleHeader = document.createElement("h1");
+    battleHeader.innerText = "Battles";
+    contentBox.appendChild(battleHeader);
 
-    for (const mode of GameModes) {
+    for (const mode of Battles) {
 
-        //Game Mode Name
+        //Battle Name
         let modeHeader = document.createElement("h2");
         modeHeader.innerText = mode.name;
         contentBox.appendChild(modeHeader);
@@ -286,7 +286,7 @@ function printPuck(puckToFind, erase) {
             }
         }
 
-    } //End Terms
+    } //End Pucks
 }
 
 // print from Slammers
@@ -310,6 +310,7 @@ function printSlammer(slammerToFind, erase) {
     titleHeader.innerText = "Slammers";
     contentBox.appendChild(titleHeader);
 
+
     for (const slammer of SlammersToSearch) {
         //slammer Name
         let slammerHeader = document.createElement("h2");
@@ -317,10 +318,21 @@ function printSlammer(slammerToFind, erase) {
         contentBox.appendChild(slammerHeader);
 
         //dex
-        let slammerDex = document.createElement("p");
-        slammerDex.classList.add(`pucktype`);
-        slammerDex.innerText = `PokeDex #: ${slammer.pokedex}`;
+        let slammerDex = document.createElement("p"); // <p></p>
+        slammerDex.classList.add(`pucktype`); // <p class='pucktype'></p>
+        slammerDex.innerText = `PokeDex #: ${slammer.pokedex}`; // <p class='pucktype'>PokeDex #: Pokemon Name</p>
         contentBox.appendChild(slammerDex);
+
+        //tag
+        if (slammer.tags.length) {
+            let tags = document.createElement("p"); // <p></p>
+            tags.classList.add(`pucktype`); // <p class='pucktype'></p>
+            tags.innerText = `Tags:`; // <p class='pucktype'>Tags:</p>
+            for (const tag of slammer.tags) {
+                tags.innerText += " " + tag;
+            }
+            contentBox.appendChild(tags);
+        }
 
         //ballStrength
         let slammerBallStr = document.createElement("p");
@@ -395,6 +407,49 @@ function printSlammer(slammerToFind, erase) {
         }
 
     }
+} // End Slammers
+
+// print from statuses
+// statusToFind: which key in statuses to print (false for all)
+// erase: clear the previous content (true/false)
+function printStatus(statusToFind, erase) {
+    // Clear the contentBox if they chose to erase
+    if (erase)
+        contentBox.innerHTML = "";
+
+    //
+    var statPrint = statusToFind;
+    if (!statusToFind)
+        statPrint = Statuses;
+
+    // Header
+    let mainHeader = document.createElement("h1");
+    mainHeader.innerText = "Statuses";
+    contentBox.appendChild(mainHeader);
+
+    //Each Status
+    for (const stat of statPrint) {
+        let newHeader = document.createElement("h2");
+        newHeader.innerText = stat.name;
+        contentBox.appendChild(newHeader);
+        let newDesc = document.createElement("p");
+        newDesc.classList.add(`desc`);
+        newDesc.innerText = stat.description;
+        contentBox.appendChild(newDesc);
+        let newStat = document.createElement("p");
+        newStat.innerText = stat.text;
+        contentBox.appendChild(newStat);
+        if (stat.notes.length) {
+            let rulesNoteList = document.createElement("ul");
+            abilItem.appendChild(rulesNoteList);
+            for (const note of stat.notes) {
+                let rulesNote = document.createElement("li");
+                rulesNote.classList.add(`note`);
+                rulesNote.innerText = note;
+                rulesNoteList.appendChild(rulesNote);
+            }
+        }
+    } //End Intro
 }
 
 // print from Zones
@@ -538,7 +593,7 @@ function printZone(zoneToFind, erase) {
         }
 
     }
-}
+} // End Zones
 
 // reverse true if you want to search one way routes coming into thisZone
 function findConnections(thisZone, reverse) {
