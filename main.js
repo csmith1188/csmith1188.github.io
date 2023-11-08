@@ -1,4 +1,4 @@
-import * as THREE from './three.min.js';
+import * as THREE from './three.module.js';
 
 const scene = new THREE.Scene();
 
