@@ -47,7 +47,7 @@ pog.rotation.x = 45;
 
 scene.add(pog);
 
-const controls = new OrbitControls(camera, renderer.domElement);
+//const controls = new OrbitControls(camera, renderer.domElement);
 
 function animate(time) {
   requestAnimationFrame( animate );
@@ -57,7 +57,7 @@ function animate(time) {
   pog.rotation.y += 0.005;
   pog.rotation.z += 0.01;
 
-  controls.update();
+  //controls.update();
 
   renderer.render( scene, camera );
 }
