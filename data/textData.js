@@ -24,6 +24,7 @@ const textData = {
     changelog: [
         {
             header: "PokePucks 1.0 Launch Notes",
+            date: 1699985496000,
             changes: [
                 {
                     rule: "Make Attacks",
@@ -59,7 +60,7 @@ const textData = {
                 {
                     rule: "HM01 Cut",
                     text: "If your current Slammer's Energy Type is Grass, in each of your attacks on your turn, when counting the number of pucks to pick up, add 1 to that number.",
-                    description: "",
+                    description: [""],
                     notes: [
                         "Scyther's Slammer Ability now reads the same as well.",
                         "Cut should be a single sharp attack, with the potential to do more damage."
@@ -68,7 +69,7 @@ const textData = {
                 {
                     rule: "HM02 Fly",
                     text: "In an Adventure, each time you make a Move Action, if you possess a Pokemon Slammer with a Wing Tag, you may move up to 4 times, but you must finish your Move Action in a City Zone.",
-                    description: "",
+                    description: [""],
                     notes: [
                         "You may not take other actions until your last move is finished.",
                         "This isn't the Gameboy game. Instantly teleporting across the map in a multiplayer game is over powered."
@@ -77,7 +78,7 @@ const textData = {
                 {
                     rule: "HM03 Surf",
                     text: "Support: Once in your turn, if a Slammer in your Bench Stack has a Water Energy Type, when counting the number of pucks to pick up in the first attack made on your turn, add that Slammer's Ball Strength to that number.",
-                    description: "",
+                    description: [""],
                     notes: [
                         "Lapras's Slammer Ability now reads the same as well.",
                         "Surf is now the first and only 'Support' Ability, which allows it to be used on any Poekmon that is on the bench."
@@ -86,31 +87,31 @@ const textData = {
                 {
                     rule: "HM04 Dig",
                     text: "If your current Slammer's Energy Type is Fighting, when counting attacks on your turn, you may choose to reduce that number to 1. If you do, you may pick up an additional puck in each of your attacks during your next turn.",
-                    description: "",
+                    description: [""],
                     notes: ["The classic Dig move allows you to dodge now and attack later. In PokePucks, it provides a greater delayed attack."]
                 },
                 {
                     rule: "Wing Attack",
                     text: "When counting attacks on your turn, if the next player's slammer Energy Type is Grass, may treat your slammer as having the Energy Type that matches their weakness.",
-                    description: "Pidgeot",
+                    description: ["Pidgeot and its family are known for their expert hunting skills, especially of Magikarp and Grass/Bug type Pokemon. This ability allows it to attack its natural prey more effectively."],
                     notes: ["Changed to 'may treat'."]
                 },
                 {
                     rule: "Defense Curl",
                     text: "After making all your attacks on your turn, if you did not pick up any pucks this turn, the next time the previous player picks up, they must pick up 1 less puck in each of their attacks.",
-                    description: "Squirtle",
+                    description: ["Squirtle can withdraw inside of its shell and become paritally invulnerable to attacks."],
                     notes: ["Boosted to 1 less puck per attack, instead of one less puck per turn."]
                 },
                 {
                     rule: "Hyper Beam",
                     text: "When counting attacks on your turn, you may choose to increase that number by 2. If you do, after counting your attacks on your next turn, reduce that number to 1.",
-                    description: "Aerodactyl",
+                    description: ["Hyper Beam is a renown normal type move known to many dragon Pokemon. It's a blast so large it requires the user to take timeto recover."],
                     notes: ["Clarified 'when' and 'after'."]
                 },
                 {
                     rule: "Fire Spin",
                     text: "After making your last attack on your turn, if you flipped any pucks this turn, in the previous player's Pick a Slammer phase, they must pick the slammer they picked in their previous turn.",
-                    description: "Flareon",
+                    description: ["Fire Spin makes a wall of fire that keeps the opponent from retreating from the battle."],
                     notes: [
                         "More clear explanation and modified for the new 'Pick Slammer' phase.",
                         "Note that the Switch Item Puck still bypasses this."
@@ -119,7 +120,7 @@ const textData = {
                 {
                     rule: "Genetically Unstable",
                     text: "When counting attacks on your turn, if there is only 1 Energy Puck in your Power Stack, you may change this Slammer's Energy Type to match that Energy Puck.",
-                    description: "Eevee",
+                    description: ["Although not a feature Eevee has in the traditional games, in PokePucks, Eevee is the most versatile for type-matching. It's already prepared to evolve to one of many other typed evolutions."],
                     notes: [
                         "This will give you the 1 additional attack from having an Energy Puck that matches the Slammer's Energy Type."
                     ]
@@ -127,21 +128,21 @@ const textData = {
                 {
                     rule: "Pay Day",
                     text: "After making an attack on your turn, after you pick up, you may pick up a flipped Item puck.",
-                    description: "Meowth",
+                    description: ["Meowth is renown for its obession with trinkets and shiny objects, especially round ones. Yes, that means it loves picking up extra pucks."],
                     notes: [
                         "For example, if you flip an Energy Puck and an Item Puck, but can only pick up 1 this attack, you can pick up the Energy puck for you attack, then this ability allows you to pick up the item puck."
                     ]
                 },
                 {
                     rule: "Sleep",
-                    text: "Before calculating the number of attacks to make on your turn, if this Slammer does not have the Sleep Status or the Switch Sick Status, you may give it the Sleep Status. If you do, you may top off your Health Stack from your Prize Stack. After calculating the number of attacks to make on your turn, reduce the number to 0.",
-                    description: "Snorlax",
+                    text: "Before calculating the number of attacks to make on your turn, if this Slammer does not have the Sleep Status or the Switch Sick Status, you may give it the Sleep Status. If you do, you may top off your Health Stack from your Prize Stack. After calculating the number of attacks to make on this turn, reduce the number to 0.",
+                    description: ["Snorlax can sleep for weeks, no matter what is happening around it. It can even fall asleep in the middle of a battle!"],
                     notes: [
-                        "Succeeding or failing to top off the Health Stack does not matter. If your Health Stack Size is 10, and it has 4 pucks in it"
+                        "Succeeding or failing to top off the Health Stack does not matter. If your Health Stack Size is 10, and it has 4 pucks in it, and your Prize Stack only has 4 pucks in it, then your Health Stack simply ends at 8 pucks and your Prize Stack at 0."
                     ]
                 }
             ],
-            body: ""
+            body: "Today we are launching the completed updated rules for PokePucks v1.0! This marks the first \"update\" for the PokePucks ruleset. Though many things still need polished and reworked, this will be the official rules going forawrd. Printed paper rules are now completely obsolete.\n Some of the major changes in this version include a rework to how pucks are picked up after an attack, a new stack called the \"Bench Stack\" to place an entire Pokemon team in during a game, rework to the HM moves, and reworks to many of the Pokemon Slammer abilities."
         }
     ]
 }
