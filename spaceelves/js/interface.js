@@ -67,6 +67,11 @@ class Interface {
             //Match info
             this.drawMatch();
 
+            if (game.debug) {
+                document.getElementById("debugger").style.display = "block";
+            } else {
+                document.getElementById("debugger").style.display = "none";
+            }
 
         }
     }
@@ -133,19 +138,19 @@ class Interface {
                                             |__/
             */
             ctx.drawImage(this.player.character.inventory[0].iconInactive, (game.window.w / 2) - 150, game.window.h - 64, 64, 64);
-            ctx.drawImage(this.player.character.inventory[1].iconInactive, (game.window.w / 2) + 90, game.window.h - 64, 64, 64);
+            ctx.drawImage(this.player.character.inventory[1].iconInactive, (game.window.w / 2) + 88, game.window.h - 64, 64, 64);
             // this switch statement is for drawing the active item
             switch (this.player.character.item) {
                 case 0:
                     ctx.drawImage(this.player.character.inventory[0].icon, (game.window.w / 2) - 150, game.window.h - 64, 64, 64);
                     break;
                 case 1:
-                    ctx.drawImage(this.player.character.inventory[1].icon, (game.window.w / 2) + 90, game.window.h - 64, 64, 64);
+                    ctx.drawImage(this.player.character.inventory[1].icon, (game.window.w / 2) + 88, game.window.h - 64, 64, 64);
                     break;
             }
             // Create a Rect for each item in the inventory and store it in the touchButton object
             this.touchButton.inventory1 = new Rect((game.window.w / 2) - 150, game.window.h - 64, 64, 64);
-            this.touchButton.inventory2 = new Rect((game.window.w / 2) + 90, game.window.h - 64, 64, 64);
+            this.touchButton.inventory2 = new Rect((game.window.w / 2) + 88, game.window.h - 64, 64, 64);
             // this.touchButton.inventory3 = new Rect((game.window.w / 2) - 32, game.window.h - 192, 64, 64);
         }
     }
@@ -173,7 +178,7 @@ class Interface {
         //Draw time until next wave in top right hand corner
         ctx.fillStyle = "#000000";
         ctx.font = '16px consolas';
-        ctx.fillText(`Next: ${60 - Math.floor((ticks % 3600) / 60)}`, matchBox.x, matchBox.y + 90);
+        ctx.fillText(`Next: ${Math.floor((game.match.waveTime / 60)) - Math.floor((ticks % game.match.waveTime) / 60)}`, matchBox.x, matchBox.y + 90);
     }
 
     /*

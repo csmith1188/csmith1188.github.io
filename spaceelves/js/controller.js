@@ -18,8 +18,8 @@ function setupInputs() {
             event.preventDefault();
             game.player.controller.altKey = Number(event.altKey)
         }
-        if (event.key.toLocaleLowerCase() === "1") game.player.character.item = 0;
-        if (event.key.toLocaleLowerCase() === "2") game.player.character.item = 1;
+        if (event.key.toLocaleLowerCase() === "q") game.player.character.item = 0;
+        if (event.key.toLocaleLowerCase() === "e") game.player.character.item = 1;
         // if (event.key.toLocaleLowerCase() === "3") game.player.character.item = 2;
         // if (event.key.toLocaleLowerCase() === "4") game.player.character.item = 3;
         if (event.key.toLocaleLowerCase() === "w" || event.key === "ArrowUp") game.player.controller.upKey = 1;
@@ -379,10 +379,6 @@ class Controller {
      #####  #    # #    # #    #
 
     */
-   /**========================================================================
-    **                           FUNCTION NAME
-    *?  Draws touch controls and visual indicators on the screen
-    *========================================================================**/
     draw() {
         if (this.touch.enabled) {
             ctx.globalAlpha = 0.05;
@@ -428,10 +424,6 @@ class Controller {
             ctx.fill()
             ctx.stroke();
             ctx.globalAlpha = 1;
-            document.getElementById('debugger').style.display = 'none';
-        }
-        else {
-            document.getElementById('debugger').style.display = 'block';
         }
     }
 }

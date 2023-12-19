@@ -107,12 +107,8 @@ class Rect {
     * @returns {boolean} - True if collision occurs, false otherwise.
     */
     collidePoint(x, y) {
-        console.log(x, y);
-        console.log(this);
-        if (x > this.x && x < this.x + this.w && y > this.y && y < this.y + this.h) {
-            console.log('collide');
+        if (x > this.x && x < this.x + this.w && y > this.y && y < this.y + this.h)
             return true
-        }
         return false
     }
 

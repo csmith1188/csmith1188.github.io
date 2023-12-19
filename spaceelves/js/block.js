@@ -39,17 +39,17 @@ class Block {
 
         // Graphics
         this.imgFile = '';  // Leave blank to add collision to a background
+        this.imgFileSide = '';
         this.opacity = 1;
-        this.color = [200, 200, 200];    // Leave blank to add collision to a background
-        this.colorSide = ''; //The color of the wall of the block
+        this.color = [100, 100, 100];    // Leave blank to add collision to a background
+        this.colorSide = [200, 200, 200]; //The color of the wall of the block
         this.img = new Image();
         this.img.src = this.imgFile;
+        this.imgSide = new Image();
+        this.imgSide.src = this.imgFileSide;
         this.shadowDraw = false;
-        this.shadow = new Image(),
-            this.shadow.src = 'img/sprites/shadow.png';
-
-        this.pattern = false;
-
+        this.shadow = new Image();
+        this.shadow.src = 'img/sprites/shadow.png';
         // Options
         if (typeof options === 'object')
             for (var key of Object.keys(options)) {
@@ -183,7 +183,20 @@ class Block {
                 //     this.HB.volume.y
                 // );
                 if (this.imgFile) {
-                    ctx.drawImage(this.img, game.window.w / 2 - compareX, game.window.h / 2 - compareY - this.HB.pos.z, this.HB.volume.x, this.HB.volume.y);
+                    ctx.drawImage(
+                        this.img,
+                        game.window.w / 2 - compareX,
+                        game.window.h / 2 - compareY - this.HB.volume.z - this.HB.pos.z,
+                        this.HB.volume.x,
+                        this.HB.volume.y
+                    );
+                    ctx.drawImage(
+                        this.imgSide,
+                        game.window.w / 2 - compareX,
+                        game.window.h / 2 - compareY - this.HB.pos.z - this.HB.volume.z + this.HB.volume.y,
+                        this.HB.volume.x,
+                        this.HB.volume.z
+                    );
                 } else {
                     //TOP
                     ctx.fillStyle = `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, ${this.opacity})`;
@@ -612,6 +625,8 @@ class PowerUp extends Block {
             for (var key of Object.keys(options)) {
                 this[key] = options[key];
             }
+        this.img.src = this.imgFile;
+
     }
 
     trigger(actor, side) {
@@ -632,8 +647,8 @@ class Ammo_Ballistic extends PowerUp {
     constructor(id, x, y, z, vx, vy, vz, options) {
         super(id, x, y, z, vx, vy, vz, options);
         this.type = 'ammo_ballistic';
-        // this.imgFile = 'img/sprites/ammo_ballistic.png';
-        // this.img.src = this.imgFile;
+        this.imgFile = 'img/sprites/powerups/ammo_ballistic_top.png';
+        this.imgFileSide = 'img/sprites/powerups/ammo_ballistic_side.png';
         this.color = [255, 0, 0];
         this.colorSide = [255, 128, 128];
         this.shadowDraw = true;
@@ -651,6 +666,8 @@ class Ammo_Ballistic extends PowerUp {
             for (var key of Object.keys(options)) {
                 this[key] = options[key];
             }
+        this.img.src = this.imgFile;
+        this.imgSide.src = this.imgFileSide;
     }
 }
 
@@ -658,8 +675,9 @@ class Ammo_Plasma extends PowerUp {
     constructor(id, x, y, z, vx, vy, vz, options) {
         super(id, x, y, z, vx, vy, vz, options);
         this.type = 'ammo_plasma';
-        // this.imgFile = 'img/sprites/ammo_plasma.png';
-        // this.img.src = this.imgFile;
+        this.imgFile = 'img/sprites/powerups/ammo_plasma_top.png';
+        this.imgFileSide = 'img/sprites/powerups/ammo_plasma_side.png';
+        this.img.src = this.imgFile;
         this.color = [255, 0, 255];
         this.colorSide = [255, 128, 255];
         this.shadowDraw = true;
@@ -677,6 +695,8 @@ class Ammo_Plasma extends PowerUp {
             for (var key of Object.keys(options)) {
                 this[key] = options[key];
             }
+        this.img.src = this.imgFile;
+        this.imgSide.src = this.imgFileSide;
     }
 }
 
@@ -684,8 +704,8 @@ class HealthPickup extends PowerUp {
     constructor(id, x, y, z, vx, vy, vz, options) {
         super(id, x, y, z, vx, vy, vz, options);
         this.type = 'health';
-        // this.imgFile = 'img/sprites/health.png';
-        // this.img.src = this.imgFile;
+        this.imgFile = 'img/sprites/powerups/health_top.png';
+        this.imgFileSide = 'img/sprites/powerups/health_side.png';
         this.color = [0, 255, 0];
         this.colorSide = [128, 255, 128];
         //if health is not full
@@ -704,5 +724,38 @@ class HealthPickup extends PowerUp {
             for (var key of Object.keys(options)) {
                 this[key] = options[key];
             }
+        this.img.src = this.imgFile;
+        this.imgSide.src = this.imgFileSide;
+    }
+}
+
+class Buff extends Block {
+    constructor(id, x, y, z, vx, vy, vz, options) {
+        super(id, x, y, z, vx, vy, vz, options);
+        this.HB = new Cube(new Vect3(x, y, z), new Vect3(vx, vy, vz));
+        this.target = null;
+        this.rotateRadius = 50
+        this.type = 'buff';
+        this.solid = false;
+        this.shadowDraw = true;
+        this.runFunc = [
+            (actor, side) => {
+                if (this.target != null) {
+                this.HB.pos.x = this.target.HB.pos.x + sineAnimate(this.rotateRadius, 0.05) - this.HB.volume.x / 2;
+                this.HB.pos.y = this.target.HB.pos.y + sineAnimate(this.rotateRadius, 0.05, 30);
+                this.HB.pos.z = this.target.HB.pos.z;
+                }
+            }
+        ]
+        if (typeof options === 'object')
+            for (var key of Object.keys(options)) {
+                this[key] = options[key];
+            }
+        this.img.src = this.imgFile;
+
+    }
+
+    trigger(actor, side) {
+
     }
 }

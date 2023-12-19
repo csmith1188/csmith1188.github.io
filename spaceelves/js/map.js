@@ -29,6 +29,9 @@ class Map {
         // this.lightValue = [0, 0, 128, 0.25];
 
         this.runFunc = []; // A list of functions to run during the step
+        this.drawFunc = []; // A list of functions to draw during the draw step
+
+        this.setup = () => { };
 
         if (typeof options == 'object')
             for (const setting of Object.keys(options)) {
@@ -255,6 +258,11 @@ class Map {
             ctx.fillRect(0, (game.window.h / 2) + ((game.window.h / 1) * (game.player.camera.angle)), game.window.w, game.window.h);
         }
 
+        // Run all drawFunc
+        for (const func of this.drawFunc) {
+            func();
+        }
+
 
         /*
              _     _
@@ -325,5 +333,11 @@ class Node {
                 ctx.strokeRect(game.window.w / 2 - compareX, game.window.h / 2 - compareY, this.pos.w, this.pos.h);
 
         }
+    }
+}
+
+class Map_FieldCity extends Map {
+    constructor() {
+        super();
     }
 }

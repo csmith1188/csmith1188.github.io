@@ -839,18 +839,21 @@ class Character {
 
 function getName() {
     let names = [
+        "Hae'din",
+        "Ai'Zaya",
+        "Mah'vrick",
+        "Jae'Sin",
+        "Loh'Gahn",
+        "Bael'Zar",
         "Aegnor",
         "Beleg",
         "Celeborn",
         "Denethor",
         "Ecthelion",
-        "Jae'Sin",
-        "Loh'Gahn",
         "Aerendil",
         "Caladwen",
         "Eldamar",
         "Finwe",
-        "Galadriel",
         "Haldir",
         "Ithilwen",
         "Luthien",
@@ -860,7 +863,6 @@ function getName() {
         "Oropher",
         "Quenya",
         "Silmaril",
-        "Tauriel",
         "Vanyar",
         "Yavanna",
         "Zirakzigil"

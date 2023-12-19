@@ -69,3 +69,10 @@ Dark elves believe everything is random:
 - ring height too low in iso view when on block
 - missile cylinder shadow not aligning in iso view
 - choppy gamepad aim
+
+
+// weapons
+- ballistic beats crystal beats plasma beats ballistic
+- pistol and sniper beat sheild and grapple by outranging
+- flamer and lance beat pistol and sniper by closing distance and burst damage
+- shield and grapple beat flamer and lance by disabling when grappled and reflecting momentum
