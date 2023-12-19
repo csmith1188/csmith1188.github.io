@@ -1,68 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PokeDex</title>
-    <link rel="stylesheet" href="style/style.css">
+    <title>Splash Page</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f2f2f2;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: bold;
+        }
+
+        #content {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        a {
+            color: black;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #ff0000;
+        }
+    </style>
+
+    </style>
 </head>
 
 <body>
-
-    <a name="#"></a>
-
-    <div id="navBar">
-        <a href="#top" class="button clickable" onclick="printSection(false, true); printSection('changelog');">Home</a>
-        <a href="#top" class="button clickable" onclick="printBattle(false, true)">Battles</a>
-        <a href="#top" class="button clickable" onclick="printTerm(false, true)">Terms</a>
-        <a href="#top" class="button clickable" onclick="printPuck(false, true)">Pucks</a>
-        <a href="#top" class="button clickable" onclick="printSlammer(false, true)">Slammers</a>
-        <a href="#top" class="button clickable" onclick="printStatus(false, true)">Statuses</a>
-        <a href="#top" class="button clickable" onclick="printZone(false, true)">Zones</a>
+    <div id="content">
+        <a href="pokepucks/index.html">PokePucks</a>
+        <br><br>
+        <a href="spaceelves/index.html">Space Elves on Jetbikes</a>
     </div>
-
-    <div id="content"></div>
-
-    <script src="data/connections.js"></script>
-    <script src="data/battles.js"></script>
-    <script src="data/mart.js"></script>
-    <script src="data/pucks.js"></script>
-    <script src="data/slammers.js"></script>
-    <script src="data/statuses.js"></script>
-    <script src="data/terms.js"></script>
-    <script src="data/textData.js"></script>
-    <script src="data/zones.js"></script>
-
-    <script src="pokedex.js"></script>
-
-    <script>
-
-        printSection();
-        printSection('changelog');
-        printBattle();
-        printTerm();
-        printPuck();
-        printSlammer();
-        printStatus();
-        printZone();
-        //Discoveries
-        //POIs
-
-    </script>
-    <script>
-
-        // fetch('pokepucks.json')
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         // Handle the JSON data here
-        //         console.log(data); // You can do something with the data here
-
-        //     })
-        //     .catch(error => {
-        //         console.error('Error:', error);
-        //     });
-
-    </script>
+</body>
 
 </html>
