@@ -441,6 +441,7 @@ class Missile extends Block {
         this.touchSFX = new Audio('sfx/hit_01.wav');
         this.damage = 10;
         this.force = 0.15; // How much of this projectile's speed is applied to the target
+        this.shadowDraw = true;
         this.runFunc = [
             // Create Debris
             () => {
@@ -601,6 +602,7 @@ class PowerUp extends Block {
         this.type = 'powerup';
         this.touchSFX = new Audio('sfx/coin_01.wav');
         this.solid = false;
+        this.shadowDraw = true;
         this.runFunc = [
             (actor, side) => {
                 this.HB.pos.z = sineAnimate(5, 0.05) + 10;
@@ -634,7 +636,7 @@ class Ammo_Ballistic extends PowerUp {
         // this.img.src = this.imgFile;
         this.color = [255, 0, 0];
         this.colorSide = [255, 128, 128];
-        //if ballistic ammo is not full
+        this.shadowDraw = true;
         this.runFunc.push((actor, side) => {
             if (actor instanceof Character)
                 if (actor.ammo.ballistic < actor.ammo.ballisticMax) {
@@ -660,7 +662,7 @@ class Ammo_Plasma extends PowerUp {
         // this.img.src = this.imgFile;
         this.color = [255, 0, 255];
         this.colorSide = [255, 128, 255];
-        //if plasma ammo is not full
+        this.shadowDraw = true;
         this.runFunc.push((actor, side) => {
             if (actor instanceof Character)
                 if (actor.ammo.plasma < actor.ammo.plasmaMax) {

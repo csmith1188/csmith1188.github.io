@@ -217,6 +217,11 @@ class Controller {
             if (gp.buttons[4].pressed) this.buttons.boost.current = 1;
             else this.buttons.boost.current = 0;
 
+            // A button to switch to weapon 0
+            if (gp.buttons[0].pressed) game.player.character.item = 0;
+            // X button to switch to weapon 1
+            if (gp.buttons[2].pressed) game.player.character.item = 1;
+
             // Left trigger to space
             if (gp.buttons[6].pressed) this.buttons.jump.current = 1;
             else this.buttons.jump.current = 0;
@@ -255,6 +260,12 @@ class Controller {
                     let touchRightFound = false;
                     for (const touch of this.touch.event.targetTouches) {
                         let touchCoord = getCanvasRelative(touch);
+                        // Check for touchbutton inventory 1 Rect collidepoint
+                        if (game.player.interface.touchButton.inventory1.collidePoint(touchCoord.x, touchCoord.y))
+                            game.player.character.item = 0;
+                        if (game.player.interface.touchButton.inventory2.collidePoint(touchCoord.x, touchCoord.y))
+                            game.player.character.item = 1;
+                        // Check for left touch
                         let touchX = touchCoord.x - this.touch.left.pos.x;
                         let touchY = touchCoord.y - (game.window.h - this.touch.left.pos.y);
                         let distance = Math.sqrt(touchX ** 2 + touchY ** 2);
@@ -280,6 +291,7 @@ class Controller {
                             if (touchY > 0) this.buttons.moveDown.current = Math.abs(touchY);
 
                         }
+                        // Check for right touch
                         touchX = touchCoord.x - (game.window.w - this.touch.right.pos.x);
                         touchY = touchCoord.y - (game.window.h - this.touch.right.pos.y);
                         distance = Math.sqrt(touchX ** 2 + touchY ** 2);

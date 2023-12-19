@@ -144,8 +144,8 @@ class Interface {
                     break;
             }
             // Create a Rect for each item in the inventory and store it in the touchButton object
-            this.touchButton.inventory1 = new Rect((game.window.w / 2) - 128, game.window.h - 64, 64, 64);
-            this.touchButton.inventory2 = new Rect((game.window.w / 2) - 64, game.window.h + 64, 64, 64);
+            this.touchButton.inventory1 = new Rect((game.window.w / 2) - 150, game.window.h - 64, 64, 64);
+            this.touchButton.inventory2 = new Rect((game.window.w / 2) + 90, game.window.h - 64, 64, 64);
             // this.touchButton.inventory3 = new Rect((game.window.w / 2) - 32, game.window.h - 192, 64, 64);
         }
     }
@@ -266,7 +266,6 @@ class Interface {
             //calculate the angle from the player to the bot
             let angle = Math.atan2(game.match.bots[i].character.HB.pos.y - game.player.character.HB.pos.y, game.match.bots[i].character.HB.pos.x - game.player.character.HB.pos.x);
             //calculate the bot's position on the minimap
-            console.log(distance, distance / 10, Math.min(distance / 10, 100));
             let x = (game.window.w / 2) + (Math.cos(angle) * Math.min(distance / 10, 100));
             let y = (game.window.h - 100) + (Math.sin(angle) * Math.min(distance / 10, 100));
             //draw the bot

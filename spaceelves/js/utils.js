@@ -102,6 +102,21 @@ class Rect {
     }
 
     /**
+    * Checks if the rectangle collides with another rectangle.
+    * @param {Rect} c - The rectangle to check collision with.
+    * @returns {boolean} - True if collision occurs, false otherwise.
+    */
+    collidePoint(x, y) {
+        console.log(x, y);
+        console.log(this);
+        if (x > this.x && x < this.x + this.w && y > this.y && y < this.y + this.h) {
+            console.log('collide');
+            return true
+        }
+        return false
+    }
+
+    /**
      * Checks if the rectangle collides with another rectangle.
      * @param {Rect} c - The rectangle to check collision with.
      * @returns {boolean} - True if collision occurs, false otherwise.
