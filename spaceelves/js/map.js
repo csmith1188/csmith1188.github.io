@@ -2,7 +2,7 @@ class Map {
     constructor(options) {
         this.w = 5096; //7200
         this.h = 5096; //4800
-        this.tileSize = 32; //32
+        this.tileSize = 48; //32
         this.tileSet = [[]]
         this.nodes = [];
 
@@ -29,7 +29,6 @@ class Map {
         // this.lightValue = [0, 0, 128, 0.25];
 
         this.runFunc = []; // A list of functions to run during the step
-        this.drawFunc = []; // A list of functions to draw during the draw step
 
         this.setup = () => { };
 
@@ -257,12 +256,6 @@ class Map {
             ctx.fillStyle = grd;
             ctx.fillRect(0, (game.window.h / 2) + ((game.window.h / 1) * (game.player.camera.angle)), game.window.w, game.window.h);
         }
-
-        // Run all drawFunc
-        for (const func of this.drawFunc) {
-            func();
-        }
-
 
         /*
              _     _

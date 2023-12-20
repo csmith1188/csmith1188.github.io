@@ -171,7 +171,7 @@ class Bot {
         let closestBlock = null;
         let closestDistance = Infinity;
         for (const block of game.match.map.blocks) {
-            if (type.includes(block.type)) {
+            if (type.includes(block.subtype) || type.includes(block.type)) {
                 let compareX = block.HB.pos.x - this.character.HB.pos.x;
                 let compareY = block.HB.pos.y - this.character.HB.pos.y;
                 let distance = Math.sqrt(compareX ** 2 + compareY ** 2); // Pythagoras

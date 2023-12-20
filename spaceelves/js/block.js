@@ -461,7 +461,7 @@ class Missile extends Block {
                 let tempx = ((Math.random() * 1) - 0.5) * 2;
                 let tempy = ((Math.random() * 1) - 0.5) * 2;
                 let tempz = ((Math.random() * 1) - 0.5) * 2;
-                if (ticks % 2 == 0) game.match.map.debris.push(
+                if (ticks % 4 == 0) game.match.map.debris.push(
                     new Block(
                         allID++,
                         this.HB.pos.x,
@@ -534,7 +534,8 @@ class Missile extends Block {
                     if (side && c.solid && c.team !== this.user.team) {
                         //play hit2 sound
                         this.touchSFX.play();
-                        c.hp -= this.damage;
+                        if (!c.invulnerable)
+                            c.hp -= this.damage;
                         c.speed.x += this.speed.x * this.force;
                         c.speed.y += this.speed.y * this.force;
                         c.speed.z += this.speed.z * this.force;
@@ -646,7 +647,8 @@ class PowerUp extends Block {
 class Ammo_Ballistic extends PowerUp {
     constructor(id, x, y, z, vx, vy, vz, options) {
         super(id, x, y, z, vx, vy, vz, options);
-        this.type = 'ammo_ballistic';
+        this.type = 'powerup';
+        this.subtype = 'ammo_ballistic';
         this.imgFile = 'img/sprites/powerups/ammo_ballistic_top.png';
         this.imgFileSide = 'img/sprites/powerups/ammo_ballistic_side.png';
         this.color = [255, 0, 0];
@@ -674,7 +676,8 @@ class Ammo_Ballistic extends PowerUp {
 class Ammo_Plasma extends PowerUp {
     constructor(id, x, y, z, vx, vy, vz, options) {
         super(id, x, y, z, vx, vy, vz, options);
-        this.type = 'ammo_plasma';
+        this.type = 'powerup';
+        this.subtype = 'ammo_plasma';
         this.imgFile = 'img/sprites/powerups/ammo_plasma_top.png';
         this.imgFileSide = 'img/sprites/powerups/ammo_plasma_side.png';
         this.img.src = this.imgFile;
@@ -703,7 +706,8 @@ class Ammo_Plasma extends PowerUp {
 class HealthPickup extends PowerUp {
     constructor(id, x, y, z, vx, vy, vz, options) {
         super(id, x, y, z, vx, vy, vz, options);
-        this.type = 'health';
+        this.type = 'powerup';
+        this.subtype = 'health';
         this.imgFile = 'img/sprites/powerups/health_top.png';
         this.imgFileSide = 'img/sprites/powerups/health_side.png';
         this.color = [0, 255, 0];
@@ -741,9 +745,9 @@ class Buff extends Block {
         this.runFunc = [
             (actor, side) => {
                 if (this.target != null) {
-                this.HB.pos.x = this.target.HB.pos.x + sineAnimate(this.rotateRadius, 0.05) - this.HB.volume.x / 2;
-                this.HB.pos.y = this.target.HB.pos.y + sineAnimate(this.rotateRadius, 0.05, 30);
-                this.HB.pos.z = this.target.HB.pos.z;
+                    this.HB.pos.x = this.target.HB.pos.x + sineAnimate(this.rotateRadius, 0.05) - this.HB.volume.x / 2;
+                    this.HB.pos.y = this.target.HB.pos.y + sineAnimate(this.rotateRadius, 0.05, 30);
+                    this.HB.pos.z = this.target.HB.pos.z;
                 }
             }
         ]

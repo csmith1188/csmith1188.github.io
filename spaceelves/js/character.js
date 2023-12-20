@@ -61,6 +61,7 @@ class Character {
         this.accuracy = 0.1;    // Spread magnitude of weapon
         this.pp = 100;          // Power Points
         this.pp_max = 100;      // Max Power Points
+        this.invulnerable = false;  // Can't take damage
 
         /*
           ___ _
@@ -70,7 +71,7 @@ class Character {
 
         */
         this.item = 0;
-        this.inventory = [new Pistol(), new Flamer()];
+        this.inventory = [new Pistol(), new Rifle()];
         this.ammo = {
             plasma: 2,
             plasmaMax: 5,
@@ -638,8 +639,13 @@ class Character {
                 */
                 // Draw character's name above their head
                 ctx.textAlign = "center";
+                //first draw the text in black to create a shadow
                 ctx.fillStyle = '#000000';
-                ctx.font = "12px Arial";
+                ctx.font = "12px Jura";
+                ctx.fillText(this.name, game.window.w / 2 - compareX + 2, game.window.h / 2 - compareY - this.HB.height - this.HB.pos.z - 8);
+                //then draw the text in white
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = "12px Jura";
                 ctx.fillText(this.name, game.window.w / 2 - compareX, game.window.h / 2 - compareY - this.HB.height - this.HB.pos.z - 10);
             }
 
@@ -669,7 +675,7 @@ class Character {
             if (this === game.player.character) {
                 // draw number of waves to center of screen
                 ctx.fillStyle = "#FFFFFF";
-                ctx.font = "36px Arial";
+                ctx.font = "36px Jura";
                 ctx.textAlign = "center";
                 ctx.fillText(`Waves: ${game.match.waves}`, game.window.w / 2, game.window.h / 2);
             }
@@ -773,7 +779,7 @@ class Character {
 
         // Draw character's name above their head, adjusting for camera angle
         ctx.fillStyle = "#FFFFFF";
-        ctx.font = "12px Arial";
+        ctx.font = "12px Jura";
         ctx.textAlign = "center";
         ctx.fillText(this.name, game.window.w / 2 - compareX, game.window.h / 2 - (compareY * game.player.camera.angle) - this.HB.height - (this.HB.pos.z * (1 - game.player.camera.angle)) - 10);
 
@@ -841,10 +847,17 @@ function getName() {
     let names = [
         "Hae'din",
         "Ai'Zaya",
-        "Mah'vrick",
+        "Mah'Vrick",
         "Jae'Sin",
         "Loh'Gahn",
-        "Bael'Zar",
+        "Ah'Lex",
+        "Bek'Hahm",
+        "Ry'Ahn",
+        "Oh'Lee",
+        "Zer'Gling",
+        "Bah'Tadog",
+        "Lee'Roy",
+        "Baelzar",
         "Aegnor",
         "Beleg",
         "Celeborn",
