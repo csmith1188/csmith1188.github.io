@@ -245,6 +245,16 @@ class Controller {
                 this.buttons.start.current = 0;
                 this.buttons.start.last = this.buttons.start.current;
             }
+            if (gp.buttons[5].pressed) {
+                game.player.camera._3D = 1;
+                game.player.camera.angle = 0.35;
+            } else {
+                game.player.camera._3D = false;
+                game.player.camera.angle = 1;
+            }
+            
+
+
         }
         /*
           _____            _

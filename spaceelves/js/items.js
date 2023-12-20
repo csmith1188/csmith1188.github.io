@@ -203,10 +203,10 @@ class Rifle extends Item {
                 user.speed.z -= (aimZ / distance) * 10;
                 
             } else {
-                if (user.ammo.ballistic > 0) {
+                if (user.ammo[this.type] > 0) {
                     this.ammo = this.ammoMax;   // reload
                     this.nextCool = ticks + this.reloadTime; // set reload time
-                    user.ammo.ballistic--;      // consume a clip from a user
+                    user.ammo[this.type]--;      // consume a clip from a user
                 } else {
                     //play empty click sound
                 }
