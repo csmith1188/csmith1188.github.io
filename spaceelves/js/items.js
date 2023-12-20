@@ -116,7 +116,7 @@ class Pistol extends Item {
 class Rifle extends Item {
     constructor(options) {
         super(options);
-        this.type = 'ballistic';
+        this.type = 'plasma';
         this.shootSFX = new Audio('sfx/rifle_shoot.wav');
         this.projectileSpeed = 30;
         this.damage = 40;
