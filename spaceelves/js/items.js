@@ -384,7 +384,7 @@ class Lance extends Item {
         this.reload_empty = sounds.reload_empty;
         this.reload_done = sounds.reload_done;
         this.boostSpeed = 15;
-        this.range = 100;
+        this.range = 300;
         this.coolDown = 120;
         this.reloadTime = 60;
         this.nextCool = 0;

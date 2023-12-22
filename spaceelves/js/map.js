@@ -24,8 +24,7 @@ class Map {
         this.bullets = [];
         this.debris = [];
 
-        this.lightValue = [0, 0, 0, 0.0];
-        // this.lightValue = [0, 0, 128, 0.25];
+        this.lightValue = [0, 0, 24, 0.15];
 
         this.runFunc = []; // A list of functions to run during the step
 

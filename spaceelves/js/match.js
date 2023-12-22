@@ -96,25 +96,26 @@ class Match_ForEver extends Match {
         */
         game.player.interface.drawFunc.push(
             function () {
-                // loop through all the bots and count enemies
-                let enemies = 0;
-                for (let i = 0; i < game.match.bots.length; i++) {
-                    if (game.match.bots[i].character.team != game.player.character.team) enemies++;
+                if (game.player.character.active) {
+                    // loop through all the bots and count enemies
+                    let enemies = 0;
+                    for (let i = 0; i < game.match.bots.length; i++) {
+                        if (game.match.bots[i].character.team != game.player.character.team) enemies++;
+                    }
+                    let matchBox = new Vect2((game.window.w / 2) - 150, game.window.h - 280);
+                    ctx.textAlign = "left";
+                    ctx.font = '16px Jura';
+                    // first draw the text lines in black to create a shadow
+                    ctx.fillStyle = "#000000";
+                    ctx.fillText(`Wave:  ${game.match.waves}`, matchBox.x + 2, matchBox.y + 52);
+                    ctx.fillText(`Enemy: ${enemies}`, matchBox.x + 2, matchBox.y + 72);
+                    ctx.fillText(`Next: ${Math.floor((game.match.waveTime / 60)) - Math.floor((ticks % game.match.waveTime) / 60)}`, matchBox.x + 2, matchBox.y + 92);
+                    // then draw the text lines in white            
+                    ctx.fillStyle = "#FFFFFF";
+                    ctx.fillText(`Wave:  ${game.match.waves}`, matchBox.x, matchBox.y + 50);
+                    ctx.fillText(`Enemy: ${enemies}`, matchBox.x, matchBox.y + 70);
+                    ctx.fillText(`Next: ${Math.floor((game.match.waveTime / 60)) - Math.floor((ticks % game.match.waveTime) / 60)}`, matchBox.x, matchBox.y + 90);
                 }
-                let matchBox = new Vect2((game.window.w / 2) - 150, game.window.h - 280);
-                ctx.textAlign = "left";
-                //Draw waves in top right hand corner
-                ctx.font = '16px Jura';
-                // first draw the text lines in black to create a shadow
-                ctx.fillStyle = "#000000";
-                ctx.fillText(`Wave:  ${game.match.waves}`, matchBox.x + 2, matchBox.y + 52);
-                ctx.fillText(`Enemy: ${enemies}`, matchBox.x + 2, matchBox.y + 72);
-                ctx.fillText(`Next: ${Math.floor((game.match.waveTime / 60)) - Math.floor((ticks % game.match.waveTime) / 60)}`, matchBox.x + 2, matchBox.y + 92);
-                // then draw the text lines in white            
-                ctx.fillStyle = "#FFFFFF";
-                ctx.fillText(`Wave:  ${game.match.waves}`, matchBox.x, matchBox.y + 50);
-                ctx.fillText(`Enemy: ${enemies}`, matchBox.x, matchBox.y + 70);
-                ctx.fillText(`Next: ${Math.floor((game.match.waveTime / 60)) - Math.floor((ticks % game.match.waveTime) / 60)}`, matchBox.x, matchBox.y + 90);
             }.bind(this)
         )
 
@@ -195,7 +196,7 @@ class Match_ForEver extends Match {
                                 Math.round(Math.random() * this.map.h),
                                 0),
                             29, 37);
-                        let rand = Math.floor(Math.random() * 3);
+                        let rand = Math.floor(Math.random() * 4);
                         switch (rand) {
                             case 0:
                                 this.bots[this.bots.length - 1].character.inventory.push(new Pistol())
@@ -205,6 +206,9 @@ class Match_ForEver extends Match {
                                 break;
                             case 2:
                                 this.bots[this.bots.length - 1].character.inventory.push(new Flamer())
+                                break;
+                            case 3:
+                                this.bots[this.bots.length - 1].character.inventory.push(new Lance())
                                 break;
                         }
                         this.bots[this.bots.length - 1].character.item = Math.round(Math.random());

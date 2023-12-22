@@ -27,7 +27,7 @@ Dark elves believe everything is random:
 #########   ########          ###        ########### ###    ###  ########     ###
 -->
 
-- Sword / Lance
+- Sword
 - Inventory Management
 -- X is pickup, A is always Sword, never drop A
 - Randomly generate tilemap

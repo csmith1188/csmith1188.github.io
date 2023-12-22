@@ -76,7 +76,7 @@ class Character {
         this.ammo = {
             plasma: 1,
             plasmaMax: 5,
-            ballistic: 3,
+            ballistic: 1,
             ballisticMax: 5
         }
 
@@ -386,36 +386,44 @@ class Character {
                     this.floor = c.HB.pos.z + c.HB.volume.z; //Set the floor to the block's height
                 let side = this.HB.collide(c.HB); //Check for collision
                 if (side) c.trigger(this, side); //Trigger the block's trigger function
-                if (c.solid) //If the block is solid
+                if (c.solid && side) { //If the block is solid
+                    if (this == game.player.character) // Only play for the player until sound ranges are implemented
+                        sounds.wallhit.play();
                     switch (side) { //see which side you collided on
                         case 'front':
                             //Reflect the speed and mom by the map's reflect value
+                            this.hp -= Math.abs(this.speed.y) / 2;
                             this.speed.y *= -c.reflection;
                             this.mom.y *= -c.reflection;
                             //Move the character to the edge of the block
                             this.HB.pos.y = c.HB.pos.y + c.HB.volume.y + this.HB.radius;
                             break;
                         case 'rear':
+                            this.hp -= Math.abs(this.speed.y) / 2;
                             this.speed.y *= -c.reflection;
                             this.mom.y *= -c.reflection;
                             this.HB.pos.y = c.HB.pos.y - this.HB.radius;
                             break;
                         case 'right':
+                            this.hp -= Math.abs(this.speed.x) / 2;
                             this.speed.x *= -c.reflection;
                             this.mom.x *= -c.reflection;
                             this.HB.pos.x = c.HB.pos.x + c.HB.volume.x + this.HB.radius;
                             break;
                         case 'left':
+                            this.hp -= Math.abs(this.speed.x) / 2;
                             this.speed.x *= -c.reflection;
                             this.mom.x *= -c.reflection;
                             this.HB.pos.x = c.HB.pos.x - this.HB.radius;
                             break;
                         case 'top':
+                            this.hp -= Math.abs(this.speed.z) / 2;
                             this.speed.z *= -c.reflection;
                             this.mom.z *= -c.reflection;
                             this.HB.pos.z = c.HB.pos.z + c.HB.volume.z;
                             break;
                         case 'bottom':
+                            this.hp -= Math.abs(this.speed.z) / 2;
                             this.speed.z *= -c.reflection;
                             this.mom.z *= -c.reflection;
                             this.HB.pos.z = c.HB.pos.z - this.HB.height;
@@ -424,6 +432,7 @@ class Character {
                             //break if you didn't collide
                             break;
                     }
+                }
             }
 
             /*

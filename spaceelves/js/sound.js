@@ -13,5 +13,6 @@ const sounds = {
     'pickup_health': new Audio('sfx/power05.wav'),
     'pickup_weapon': new Audio('sfx/power03.wav'),
     'boost': new Audio('sfx/pup_01.wav'),
+    'wallhit': new Audio('sfx/hardhit_01.wav'),
     'death': new Audio('sfx/hit05.wav'),
 }
