@@ -338,6 +338,17 @@ class Match_ForEver extends Match {
 //             actor.speed.z += sineAnimate(0.5, 0.05) + 0.5
 //     }.bind(this.map.blocks[this.map.blocks.length - 1]); //end wave
 
+
+/*
+ ######                              #     #
+ #     # ###### #####  #    #  ####  ##   ##   ##   #####  ####  #    #
+ #     # #      #    # #    # #    # # # # #  #  #    #   #    # #    #
+ #     # #####  #####  #    # #      #  #  # #    #   #   #      ######
+ #     # #      #    # #    # #  ### #     # ######   #   #      #    #
+ #     # #      #    # #    # #    # #     # #    #   #   #    # #    #
+ ######  ###### #####   ####   ####  #     # #    #   #    ####  #    #
+
+*/
 class DebugMatch extends Match {
     constructor() {
         super();
@@ -354,39 +365,40 @@ class DebugMatch extends Match {
             this.map.blocks.push(new Ammo_Ballistic(allID++, Math.round(Math.random() * this.map.w), Math.round(Math.random() * this.map.h), 0, 128, 128, 64));
             this.map.blocks.push(new Ammo_Plasma(allID++, Math.round(Math.random() * this.map.w), Math.round(Math.random() * this.map.h), 0, 128, 128, 64));
         }
-        this.map.blocks.push(new WeaponPickup(allID++, (this.map.w / 2) - 100, (this.map.h / 2), 0, 0, 0, 0, { weapon: 'pistol', pickupDelay: 0 }));
-        this.map.blocks.push(new WeaponPickup(allID++, (this.map.w / 2), (this.map.h / 2), 0, 0, 0, 0, { weapon: 'rifle', pickupDelay: 0 }));
-        this.map.blocks.push(new WeaponPickup(allID++, (this.map.w / 2) + 100, (this.map.h / 2), 0, 0, 0, 0, { weapon: 'flamer', pickupDelay: 0 }));
-        this.map.blocks.push(new WeaponPickup(allID++, (this.map.w / 2) + 200, (this.map.h / 2), 0, 0, 0, 0, { weapon: 'lance', pickupDelay: 0 }));
-
+        // this.map.blocks.push(new WeaponPickup(allID++, (this.map.w / 2) - 100, (this.map.h / 2), 0, 0, 0, 0, { weapon: 'pistol', pickupDelay: 0 }));
+        // this.map.blocks.push(new WeaponPickup(allID++, (this.map.w / 2) + 0, (this.map.h / 2), 0, 0, 0, 0, { weapon: 'rifle', pickupDelay: 0 }));
+        // this.map.blocks.push(new WeaponPickup(allID++, (this.map.w / 2) + 100, (this.map.h / 2), 0, 0, 0, 0, { weapon: 'flamer', pickupDelay: 0 }));
+        // this.map.blocks.push(new WeaponPickup(allID++, (this.map.w / 2) + 200, (this.map.h / 2), 0, 0, 0, 0, { weapon: 'lance', pickupDelay: 0 }));
+        this.map.blocks.push(new WeaponPickup(allID++, (this.map.w / 2) + 300, (this.map.h / 2), 0, 0, 0, 0, { weapon: 'sword', pickupDelay: 0 }));
 
         this.bots.push(new Bot()) //Kevin / Jae'Sin
-        this.bots[this.bots.length - 1].character = new Character(
+        this.bots[this.bots.length - 1].character = new Jetbike(
             allID++,
-            (this.map.w / 2),
-            (this.map.h / 2),
+            (this.map.w / 2) - 1000,
+            (this.map.h / 2) - 1000,
             this.bots[this.bots.length - 1],
             {
-                // target: game.player.character,d
-                // target: this.bots[this.bots.length - 1].character,
                 name: getName(), team: 1, gfx: 'img/sprites/dark2', color: [0, 0, 255],
-                hover: 16, airAccel: new Vect3(0.15, 0.15, 1),
                 active: true,
-                cleanup: false,
-                runFunc: [
-                    function () { }.bind(this.bots[this.bots.length - 1].character)
-                ]
+                cleanup: false
             }
         );
-        this.bots[this.bots.length - 1].character.HB = new Cylinder(
-            new Vect3(
-                (this.map.w / 2) - 1000,
-                (this.map.h / 2) - 1000,
-                0),
-            29, 37);
+        // add a pistol to the last bot's character's inventory
+        this.bots[this.bots.length - 1].character.inventory.push(new Pistol())
     }
 }
 
+
+/*
+ #######                  #     #
+ #        ####  #####     #     #  ####  #    #  ####  #####
+ #       #    # #    #    #     # #    # ##   # #    # #    #
+ #####   #    # #    #    ####### #    # # #  # #    # #    #
+ #       #    # #####     #     # #    # #  # # #    # #####
+ #       #    # #   #     #     # #    # #   ## #    # #   #
+ #        ####  #    #    #     #  ####  #    #  ####  #    #
+
+*/
 class Match_ForHonor extends Match {
     constructor() {
         super();

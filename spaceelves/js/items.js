@@ -43,11 +43,11 @@ class Pistol extends Item {
         this.type = 'ballistic';
         this.name = 'Pluton Pistol';
         this.weapon = 'pistol';
-        this.shootSFX = new Audio('sfx/laser_01.wav');
+        this.shootSFX = sounds.shoot_pistol;
         this.reload_empty = sounds.reload_empty;
         this.reload_done = sounds.reload_done;
         this.projectileSpeed = 20;
-        this.range = 300;
+        this.range = 400;
         this.coolDown = 10;
         this.reloadTime = 60;
         this.nextCool = 0;
@@ -75,6 +75,7 @@ class Pistol extends Item {
                 // Set next cooldown
                 this.nextCool = ticks + this.coolDown;
                 this.ammo--; // consume a bullet
+                this.shootSFX.currentTime = 0;
                 this.shootSFX.play(); // play shoot sound
                 //find the distance from player to mouse with pythagorean theorem
                 let distance = ((aimX ** 2) + (aimY ** 2)) ** 0.5;
@@ -172,6 +173,7 @@ class Rifle extends Item {
                 let yaim = aimY;
                 let zaim = aimZ;
                 this.ammo--; // consume a bullet
+                this.shootSFX.currentTime = 0;
                 this.shootSFX.play(); // play shoot sound
                 //find the distance from player to mouse with pythagorean theorem
                 let distance = ((xaim ** 2) + (yaim ** 2)) ** 0.5;
@@ -194,7 +196,7 @@ class Rifle extends Item {
                             color: user.color,
                             damage: this.damage,
                             livetime: 300,
-                            touchSFX: new Audio('sfx/hit03.wav')
+                            touchSFX: sounds.hit_rifle
                         }));
                 // Change bullet runfunc
                 game.match.map.bullets[game.match.map.bullets.length - 1].runFunc.push(
@@ -284,7 +286,7 @@ class Flamer extends Item {
         this.type = 'plasma';
         this.name = 'Venusian Lotus';
         this.weapon = 'flamer';
-        this.shootSFX = new Audio('sfx/hit_02.wav');
+        this.shootSFX = sounds.shoot_flamer;
         this.reload_empty = sounds.reload_empty;
         this.reload_done = sounds.reload_done;
         this.projectileSpeed = 10;
@@ -316,6 +318,7 @@ class Flamer extends Item {
                 // Set next cooldown
                 this.nextCool = ticks + this.coolDown;
                 this.ammo--; // consume a bullet
+                this.shootSFX.currentTime = 0;
                 this.shootSFX.play(); // play shoot sound
                 for (let i = 0; i < 5; i++) {
 
@@ -384,6 +387,7 @@ class Lance extends Item {
         this.reload_empty = sounds.reload_empty;
         this.reload_done = sounds.reload_done;
         this.boostSpeed = 15;
+        this.hopSpeed = 6;
         this.range = 300;
         this.coolDown = 120;
         this.reloadTime = 60;
@@ -412,6 +416,7 @@ class Lance extends Item {
                 // Set next cooldown
                 this.nextCool = ticks + this.coolDown;
                 this.ammo--; // consume a bullet
+                this.shootSFX.currentTime = 0;
                 this.shootSFX.play(); // play shoot sound
                 //find the distance from player to mouse with pythagorean theorem
                 let distance = ((aimX ** 2) + (aimY ** 2)) ** 0.5;
@@ -419,6 +424,8 @@ class Lance extends Item {
                 aimX = (aimX / distance) * this.boostSpeed;
                 aimY = (aimY / distance) * this.boostSpeed;
                 aimZ = (aimZ / distance) * this.boostSpeed;
+
+                aimZ += this.hopSpeed;
 
                 // add aim to user speed
                 user.speed.x += aimX;
@@ -439,8 +446,7 @@ class Lance extends Item {
                             touchSFX: sounds.hit_lance,
                             opacity: 0,
                             shadowDraw: false,
-                            force: 1,
-                            touchSFX: sounds.hit_lance
+                            force: 1
                         }
                     )
                 );
@@ -474,6 +480,161 @@ class Lance extends Item {
                                     z: this.HB.pos.z,
                                     color: [tempC1, 0, tempC2],
                                     colorSide: [tempC2, 0, tempC1],
+                                    livetime: 15,
+                                    dying: true,
+                                    shadowDraw: false,
+                                    solid: false,
+                                }));
+
+                    }.bind(game.match.map.bullets[game.match.map.bullets.length - 1])
+                )
+                //Change hitSpash
+                game.match.map.bullets[game.match.map.bullets.length - 1].hitSplash = function () {
+                    for (let parts = 0; parts < 20; parts++) {
+                        let tempx = (Math.random() * 4) - 2;
+                        let tempy = (Math.random() * 4) - 2;
+                        let tempz = (Math.random() * 4) - 2;
+                        let tempC = Math.ceil(Math.random() * 255);
+                        game.match.map.debris.push(
+                            new Block(
+                                allID++,
+                                this.HB.pos.x,
+                                this.HB.pos.y,
+                                this.HB.pos.z,
+                                1, 1, 1,
+                                {
+                                    speed: new Vect3(tempx + (this.speed.x * 0.25), tempy + (this.speed.y * 0.25), tempz + (this.speed.z * 0.25)),
+                                    HB: new Cube(new Vect3(this.HB.pos.x, this.HB.pos.y, this.HB.pos.z), new Vect3(6, 3, 1)),
+                                    z: this.HB.pos.z,
+                                    color: [255, tempC, 0],
+                                    livetime: 20,
+                                    dying: true,
+                                    shadowDraw: false,
+                                    solid: false
+                                }));
+                    }
+                }.bind(game.match.map.bullets[game.match.map.bullets.length - 1])
+                game.match.map.bullets[game.match.map.bullets.length - 1].HB.radius = user.HB.radius + 10;
+
+
+            } else {
+                if (this.owner instanceof Player)
+                    this.reload_empty.play();
+                if (user.ammo[this.type] > 0 && !this.reloading) {
+                    this.reloading = true;    // set reloading to true
+                    this.ammo = this.ammoMax;   // reload
+                    this.nextCool = ticks + this.reloadTime; // set reload time
+                    user.ammo[this.type]--;      // consume a clip from a user
+                }
+            }
+        }
+    }
+}
+
+/*
+      ::::::::  :::       :::  ::::::::  :::::::::  :::::::::
+    :+:    :+: :+:       :+: :+:    :+: :+:    :+: :+:    :+:
+   +:+        +:+       +:+ +:+    +:+ +:+    +:+ +:+    +:+
+  +#++:++#++ +#+  +:+  +#+ +#+    +:+ +#++:++#:  +#+    +:+
+        +#+ +#+ +#+#+ +#+ +#+    +#+ +#+    +#+ +#+    +#+
+#+#    #+#  #+#+# #+#+#  #+#    #+# #+#    #+# #+#    #+#
+########    ###   ###    ########  ###    ### #########
+*/
+class Sword extends Item {
+    constructor(options) {
+        super(options);
+        this.type = 'none';
+        this.name = 'Saturnian Scimitar';
+        this.weapon = 'sword';
+        this.shootSFX = sounds.shoot_sword;
+        this.reload_empty = sounds.reload_empty;
+        this.reload_done = sounds.reload_done;
+        this.ppCost = 40;
+        this.range = 100;
+        this.coolDown = 10;
+        this.reloadTime = 0;
+        this.nextCool = 0;
+        this.reloading = false;
+        this.ammo = 1;
+        this.ammoMax = 1;
+        this.icon = new Image();
+        this.icon.src = 'img/sprites/inventory/sword_active.png';
+        this.iconInactive = new Image();
+        this.iconInactive.src = 'img/sprites/inventory/sword_inactive.png';
+        // Options
+        if (typeof options === 'object')
+            for (var key of Object.keys(options)) {
+                this[key] = options[key];
+            }
+    }
+
+    use(user, aimX, aimY, aimZ, mode) {
+        // Check cooldown
+        if (ticks > this.nextCool) {
+            // Stop reloading
+            this.reloading = false;
+            // Check ammo
+            if (user.pp >= this.ppCost) {
+                user.pp -= this.ppCost;
+                // Set next cooldown
+                this.nextCool = ticks + this.coolDown;
+                this.shootSFX.currentTime = 0;
+                this.shootSFX.play(); // play shoot sound
+                //find the distance from player to mouse with pythagorean theorem
+                let distance = ((aimX ** 2) + (aimY ** 2)) ** 0.5;
+                //Normalize the dimension distance by the real distance (ratio)
+                aimX = (aimX / distance) * 30;
+                aimY = (aimY / distance) * 30;
+                aimZ = (aimZ / distance) * 30;
+
+                // Add a new missile at this user's position
+                game.match.map.bullets.push(
+                    new Bullet(
+                        allID++, // ID
+                        user.HB.pos.x, user.HB.pos.y, user.HB.pos.z, 4, 4, 0, user, // Position and size
+                        {
+                            speed: new Vect3(aimX, aimY, 0),
+                            parent: user,
+                            color: user.color,
+                            damage: 10,
+                            livetime: 10,
+                            touchSFX: sounds.hit_lance,
+                            opacity: 0,
+                            shadowDraw: false,
+                            force: 0.2
+                        }
+                    )
+                );
+                // Run this function every frame the bullet is alive
+                game.match.map.bullets[game.match.map.bullets.length - 1].runFunc.push(
+                    function () {
+                        // Match the user's position
+                        this.HB.pos.x = this.parent.HB.pos.x + aimX;
+                        this.HB.pos.y = this.parent.HB.pos.y + aimY;
+                        this.HB.pos.z = this.parent.HB.pos.z + aimZ;
+
+                        // this damage is equal to the true speed of the player
+                        this.damage = Math.sqrt(Math.abs(this.parent.speed.x) ** 2 + Math.abs(this.parent.speed.y) ** 2 + Math.abs(this.parent.speed.z) ** 2);
+
+                        // add a debris block to the map at the player's position with a random speed
+                        let tempx = ((Math.random() * 1) - 0.5) * 2;
+                        let tempy = ((Math.random() * 1) - 0.5) * 2;
+                        let tempz = ((Math.random() * 1) - 0.5) * 2;
+                        let tempC1 = Math.ceil(Math.random() * 255);
+                        let tempC2 = Math.ceil(Math.random() * 255);
+                        game.match.map.debris.push(
+                            new Block(
+                                allID++,
+                                this.HB.pos.x,
+                                this.HB.pos.y,
+                                this.HB.pos.z,
+                                1, 1, 1,
+                                {
+                                    speed: new Vect3(tempx, tempy, tempz),
+                                    HB: new Cube(new Vect3(this.HB.pos.x, this.HB.pos.y, this.HB.pos.z), new Vect3(4, 4, 4)),
+                                    z: this.HB.pos.z,
+                                    color: [tempC1, tempC1, tempC1],
+                                    colorSide: [tempC2, tempC2, tempC2],
                                     livetime: 15,
                                     dying: true,
                                     shadowDraw: false,

@@ -113,13 +113,15 @@ class Interface {
                         1)
                         * 100) // times the size of the full bar
                 );
-                // draw the ammo bar
-                ctx.fillStyle = "#000000";
-                ctx.fillRect(ammoBox.x + 20, ammoBox.y, 10, 100);
-                // if the ammo is ballistic, draw it red, otherwise, draw it purple
-                if (item.type == "ballistic") ctx.fillStyle = "#FF0000";
-                else ctx.fillStyle = "#FF00FF";
-                ctx.fillRect(ammoBox.x + 20, ammoBox.y + 100 - (item.ammo / item.ammoMax) * 100, 10, (item.ammo / item.ammoMax) * 100);
+                if (item.type == "ballistic" || item.type == "plasma") {
+                    // draw the ammo bar
+                    ctx.fillStyle = "#000000";
+                    ctx.fillRect(ammoBox.x + 20, ammoBox.y, 10, 100);
+                    // if the ammo is ballistic, draw it red, otherwise, draw it purple
+                    if (item.type == "ballistic") ctx.fillStyle = "#FF0000";
+                    else ctx.fillStyle = "#FF00FF";
+                    ctx.fillRect(ammoBox.x + 20, ammoBox.y + 100 - (item.ammo / item.ammoMax) * 100, 10, (item.ammo / item.ammoMax) * 100);
+                }
             }
 
 

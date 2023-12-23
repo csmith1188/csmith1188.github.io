@@ -71,7 +71,7 @@ class Character {
 
         */
         this.item = 0;
-        this.inventory = [new Pistol()];
+        this.inventory = [new Sword()];
         this.inventory[0].owner = this.parent;
         this.ammo = {
             plasma: 1,
@@ -164,6 +164,7 @@ class Character {
                 // if the player has positive power points (pp)
                 if (this.pp > 60) {
                     this.pp -= 60;
+                    sounds.boost.currentTime = 0;
                     sounds.boost.play();
                     this.speed.x += this.mom.x * 8;
                     this.speed.y += this.mom.y * 8;
@@ -387,8 +388,10 @@ class Character {
                 let side = this.HB.collide(c.HB); //Check for collision
                 if (side) c.trigger(this, side); //Trigger the block's trigger function
                 if (c.solid && side) { //If the block is solid
-                    if (this == game.player.character) // Only play for the player until sound ranges are implemented
+                    if (this == game.player.character) { // Only play for the player until sound ranges are implemented
+                        // sounds.wallhit.currentTime = 0;
                         sounds.wallhit.play();
+                    }
                     switch (side) { //see which side you collided on
                         case 'front':
                             //Reflect the speed and mom by the map's reflect value
@@ -459,25 +462,29 @@ class Character {
                 // refelct the speed and mom by the map's reflect value
                 this.speed.x *= -game.match.map.collideReflect;
                 this.mom.x *= -game.match.map.collideReflect;
-                // sounds.dam1.play();
+                // sounds.wallhit.currentTime = 0;
+                sounds.wallhit.play();
             }
             if (this.HB.pos.x > game.match.map.w) {
                 this.HB.pos.x = game.match.map.w;
                 this.speed.x *= -game.match.map.collideReflect;
                 this.mom.x *= -game.match.map.collideReflect;
-                // sounds.dam1.play();
+                // sounds.wallhit.currentTime = 0;
+                sounds.wallhit.play();
             }
             if (this.HB.pos.y < 0) {
                 this.HB.pos.y = 0;
                 this.speed.y *= -game.match.map.collideReflect;
                 this.mom.y *= -game.match.map.collideReflect;
-                // sounds.dam1.play();
+                // sounds.wallhit.currentTime = 0;
+                sounds.wallhit.play();
             }
             if (this.HB.pos.y > game.match.map.h) {
                 this.HB.pos.y = game.match.map.h;
                 this.speed.y *= -game.match.map.collideReflect;
                 this.mom.y *= -game.match.map.collideReflect;
-                // sounds.dam1.play();
+                // sounds.wallhit.currentTime = 0;
+                sounds.wallhit.play();
             }
 
             /*
@@ -490,7 +497,8 @@ class Character {
             if (-this.speed.z > this.HB.pos.z + game.match.map.floor) {
                 this.HB.pos.z = 0;
                 // this.speed.z *= -0.5
-                // sounds.dam1.play();
+                // sounds.groundhit.currentTime = 0;
+                sounds.groundhit.play();
             }
 
             /*
@@ -914,6 +922,16 @@ class Character {
     }
 
 }
+
+class Jetbike extends Character {
+    constructor(id, spawnx, spawny, parent, options) {
+        super(id, spawnx, spawny, parent, options);
+        this.HB = new Cylinder(new Vect3(spawnx, spawny, 0), 29, 37);
+        this.airAccel = new Vect3(0.15, 0.15, 1);
+        this.hover = 16;
+    }
+}
+
 
 function getName() {
     let names = [

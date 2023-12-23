@@ -31,10 +31,20 @@ class Bot {
             // Calculate distance to target
             let compareX = this.character.target.HB.pos.x - this.character.HB.pos.x;
             let compareY = this.character.target.HB.pos.y - this.character.HB.pos.y;
-            
+
             let distance = Math.sqrt(compareX ** 2 + compareY ** 2); // Pythagoras
 
-            if (distance > this.character.HB.radius * 2) { // If the target is too far away, move towards it
+            let findRange;
+
+            // If that player's character's inventory has at least one item
+            // make findRange the range of the current item in the inventory
+            if (this.character.inventory.length > 0) {
+                findRange = this.character.inventory[this.character.item].range / 2;
+            } else {
+                findRange = this.character.HB.radius * 2;
+            }
+
+            if (distance > findRange) { // If the target is too far away, move towards it
 
                 let dx = compareX / distance; // Normalized vector
                 let dy = compareY / distance;
@@ -75,26 +85,35 @@ class Bot {
             }
 
             /*
-              __  __                             _
-             |  \/  |__ _ _ _  __ _ __ _ ___    /_\  _ __  _ __  ___
-             | |\/| / _` | ' \/ _` / _` / -_)  / _ \| '  \| '  \/ _ \
-             |_|  |_\__,_|_||_\__,_\__, \___| /_/ \_\_|_|_|_|_|_\___/
-                                   |___/
+              __  __                          __      __
+             |  \/  |__ _ _ _  __ _ __ _ ___  \ \    / /__ __ _ _ __  ___ _ _
+             | |\/| / _` | ' \/ _` / _` / -_)  \ \/\/ / -_) _` | '_ \/ _ \ ' \
+             |_|  |_\__,_|_||_\__,_\__, \___|   \_/\_/\___\__,_| .__/\___/_||_|
+                                   |___/                       |_|
             */
             // Switch guns when empty
-            let switchCount = 0;
-            while (this.character.ammo[this.character.inventory[this.character.item].type] <= 0) { // If the current gun is empty
-                switchCount++; // Count the number of times we've switched
-                this.character.item++; // Switch to the next gun
-                if (this.character.item >= this.character.inventory.length) this.character.item = 0; // If the next gun is out of range, switch to the first gun
-                if (switchCount >= this.character.inventory.length) {
-                    // If we are out of ammo for every gun, set this character's target to the closest Ammo_ pickup on the map
-                    let closestAmmo = null;
-                    closestAmmo = this.findClosestBlockByType(['ammo_ballistic', 'ammo_plasma']);
-                    if (closestAmmo) this.character.target = closestAmmo;
-                    else this.character.target = this.character;
-                    break; // If we've switched to every gun, stop switching) 
+            if (this.character.inventory.length == 0) {
+                // If the character has no weapons, set this character's target to the closest weapon pickup on the map
+                let closestWeapon = null;
+                closestWeapon = this.findClosestBlockByType(['weapon']);
+                if (closestWeapon) this.character.target = closestWeapon;
+                else this.character.target = this.character;
+                this.character.item = 0;
+            } else {
+                // find the weapon that either has ammo in it, or the character has ammo for, and has the longest range
+                let bestWeapon = null;
+                let bestRange = 0;
+                for (let i = 0; i < this.character.inventory.length; i++) {
+                    if (this.character.inventory[i].ammo > 0 || this.character.ammo[this.character.inventory[i].type] > 0) {
+                        if (this.character.inventory[i].range > bestRange) {
+                            bestRange = this.character.inventory[i].range;
+                            bestWeapon = i;
+                        }
+                    }
                 }
+                if (bestWeapon !== null) this.character.item = bestWeapon;
+                else this.character.item = 0;
+                // TODO: Priorize getting ammo for gun if all you have is a sword
             }
 
             // If this character's hp is below 25, set this character's target to the closest health pickup on the map
@@ -112,35 +131,37 @@ class Bot {
              /_/ \_\__|\__\__,_\__|_\_\
 
             */
-            if (
-                Math.abs(distance) <= this.character.inventory[this.character.item].range &&
-                this.character.target.team != this.character.team &&
-                this.character.target instanceof Character
-            ) {
-                if (this.character.target.HB.pos.z > this.character.HB.pos.z && this.character.pp > 50) {
-                    this.controller.buttons.jump.current = 1;
+            if (this.character.inventory.length > 0) {
+                // if the current weapon is empty, and the character has ammo for it, reload
+                if (this.character.inventory[this.character.item].ammo == 0 && this.character.ammo[this.character.inventory[this.character.item].type] > 0) {
+                    this.controller.buttons.fire.current = 1;
                 } else {
-                    this.controller.buttons.jump.current = 0;
+                    this.controller.buttons.fire.current = 0;
                 }
-                this.controller.buttons.fire.current = 1;
-            }
-            else {
-                this.controller.buttons.jump.current = 0;
-                this.controller.buttons.fire.current = 0;
-            }
+                // if the current weapon is not empty, and the target is in range, shoot
+                if (
+                    Math.abs(distance) <= this.character.inventory[this.character.item].range &&
+                    this.character.target.team != this.character.team &&
+                    this.character.target instanceof Character
+                ) {
+                    // if the target is above, jump and shoot
+                    if (this.character.target.HB.pos.z > this.character.HB.pos.z && this.character.pp > 50) {
+                        this.controller.buttons.jump.current = 1;
+                    } else {
+                        this.controller.buttons.jump.current = 0;
+                    }
+                    // fire
+                    this.controller.buttons.fire.current = 1;
+                }
+                else {
+                    this.controller.buttons.jump.current = 0;
+                    this.controller.buttons.fire.current = 0;
+                }
 
-            // // Formation stuff
-            // if (this.character.target.team !== undefined) {
-            //     if (this.character.target.team == this.character.team) this.character.formationRange = this.character.dformationRange;
-            //     else this.character.formationRange = 0;
-            //     if (this.character.target.lastColNPC)
-            //         if (this.character.target.lastColNPC.team != this.character.team)
-            //             this.character.target = this.character.target.lastColNPC;
-            // }
-
-            //If my target is not active
-            if (!this.character.target.active || this.character.target.team == this.character.team) {
-                this.findTarget();
+                //If my target is not active
+                if (!this.character.target.active || this.character.target.team == this.character.team) {
+                    this.findTarget();
+                }
             }
         } else {
             this.findTarget();

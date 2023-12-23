@@ -534,6 +534,7 @@ class Bullet extends Block {
                     let side = this.HB.collide(c.HB); //Check for collision
                     if (side && c.solid && c.team !== this.user.team) {
                         //play hit2 sound
+                        this.touchSFX.currentTime = 0;
                         this.touchSFX.play();
                         if (!c.invulnerable)
                             c.hp -= this.damage;
@@ -581,6 +582,7 @@ class Bullet extends Block {
                                 break;
                         }
                         //play hit sound
+                        this.touchSFX.currentTime = 0;
                         this.touchSFX.play();
                         this.active = false;
                         c.trigger(this, side); //Trigger the block's trigger function
@@ -660,7 +662,8 @@ class Ammo_Ballistic extends PickUp {
             if (actor instanceof Character)
                 if (actor.ammo.ballistic < actor.ammo.ballisticMax) {
                     actor.ammo.ballistic++; // Add ballistic ammo
-                    // play coin_01 sound
+                    // Play pickup sound
+                    this.touchSFX.currentTime = 0;
                     this.touchSFX.play();
                 } else {
                     this.active = true; // Turn this back on if the player is full ammo
@@ -689,7 +692,8 @@ class Ammo_Plasma extends PickUp {
         this.runFunc.push((actor, side) => {
             if (actor instanceof Character)
                 if (actor.ammo.plasma < actor.ammo.plasmaMax) {
-                    // play coin_01 sound
+                    // Play pickup sound
+                    this.touchSFX.currentTime = 0;
                     this.touchSFX.play();
                     actor.ammo.plasma++; // Add plasma ammo
                 } else {
@@ -719,7 +723,8 @@ class HealthPickup extends PickUp {
         this.runFunc.push((actor, side) => {
             if (actor instanceof Character)
                 if (actor.hp < actor.hp_max) {
-                    // play coin_01 sound
+                    // Play pickup sound
+                    this.touchSFX.currentTime = 0;
                     this.touchSFX.play();
                     actor.hp = Math.min(actor.hp + 50, actor.hp_max); // Add health
                 }
@@ -813,6 +818,11 @@ class WeaponPickup extends PickUp {
             if (this.ammo < this.ammoMax) this.imgFile = 'img/sprites/inventory/lance_inactive.png';
             else this.imgFile = 'img/sprites/inventory/lance_active.png';
             this.imgFileSide = 'img/sprites/pickups/ammo_plasma_side.png';
+        }
+        if (this.weapon == 'sword') {
+            this.item = new Sword();
+            this.imgFile = 'img/sprites/inventory/sword_active.png';
+            this.imgFileSide = 'img/sprites/pickups/grey_side.png';
         }
         this.img.src = this.imgFile;
         this.imgSide.src = this.imgFileSide;
