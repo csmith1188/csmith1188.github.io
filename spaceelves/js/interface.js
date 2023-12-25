@@ -24,6 +24,7 @@ class Interface {
             inventory3: {}
         }
         this.minimapRadius = 80;
+        this.menus = [];
         this.drawFunc = []; // A list of functions to draw during the draw step
     }
 
@@ -62,10 +63,13 @@ class Interface {
             //Ammo
             this.drawAmmo();
 
+            //Menu
+            this.drawMenu();
+
             if (game.debug) {
                 ctx.fillStyle = "#000000";
                 ctx.font = '12px Jura';
-                ctx.fillText(fps, 10, 150);
+                ctx.fillText(game.fps, 10, 150);
                 document.getElementById("debugger").style.display = "block";
             } else {
                 document.getElementById("debugger").style.display = "none";
@@ -85,7 +89,7 @@ class Interface {
 
     */
     drawAmmo() {
-        let ammoBox = new Vect2((game.window.w / 2) - 150, game.window.h - 170);
+        let ammoBox = new Vect2((game.window.w / 2) - 130, game.window.h - 170);
         if (this.player.character.active) {
             let item = this.player.character.inventory[this.player.character.item];
 
@@ -96,31 +100,31 @@ class Interface {
             if (item) {
                 // draw background   
                 ctx.fillStyle = "#000000";
-                ctx.fillRect(ammoBox.x, ammoBox.y, 10, 100);
+                ctx.fillRect(ammoBox.x + 20, ammoBox.y, 10, 100);
                 // draw filled portion of bar
                 let maxTime = (item.reloading) ? item.reloadTime : item.coolDown;
                 ctx.fillStyle = "#0000FF";
                 ctx.fillRect(
-                    ammoBox.x, // left of bar
+                    ammoBox.x + 20, // left of bar
                     ammoBox.y + 100 // bottom of bar
                     - (Math.min( // the smaller value of
-                        Math.max(item.nextCool - ticks, 0) / maxTime, // 0 to 1 of cooldown
+                        Math.max(item.nextCool - game.match.ticks, 0) / maxTime, // 0 to 1 of cooldown
                         1) // or 1 (if cooldown is greater than 1)
                         * 100), // times the size of the full bar
                     10, // width of bar
                     (Math.min(  // bar is the same height as the distance from top, conviently
-                        Math.max(item.nextCool - ticks, 0) / maxTime,
+                        Math.max(item.nextCool - game.match.ticks, 0) / maxTime,
                         1)
                         * 100) // times the size of the full bar
                 );
                 if (item.type == "ballistic" || item.type == "plasma") {
                     // draw the ammo bar
                     ctx.fillStyle = "#000000";
-                    ctx.fillRect(ammoBox.x + 20, ammoBox.y, 10, 100);
+                    ctx.fillRect(ammoBox.x, ammoBox.y, 10, 100);
                     // if the ammo is ballistic, draw it red, otherwise, draw it purple
                     if (item.type == "ballistic") ctx.fillStyle = "#FF0000";
                     else ctx.fillStyle = "#FF00FF";
-                    ctx.fillRect(ammoBox.x + 20, ammoBox.y + 100 - (item.ammo / item.ammoMax) * 100, 10, (item.ammo / item.ammoMax) * 100);
+                    ctx.fillRect(ammoBox.x, ammoBox.y + 100 - (item.ammo / item.ammoMax) * 100, 10, (item.ammo / item.ammoMax) * 100);
                 }
             }
 
@@ -131,11 +135,11 @@ class Interface {
                 ctx.fillStyle = "#000000";
                 ctx.font = '12px Jura';
                 ctx.fillStyle = "#000000";
-                ctx.fillRect(ammoBox.x + 270, ammoBox.y, 10, 100);
+                ctx.fillRect(ammoBox.x + 230, ammoBox.y, 10, 100);
                 ctx.fillStyle = "#FF0000";
                 // for each pip, draw a rectangle
                 for (let i = this.player.character.ammo.ballistic - 1; i >= 0; i--) {
-                    ctx.fillRect(ammoBox.x + 271, ammoBox.y + 101 - ((i + 1) * 100 / this.player.character.ammo.plasmaMax), 8, (100 / this.player.character.ammo.plasmaMax) - 2);
+                    ctx.fillRect(ammoBox.x + 231, ammoBox.y + 101 - ((i + 1) * 100 / this.player.character.ammo.plasmaMax), 8, (100 / this.player.character.ammo.plasmaMax) - 2);
                 }
             }
 
@@ -145,11 +149,11 @@ class Interface {
                 ctx.fillStyle = "#000000";
                 ctx.font = '12px Jura';
                 ctx.fillStyle = "#000000";
-                ctx.fillRect(ammoBox.x + 290, ammoBox.y, 10, 100);
+                ctx.fillRect(ammoBox.x + 250, ammoBox.y, 10, 100);
                 ctx.fillStyle = "#FF00FF";
                 // for each pip, draw a rectangle
                 for (let i = this.player.character.ammo.plasma - 1; i >= 0; i--) {
-                    ctx.fillRect(ammoBox.x + 291, ammoBox.y + 101 - ((i + 1) * 100 / this.player.character.ammo.plasmaMax), 8, (100 / this.player.character.ammo.plasmaMax) - 2);
+                    ctx.fillRect(ammoBox.x + 251, ammoBox.y + 101 - ((i + 1) * 100 / this.player.character.ammo.plasmaMax), 8, (100 / this.player.character.ammo.plasmaMax) - 2);
                 }
             }
 
@@ -190,7 +194,7 @@ class Interface {
     */
     drawXhair() {
         // origin, angle, distance, size, spread, color, arc, laser, numXhairs
-        if (!game.paused) {
+        if (!game.match.paused && !game.paused) {
             let compareX = game.player.camera.x - this.player.character.HB.pos.x;
             let compareY = game.player.camera.y - this.player.character.HB.pos.y;
             //aimX is the mouse coordinates minus the this.player coordinates
@@ -390,5 +394,113 @@ class Interface {
         ctx.arc(game.window.w / 2 + 64, game.window.h - 20, 20, 0, Math.PI * 2);
         ctx.stroke();
 
+    }
+
+    // Draw the menu
+    drawMenu() {
+        // draw every menu
+        for (const menu of this.menus) {
+                menu.draw();
+        }
+    }
+}
+
+class Menu {
+    constructor(buttons, shape, options) {
+        this.visible = true;
+        this.type = 'menu';
+        this.shape = shape;
+        this.padding = 10;
+        this.title = '';
+        this.text = '';
+        this.style = 'center_stacked'
+        this.buttons = buttons;
+    }
+
+    step() {
+        // convert from center of screen to top left of screen
+        let x = game.window.w / 2;
+        let y = game.window.h / 2;
+        // get current mouse position
+        x += game.player.controller.aimX;
+        y += game.player.controller.aimY;
+        // check if mouse is inside any button
+        for (const button of this.buttons) {
+            // check if mouse is inside the button
+            if (
+                x >= button.area.x + this.shape.x && x <= button.area.x + this.shape.x + button.area.w &&
+                y >= button.area.y + this.shape.y && y <= button.area.y + this.shape.y + button.area.h
+            ) {
+                button.selected = true;
+                // check if the button is being pressed
+                if (game.player.controller.buttons.fire.current) {
+                    // if so, run the button's function
+                    button.func();
+                }
+            } else {
+                button.selected = false;
+            }
+        }
+    }
+
+    draw() {
+        if (this.visible == false) return;
+        if (this.style === 'center_stacked') {
+            this.shape.x = (game.window.w / 2) - (this.shape.w / 2);
+            this.shape.y = (game.window.h / 2) - (this.shape.h / 2);
+        }
+        // stroke a box around the menu
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(this.shape.x, this.shape.y, this.shape.w, this.shape.h);
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(this.shape.x, this.shape.y, this.shape.w, this.shape.h);
+
+        // draw each button
+        for (const button of this.buttons) {
+            button.draw(
+                this.shape.x + this.padding,
+                this.shape.y + this.padding
+            );
+        }
+    }
+}
+
+class Menu_Button {
+    constructor(area, text, func, options) {
+        this.area = area;
+        this.text = text;
+        this.func = func;
+        this.active = true;
+        this.selected = false;
+    }
+
+    draw(x, y) {
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(this.area.x + x, this.area.y + y, this.area.w, this.area.h);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = '16px Jura';
+        // draw text in center of button
+        ctx.fillText(this.text, this.area.x + x + this.area.w / 2, this.area.y + y + this.area.h / 2 + 6);
+        if (this.selected) {
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(this.area.x + x, this.area.y + y, this.area.w, this.area.h);
+        }
+    }
+}
+
+class Menu_Pause extends Menu {
+    constructor(buttons, shape, options) {
+        super(buttons, shape, options);
+        this.style = 'center_stacked';
+        this.type = 'pause';
+        this.buttons = [
+            new Menu_Button(new Rect(0, 0, 150, 30), "Debug Game", function () { game.match = new DebugMatch(); game.paused = false; }),
+            new Menu_Button(new Rect(0, 40, 150, 30), "Forever", function () { game.match = new Match_ForEver(); game.paused = false; }),
+            // new Menu_Button(new Rect(0, 80, 150, 30), "Button 3", function () { window.alert("Button 3"); }),
+            new Menu_Button(new Rect(0, 120, 150, 30), "Resume", function () { game.paused = false; })
+        ]
     }
 }

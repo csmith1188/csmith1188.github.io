@@ -13,6 +13,7 @@ const sounds = {
     'pickup_ammo': new Audio('sfx/pickup02.wav'),
     'pickup_health': new Audio('sfx/power05.wav'),
     'pickup_weapon': new Audio('sfx/power03.wav'),
+    'upBoost': new Audio('sfx/exp_04.wav'),
     'boost': new Audio('sfx/pup_01.wav'),
     'wallhit': new Audio('sfx/hardhit_01.wav'),
     'groundhit': new Audio('sfx/hit01.wav'),

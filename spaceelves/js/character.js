@@ -149,6 +149,8 @@ class Character {
                 if (controller.buttons.jump.current) {
                     // If the player has positive power points (pp)
                     if (this.pp > 2) {
+                        // sounds.upBoost.currentTime = 0;
+                        // sounds.upBoost.play();
                         // Set the z momentum to 1 (move upwards)
                         this.mom.z = 1;
                         // Decrease the power points by 1
@@ -286,22 +288,6 @@ class Character {
             // if (Math.abs(this.speed.z) < game.match.map.stopZone) this.speed.z = 0; //I don't know if this one makes a difference
 
             /*
-              _
-             | |_  _____ _____ _ _
-             | ' \/ _ \ V / -_) '_|
-             |_||_\___/\_/\___|_|
-
-            */
-            if (this.HB.pos.z < this.hover) { //If you are lower than the hover threshold
-                this.speed.z += Math.max((1 - (this.HB.pos.z / this.hover)) * this.bouyancy, 0) + game.match.map.gravity;
-                //Move up by your bouyancy times the percent between your z and you hover, not negative
-                //Also cancel out gravity
-            }
-            else if (this.HB.pos.z > this.hover) { //If you are higher than the hover threshold
-                this.speed.z += Math.max((1 - ((this.HB.pos.z - this.hover) / this.hover)) * this.bouyancy, 0); //Move up by your bouyancy times the percent over the hover, not negative
-            }
-
-            /*
                                 _ _
               __ _ _ _ __ ___ _(_) |_ _  _
              / _` | '_/ _` \ V / |  _| || |
@@ -332,7 +318,7 @@ class Character {
                 if (c.character === this) //Don't collide with yourself
                     continue;
                 c = c.character; //Get the character from the bot
-                if (this.HB.above(c.HB)) //If you are above the block and the block is not solid
+                if (this.HB.above(c.HB) && c.solid) //If you are above the block and the block is not solid
                     this.floor = c.HB.pos.z + c.HB.height; //Set the floor to the block's height
                 let side = this.HB.collide(c.HB); //Check for collision
                 if (side) c.trigger(this, side);
@@ -383,8 +369,9 @@ class Character {
 
             */
             for (const c of game.match.map.blocks) { //For each block
-                if (this.HB.above(c.HB) && !c.solid) //If you are above the block and the block is not solid
+                if (this.HB.above(c.HB) && c.solid) { //If you are above the block and the block is not solid
                     this.floor = c.HB.pos.z + c.HB.volume.z; //Set the floor to the block's height
+                }
                 let side = this.HB.collide(c.HB); //Check for collision
                 if (side) c.trigger(this, side); //Trigger the block's trigger function
                 if (c.solid && side) { //If the block is solid
@@ -436,6 +423,22 @@ class Character {
                             break;
                     }
                 }
+            }
+
+            /*
+              _
+             | |_  _____ _____ _ _
+             | ' \/ _ \ V / -_) '_|
+             |_||_\___/\_/\___|_|
+
+            */
+            if (this.HB.pos.z < this.hover + this.floor) { //If you are lower than the hover threshold
+                this.speed.z += Math.max((1 - (this.HB.pos.z / this.hover)) * this.bouyancy, 0) + game.match.map.gravity;
+                //Move up by your bouyancy times the percent between your z and you hover, not negative
+                //Also cancel out gravity
+            }
+            else if (this.HB.pos.z > this.hover + this.floor) { //If you are higher than the hover threshold
+                this.speed.z += Math.max((1 - ((this.HB.pos.z - this.hover) / this.hover)) * this.bouyancy, 0); //Move up by your bouyancy times the percent over the hover, not negative
             }
 
             /*
@@ -497,8 +500,10 @@ class Character {
             if (-this.speed.z > this.HB.pos.z + game.match.map.floor) {
                 this.HB.pos.z = 0;
                 // this.speed.z *= -0.5
-                // sounds.groundhit.currentTime = 0;
-                sounds.groundhit.play();
+                if (this.hover > 0) {
+                    // sounds.groundhit.currentTime = 0;
+                    sounds.groundhit.play();
+                }
             }
 
             /*
@@ -523,7 +528,7 @@ class Character {
                         30, 0, 0, 0,
                         { weapon: this.inventory[this.item].weapon, ammo: this.inventory[this.item].ammo, livetime: game.match.despawnTimer, dying: true, speed: new Vect3(this.speed.x, this.speed.y, 20) }))
                 if (this === game.player.character) {
-                    game.paused = true;
+                    game.match.paused = true;
                     // game.player.findTarget();
                     // game.player.camera.target = game.player.target;
                 }
@@ -844,7 +849,7 @@ class Character {
             ctx.drawImage(
                 this.img,
                 game.window.w / 2 - compareX - this.HB.radius,
-                game.window.h / 2 - (compareY * game.player.camera.angle) - this.HB.height - (this.HB.pos.z * (1 - game.player.camera.angle)) - ((sineAnimate(1, 0.1) * (1 - game.player.camera.angle)) * (1 - game.paused)),
+                game.window.h / 2 - (compareY * game.player.camera.angle) - this.HB.height - (this.HB.pos.z * (1 - game.player.camera.angle)) - ((sineAnimate(1, 0.1) * (1 - game.player.camera.angle))),
                 this.HB.radius * 2,
                 this.HB.height
             );
@@ -852,7 +857,7 @@ class Character {
             ctx.drawImage(
                 this.img,
                 game.window.w / 2 - compareX - this.HB.radius,
-                game.window.h / 2 - (compareY * game.player.camera.angle) - (this.HB.height * (1 - game.player.camera.angle)) - (this.HB.pos.z * (1 - game.player.camera.angle)) - ((sineAnimate(1, 0.1) * (1 - game.player.camera.angle)) * (1 - game.paused)),
+                game.window.h / 2 - (compareY * game.player.camera.angle) - (this.HB.height * (1 - game.player.camera.angle)) - (this.HB.pos.z * (1 - game.player.camera.angle)) - ((sineAnimate(1, 0.1) * (1 - game.player.camera.angle))),
                 this.HB.radius * 2,
                 this.HB.height * (1 - game.player.camera.angle)
             );
