@@ -19,11 +19,12 @@ class Interface {
         this.drawNeutralRing = 0.5;
         this.drawEnemyRing = 0.5;
         this.touchButton = {
-            inventory1: {},
-            inventory2: {},
-            inventory3: {}
+            inventory1: null,
+            inventory2: null,
+            pause: null
         }
         this.minimapRadius = 80;
+        this.menuIndex = -1;
         this.menus = [];
         this.drawFunc = []; // A list of functions to draw during the draw step
     }
@@ -46,36 +47,42 @@ class Interface {
 
         // The normal HUD in every game mode
         if (this.player.character.active) {
-            // Map locators
-            ctx.fillStyle = "#FF0000";
-            ctx.fillRect((this.player.camera.x / game.match.map.w) * game.window.w - 3, 0, 6, 6);
-            ctx.fillRect((this.player.camera.x / game.match.map.w) * game.window.w - 3, game.window.h - 6, 6, 6);
-            ctx.fillStyle = "#0000FF";
-            ctx.fillRect(0, (this.player.camera.y / game.match.map.h) * game.window.h - 3, 6, 6);
-            ctx.fillRect(game.window.w - 6, (this.player.camera.y / game.match.map.h) * game.window.h - 3, 6, 6);
+
+            // Map Edge
+            this.drawMapEdge();
 
             //Minimap
             this.drawMinimap();
 
-            //Crosshair
-            this.drawXhair();
-
             //Ammo
             this.drawAmmo();
+
+            //Crosshair
+            this.drawXhair();
 
             //Menu
             this.drawMenu();
 
             if (game.debug) {
-                ctx.fillStyle = "#000000";
+                ctx.fillStyle = "#FFFFFF";
                 ctx.font = '12px Jura';
-                ctx.fillText(game.fps, 10, 150);
+                ctx.fillText(game.fps, 100, 150);
                 document.getElementById("debugger").style.display = "block";
             } else {
                 document.getElementById("debugger").style.display = "none";
             }
 
         }
+    }
+
+    drawMapEdge() {
+        // Map locators
+        ctx.fillStyle = "#FF0000";
+        ctx.fillRect((this.player.camera.x / game.match.map.w) * game.window.w - 3, 0, 6, 6);
+        ctx.fillRect((this.player.camera.x / game.match.map.w) * game.window.w - 3, game.window.h - 6, 6, 6);
+        ctx.fillStyle = "#0000FF";
+        ctx.fillRect(0, (this.player.camera.y / game.match.map.h) * game.window.h - 3, 6, 6);
+        ctx.fillRect(game.window.w - 6, (this.player.camera.y / game.match.map.h) * game.window.h - 3, 6, 6);
     }
 
     /*
@@ -89,9 +96,10 @@ class Interface {
 
     */
     drawAmmo() {
-        let ammoBox = new Vect2((game.window.w / 2) - 130, game.window.h - 170);
         if (this.player.character.active) {
             let item = this.player.character.inventory[this.player.character.item];
+
+            let ammoBox = new Vect2((game.window.w / 2) - 130, game.window.h - 170);
 
             ctx.textAlign = "left";
 
@@ -179,6 +187,24 @@ class Interface {
                         break;
                 }
             }
+            this.touchButton.inventory1 = new Rect((game.window.w / 2) - 150, game.window.h - 64, 64, 64);
+            this.touchButton.inventory2 = new Rect((game.window.w / 2) + 90, game.window.h - 64, 64, 64);
+            this.touchButton.pause = new Rect(game.window.w - 55, 5, 50, 50);
+            if (this.itemChangeTicks > game.match.ticks && this.player.character.inventory[this.player.character.item]) {
+                // globalAlpha is percentage of time left
+                ctx.globalAlpha = (this.itemChangeTicks - game.match.ticks) / 180;
+                // center the text
+                ctx.textAlign = "center";
+                // draw black shadow first
+                ctx.fillStyle = "#000000";
+                ctx.font = '16px Jura';
+                ctx.fillText(this.player.character.inventory[this.player.character.item].name, (game.window.w / 2) + 1, game.window.h - 59);
+                // then draw white text
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fillText(this.player.character.inventory[this.player.character.item].name, (game.window.w / 2), game.window.h - 60);
+            }
+            ctx.globalAlpha = 1;
+
         }
     }
 
@@ -197,10 +223,9 @@ class Interface {
         if (!game.match.paused && !game.paused) {
             let compareX = game.player.camera.x - this.player.character.HB.pos.x;
             let compareY = game.player.camera.y - this.player.character.HB.pos.y;
-            //aimX is the mouse coordinates minus the this.player coordinates
-            //likewise with aimY (I calculated this elsewhere)
-            let aimX = compareX + this.player.controller.aimX;
-            let aimY = compareY + this.player.controller.aimY;
+            // Calculate a relative aimX without changing the original aimX
+            let aimX = this.player.controller.aimX;
+            let aimY = this.player.controller.aimY;
             //find the distance from this.player to mouse with pythagorean theorem
             let distance = ((aimX ** 2) + (aimY ** 2)) ** 0.5;
             //Normalize the dimension distance by the real distance (ratio)
@@ -227,13 +252,12 @@ class Interface {
 
     */
     drawMinimap() {
-
         /*
         _  _          _ _   _    _
         | || |___ __ _| | |_| |_ | |__  __ _ _ _ ___
         | __ / -_) _` | |  _| ' \| '_ \/ _` | '_(_-<
         |_||_\___\__,_|_|\__|_||_|_.__/\__,_|_| /__/
-
+ 
         */
         // Draw this player's health and power as circles around the minimap edge
         ctx.globalAlpha = 1;
@@ -274,7 +298,7 @@ class Interface {
          | _ ) ___| |_ ___
          | _ \/ _ \  _(_-<
          |___/\___/\__/__/
-
+ 
         */
         //draw each bot
         for (let i = 0; i < game.match.bots.length; i++) {
@@ -337,6 +361,28 @@ class Interface {
         }
 
         /*
+          _____                  _
+         |_   _|_ _ _ _ __ _ ___| |_
+           | |/ _` | '_/ _` / -_)  _|
+           |_|\__,_|_| \__, \___|\__|
+                       |___/
+        */
+
+        // draw the target on the minimap in yellow
+        if (this.player.character.target) {
+            let distance = Math.sqrt((this.player.character.target.HB.pos.x - game.player.character.HB.pos.x) ** 2 + (this.player.character.target.HB.pos.y - game.player.character.HB.pos.y) ** 2);
+            let angle = Math.atan2(this.player.character.target.HB.pos.y - game.player.character.HB.pos.y, this.player.character.target.HB.pos.x - game.player.character.HB.pos.x);
+            let x = (game.window.w / 2) + (Math.cos(angle) * Math.min(distance / 10, this.minimapRadius));
+            let y = (game.window.h - 100) + (Math.sin(angle) * Math.min(distance / 10, this.minimapRadius));
+            ctx.fillStyle = "#00FF00";
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+
+
+        /*
                _
           _ __| |__ _ _  _ ___ _ _
          | '_ \ / _` | || / -_) '_|
@@ -393,114 +439,163 @@ class Interface {
         ctx.beginPath();
         ctx.arc(game.window.w / 2 + 64, game.window.h - 20, 20, 0, Math.PI * 2);
         ctx.stroke();
-
     }
 
     // Draw the menu
     drawMenu() {
         // draw every menu
         for (const menu of this.menus) {
-                menu.draw();
+            menu.draw();
         }
     }
 }
 
-class Menu {
-    constructor(buttons, shape, options) {
-        this.visible = true;
-        this.type = 'menu';
-        this.shape = shape;
-        this.padding = 10;
-        this.title = '';
-        this.text = '';
-        this.style = 'center_stacked'
-        this.buttons = buttons;
+
+/*
+      :::        ::::::::   ::::::::      :::     :::          :::   :::   :::::::::
+     :+:       :+:    :+: :+:    :+:   :+: :+:   :+:         :+:+: :+:+:  :+:    :+:
+    +:+       +:+    +:+ +:+         +:+   +:+  +:+        +:+ +:+:+ +:+ +:+    +:+
+   +#+       +#+    +:+ +#+        +#++:++#++: +#+        +#+  +:+  +#+ +#++:++#+
+  +#+       +#+    +#+ +#+        +#+     +#+ +#+        +#+       +#+ +#+
+ #+#       #+#    #+# #+#    #+# #+#     #+# #+#        #+#       #+# #+#
+########## ########   ########  ###     ### ########## ###       ### ###
+*/
+class Interface_LocalMP extends Interface {
+    constructor(player, posX, posY) {
+        super(player);
+        this.position = {x: posX, y: posY};
     }
 
-    step() {
-        // convert from center of screen to top left of screen
-        let x = game.window.w / 2;
-        let y = game.window.h / 2;
-        // get current mouse position
-        x += game.player.controller.aimX;
-        y += game.player.controller.aimY;
-        // check if mouse is inside any button
-        for (const button of this.buttons) {
-            // check if mouse is inside the button
-            if (
-                x >= button.area.x + this.shape.x && x <= button.area.x + this.shape.x + button.area.w &&
-                y >= button.area.y + this.shape.y && y <= button.area.y + this.shape.y + button.area.h
-            ) {
-                button.selected = true;
-                // check if the button is being pressed
-                if (game.player.controller.buttons.fire.current) {
-                    // if so, run the button's function
-                    button.func();
-                }
-            } else {
-                button.selected = false;
-            }
+    drawHUD() {
+        // Run all drawFunc
+        for (const func of this.drawFunc) {
+            func();
+        }
+
+        // The normal HUD in every game mode
+        if (this.player.character.active) {
+
+            //Ammo
+            this.drawAmmo();
+
+            //Crosshair
+            this.drawXhair();
+
+            //Menu
+            this.drawMenu();
+
         }
     }
 
-    draw() {
-        if (this.visible == false) return;
-        if (this.style === 'center_stacked') {
-            this.shape.x = (game.window.w / 2) - (this.shape.w / 2);
-            this.shape.y = (game.window.h / 2) - (this.shape.h / 2);
-        }
-        // stroke a box around the menu
-        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-        ctx.fillRect(this.shape.x, this.shape.y, this.shape.w, this.shape.h);
+    drawAmmo() {
+
+        let item = this.player.character.inventory[this.player.character.item];
+
+
+        // create a rectangee to put the HUD in
+        // Sometimes the position is a function so it can auto-adjust to the size of the window
+        let x, y;
+        if (this.position.x instanceof Function) x = this.position.x();
+        else x = this.position.x;
+        if (this.position.y instanceof Function) y = this.position.y();
+        else y = this.position.y;
+
+        let hudBox = new Rect(x, y, 280, 100);
+
+        // draw background
+        ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+        ctx.fillRect(hudBox.x, hudBox.y, hudBox.w, hudBox.h);
+        // draw outline
         ctx.strokeStyle = "#FFFFFF";
         ctx.lineWidth = 2;
-        ctx.strokeRect(this.shape.x, this.shape.y, this.shape.w, this.shape.h);
+        ctx.strokeRect(hudBox.x, hudBox.y, hudBox.w, hudBox.h);
 
-        // draw each button
-        for (const button of this.buttons) {
-            button.draw(
-                this.shape.x + this.padding,
-                this.shape.y + this.padding
+        //draw the cooldown bar
+        // if the item exists, draw the cooldown and ammo bars
+        if (item) {
+            // draw background   
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(hudBox.x + 20, hudBox.y + 20, 10, 60);
+            // draw filled portion of bar
+            let maxTime = (item.reloading) ? item.reloadTime : item.coolDown;
+            ctx.fillStyle = "#0000FF";
+            ctx.fillRect(
+                hudBox.x + 20, // left of bar
+                hudBox.y + 80 // bottom of bar
+                - (Math.min( // the smaller value of
+                    Math.max(item.nextCool - game.match.ticks, 0) / maxTime, // 0 to 1 of cooldown
+                    1) // or 1 (if cooldown is greater than 1)
+                    * 60), // times the size of the full bar
+                10, // width of bar
+                (Math.min(  // bar is the same height as the distance from top, conviently
+                    Math.max(item.nextCool - game.match.ticks, 0) / maxTime,
+                    1)
+                    * 60) // times the size of the full bar
             );
         }
-    }
-}
-
-class Menu_Button {
-    constructor(area, text, func, options) {
-        this.area = area;
-        this.text = text;
-        this.func = func;
-        this.active = true;
-        this.selected = false;
-    }
-
-    draw(x, y) {
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#000000";
-        ctx.fillRect(this.area.x + x, this.area.y + y, this.area.w, this.area.h);
-        ctx.fillStyle = "#FFFFFF";
-        ctx.font = '16px Jura';
-        // draw text in center of button
-        ctx.fillText(this.text, this.area.x + x + this.area.w / 2, this.area.y + y + this.area.h / 2 + 6);
-        if (this.selected) {
-            ctx.strokeStyle = "#FFFFFF";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(this.area.x + x, this.area.y + y, this.area.w, this.area.h);
+        // draw the player's ballistic ammo pips
+        if (this.player.character.ammo.ballistic > 0) {
+            // draw the player's ballistic ammo pips
+            ctx.fillStyle = "#000000";
+            ctx.font = '12px Jura';
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(hudBox.x + 230, hudBox.y + 20, 10, 60);
+            ctx.fillStyle = "#FF0000";
+            // for each pip, draw a rectangle
+            for (let i = this.player.character.ammo.ballistic - 1; i >= 0; i--) {
+                ctx.fillRect(hudBox.x + 231, hudBox.y + 81 - ((i + 1) * 60 / this.player.character.ammo.plasmaMax), 8, (60 / this.player.character.ammo.plasmaMax) - 2);
+            }
         }
-    }
-}
+        // draw the player's plasma ammo pips
+        if (this.player.character.ammo.plasma > 0) {
+            ctx.fillStyle = "#000000";
+            ctx.font = '12px Jura';
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(hudBox.x + 250, hudBox.y + 20, 10, 60);
+            ctx.fillStyle = "#FF00FF";
+            // for each pip, draw a rectangle
+            for (let i = this.player.character.ammo.plasma - 1; i >= 0; i--) {
+                ctx.fillRect(hudBox.x + 251, hudBox.y + 81 - ((i + 1) * 60 / this.player.character.ammo.plasmaMax), 8, (60 / this.player.character.ammo.plasmaMax) - 2);
+            }
+        }
+        // draw the player's health bar
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(hudBox.x + 40, hudBox.y + 20, 10, 60);
+        ctx.fillStyle = "#00FF00";
+        ctx.fillRect(hudBox.x + 40, hudBox.y + 80 - (this.player.character.hp / this.player.character.hp_max) * 60, 10, (this.player.character.hp / this.player.character.hp_max) * 60);
+        // draw the player's power bar
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(hudBox.x + 60, hudBox.y + 20, 10, 60);
+        ctx.fillStyle = "#0099FF";
+        ctx.fillRect(hudBox.x + 60, hudBox.y + 80 - (this.player.character.pp / this.player.character.pp_max) * 60, 10, (this.player.character.pp / this.player.character.pp_max) * 60);
+        // draw the player's name
+        // black shadow
+        ctx.fillStyle = "#000000";
+        ctx.font = '16px Jura';
+        ctx.textAlign = "left";
+        ctx.fillText(this.player.character.name, hudBox.x + 81, hudBox.y + 19);
+        // white text
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText(this.player.character.name, hudBox.x + 80, hudBox.y + 18);
+        // draw the player's icon
+        ctx.drawImage(this.player.character.img, hudBox.x + 80, hudBox.y + 40 - sineAnimate(1, 0.1), 58, 37);
 
-class Menu_Pause extends Menu {
-    constructor(buttons, shape, options) {
-        super(buttons, shape, options);
-        this.style = 'center_stacked';
-        this.type = 'pause';
-        this.buttons = [
-            new Menu_Button(new Rect(0, 0, 150, 30), "Debug Game", function () { game.match = new DebugMatch(); game.paused = false; }),
-            new Menu_Button(new Rect(0, 40, 150, 30), "Forever", function () { game.match = new Match_ForEver(); game.paused = false; }),
-            // new Menu_Button(new Rect(0, 80, 150, 30), "Button 3", function () { window.alert("Button 3"); }),
-            new Menu_Button(new Rect(0, 120, 150, 30), "Resume", function () { game.paused = false; })
-        ]
+
+        //if one item, it is active
+        if (this.player.character.inventory.length == 1) ctx.drawImage(this.player.character.inventory[0].icon, hudBox.x + 160, hudBox.y + 20, 48, 48);
+        else if (this.player.character.inventory.length == 2) {
+            // if you have two, draw both
+            switch (this.player.character.item) {
+                case 0:
+                    ctx.drawImage(this.player.character.inventory[1].iconInactive, hudBox.x + 176, hudBox.y + 36, 48, 48);
+                    ctx.drawImage(this.player.character.inventory[0].icon, hudBox.x + 160, hudBox.y + 20, 48, 48);
+                    break;
+                case 1:
+                    ctx.drawImage(this.player.character.inventory[0].iconInactive, hudBox.x + 160, hudBox.y + 20, 48, 48)
+                    ctx.drawImage(this.player.character.inventory[1].icon, hudBox.x + 176, hudBox.y + 36, 48, 48);
+                    break;
+            }
+        }
+
     }
 }

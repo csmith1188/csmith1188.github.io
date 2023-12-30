@@ -18,4 +18,5 @@ const sounds = {
     'wallhit': new Audio('sfx/hardhit_01.wav'),
     'groundhit': new Audio('sfx/hit01.wav'),
     'death': new Audio('sfx/hit05.wav'),
+    'goal': new Audio('sfx/powerup06.wav'),
 }

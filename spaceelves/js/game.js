@@ -3,18 +3,24 @@ class Game {
         this.window = {
             w: 900,
             h: 600,
-            dw: 900,
-            dh: 600,
             cx: this.w / 2,
             cy: this.h / 2,
         }
         this.paused = false;
+        this.awaitingInput = false;
+        this.menu = null;
         this.debug = false;
         this.allID = 0;
-        this.pauseMenu = new Menu_Pause([], new Rect(0, 0, 170, 170))
+        this.menus = {
+            pause: new Menu_Pause([], new Rect(0, 0, 170, 170)),
+            awaitingInput: new Menu_Awaiting([], new Rect(0, 0, 350, 50)),
+            main: new Menu_Main([], new Rect(0, 50, 170, 210))
+        }
         this.player = new Player();
+        this.ticks = 0;
         this.lastTimestamp = 0;
         this.fps = 0;
+        listenLastDevice();
     }
 
     /*
@@ -39,38 +45,35 @@ class Game {
         canvas.width = this.window.w;
         canvas.height = this.window.h;
 
-        if (!this.paused) {
-            this.player.controller.read();
+        this.checkInput();
 
-            this.match.step();
+        this.player.controller.read(); // Read the input from the main player
 
-        } else {
-            this.player.controller.read();
-            this.pauseMenu.step();
+        // If the game is waiting for a controller to press a button
+        if (this.awaitingInput) {
+            this.menus.awaitingInput.step(); // Show the input menu
         }
 
-        // Move camera to next sensible target when player character is inactive or missing
-        if (!this.player.character.active) {
-            if (this.player.character.lastColNPC)
-                if (this.player.character.lastColNPC.active)
-                    this.player.camera.target = this.player.character.lastColNPC
-                else
-                    for (const npc of npcs) {
-                        if (npc.active && npc.team == this.player.character.team)
-                            this.player.camera.target = npc
-                    }
-            if (!this.player.camera.target)
-                for (const npc of npcs) {
-                    if (npc.active)
-                        this.player.camera.target = npc
-                }
+        // If the game is paused
+        else if (this.paused) {
+            this.menus.pause.step(); // Show the pause menu
         }
 
-        //Update Camera Position
-        if (this.player.camera.target) {
-            this.player.camera.x = this.player.camera.target.HB.pos.x;
-            this.player.camera.y = this.player.camera.target.HB.pos.y;
+        // If the game is not paused and all controllers have been assigned, play the match
+        else {
+
+            if (this.menu) {
+                this.menu.step(); // Show the main menu
+            }
+
+            for (const bot of this.match.bots) {
+                bot.controller.read(); // Read the input from every player and bot
+            }
+
+            this.match.step(); // Then step the match
         }
+
+        this.player.camera.update(); // Update the camera
 
         //Performance Check
         const currentTimestamp = performance.now();
@@ -82,33 +85,87 @@ class Game {
 
         //Draw game
         this.draw();
-        if (this.paused)
-            this.pauseMenu.draw();
 
     }
 
-/*
-          :::::::::  :::::::::      :::     :::       :::
-         :+:    :+: :+:    :+:   :+: :+:   :+:       :+:
-        +:+    +:+ +:+    +:+  +:+   +:+  +:+       +:+
-       +#+    +:+ +#++:++#:  +#++:++#++: +#+  +:+  +#+
-      +#+    +#+ +#+    +#+ +#+     +#+ +#+ +#+#+ +#+
-     #+#    #+# #+#    #+# #+#     #+#  #+#+# #+#+#
-    #########  ###    ### ###     ###   ###   ###
-    */
+    /*
+              :::::::::  :::::::::      :::     :::       :::
+             :+:    :+: :+:    :+:   :+: :+:   :+:       :+:
+            +:+    +:+ +:+    +:+  +:+   +:+  +:+       +:+
+           +#+    +:+ +#++:++#:  +#++:++#++: +#+  +:+  +#+
+          +#+    +#+ +#+    +#+ +#+     +#+ +#+ +#+#+ +#+
+         #+#    #+# #+#    #+# #+#     #+#  #+#+# #+#+#
+        #########  ###    ### ###     ###   ###   ###
+        */
 
     draw() {
-        //Draw Map
-        this.match.map.draw(this.player.character);
+        if (this.awaitingInput) {
+            this.menus.awaitingInput.draw("Awaiting Controller Input...\n" + this.awaitingInput);
+        } else {
 
-        //Draw Map Lighting
-        this.match.map.lighting();
+            //Draw Map
+            this.match.map.draw(this.player.character);
 
-        //Draw HUD
-        this.player.interface.drawHUD();
+            //Draw Map Lighting
+            this.match.map.lighting();
 
-        //Draw Controller HUD
-        this.player.controller.draw();
+            //Draw Match
+            this.match.draw();
+
+            //Draw each HUD
+            for (const bot of [this.player, ...this.match.bots]) {
+                if (bot.interface)
+                    bot.interface.drawHUD();
+            }
+
+            //Draw Controller HUD
+            for (const bot of [this.player, ...this.match.bots]) {
+                if (bot.controller)
+                    bot.controller.draw();
+            }
+
+            if (this.menu)
+                this.menu.draw();
+        }
+
+        if (this.paused)
+            this.menus.pause.draw();
+
+
     }
-    
+
+    checkInput() {
+        for (const player of [this.player, ...this.match.bots]) {
+            if (player.controller.type == "controller") {
+                this.awaitingInput = player.name;
+                if (lastDevice == null)
+                    // for each connected gamepad, add an event listener to check for input
+                    for (const gamepad of navigator.getGamepads()) {
+                        if (gamepad)
+                            if (gamepad.buttons.some(button => button.pressed))
+                                lastDevice = gamepad.index;
+                    }
+                if (lastDevice !== null) {
+                    for (const other of [this.player, ...this.match.bots]) {
+                        if (other.controller.type == lastDevice || other.controller.gamepadIndex === lastDevice) {
+                            lastDevice = null;
+                            return;
+                        }
+                    }
+
+                    // if the lastDevice was keyboard, touch, pad or something else
+                    if (lastDevice == "keyboard") {
+                        player.controller = new Keyboard(player);
+                    } else if (lastDevice == "touch") {
+                        player.controller = new Touch(player);
+                    } else {
+                        player.controller = new GamePad(player, lastDevice);
+                    }
+                    lastDevice = null;
+                    this.awaitingInput = false;
+                }
+                break;
+            }
+        }
+    }
 }

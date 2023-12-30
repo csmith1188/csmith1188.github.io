@@ -15,8 +15,10 @@ class Item {
                 this[key] = options[key];
             }
     }
+
     use(user, xaim, yaim, mode) {
     }
+
     step() {
         if (game.match.ticks == this.nextCool) {
             if (this.reloading) {
@@ -41,7 +43,7 @@ class Pistol extends Item {
     constructor(options) {
         super(options);
         this.type = 'ballistic';
-        this.name = 'Pluton Pistol';
+        this.name = 'Plutonian Pistol';
         this.weapon = 'pistol';
         this.shootSFX = sounds.shoot_pistol;
         this.reload_empty = sounds.reload_empty;
@@ -52,8 +54,8 @@ class Pistol extends Item {
         this.reloadTime = 60;
         this.nextCool = 0;
         this.reloading = false;
-        this.ammo = 10;
-        this.ammoMax = 10;
+        this.ammo = 12;
+        this.ammoMax = 12;
         this.icon = new Image();
         this.icon.src = 'img/sprites/inventory/pistol_active.png';
         this.iconInactive = new Image();
@@ -76,7 +78,7 @@ class Pistol extends Item {
                 this.nextCool = game.match.ticks + this.coolDown;
                 this.ammo--; // consume a bullet
                 this.shootSFX.currentTime = 0;
-                this.shootSFX.play(); // play shoot sound
+                if (!user.muted) this.shootSFX.play(); // play shoot sound
                 //find the distance from player to mouse with pythagorean theorem
                 let distance = ((aimX ** 2) + (aimY ** 2)) ** 0.5;
                 //Normalize the dimension distance by the real distance (ratio)
@@ -101,16 +103,22 @@ class Pistol extends Item {
                 game.match.map.bullets.push(
                     new Bullet(
                         allID++, // ID
-                        user.HB.pos.x, user.HB.pos.y, user.HB.pos.z, 4, 4, 0, user, // Position and size
+                        new Vect3(user.HB.pos.x, user.HB.pos.y, user.HB.pos.z), new Vect3(4, 4, 0), user, // Position and size
                         {
                             speed: new Vect3(aimX, aimY, 0), //aimZ doesn't work
                             color: user.color
                         }
                     )
                 );
+
+                if (user.parent.controller.type == 'gamepad') user.parent.controller.rumble(100, 0.5, 0);
+                if (user.parent.controller.type == 'touch' && user.parent.controller.canVibrate) navigator.vibrate(50);
+
+
             } else {
                 if (this.owner instanceof Player)
-                    this.reload_empty.play();
+                    if (!user.muted)
+                        this.reload_empty.play();
                 if (user.ammo[this.type] > 0 && !this.reloading) {
                     this.reloading = true;    // set reloading to true
                     this.ammo = this.ammoMax;   // reload
@@ -135,7 +143,7 @@ class Rifle extends Item {
     constructor(options) {
         super(options);
         this.type = 'ballistic';
-        this.name = 'Mercury Rifle';
+        this.name = 'Mercurian Rifle';
         this.weapon = 'rifle';
         this.shootSFX = new Audio('sfx/rifle_shoot.wav');
         this.reload_empty = sounds.reload_empty;
@@ -174,7 +182,7 @@ class Rifle extends Item {
                 let zaim = aimZ;
                 this.ammo--; // consume a bullet
                 this.shootSFX.currentTime = 0;
-                this.shootSFX.play(); // play shoot sound
+                if (!user.muted) this.shootSFX.play(); // play shoot sound
                 //find the distance from player to mouse with pythagorean theorem
                 let distance = ((xaim ** 2) + (yaim ** 2)) ** 0.5;
                 //Normalize the dimension distance by the real distance (ratio)
@@ -190,7 +198,7 @@ class Rifle extends Item {
                 game.match.map.bullets.push(
                     new Bullet(
                         allID++, // ID
-                        user.HB.pos.x, user.HB.pos.y, user.HB.pos.z, 4, 4, 0, user, // Position and size
+                        new Vect3(user.HB.pos.x, user.HB.pos.y, user.HB.pos.z), new Vect3(4, 4, 0), user, // Position and size
                         {
                             speed: new Vect3(xaim, yaim, 0), //zaim doesn't work
                             color: user.color,
@@ -207,10 +215,8 @@ class Rifle extends Item {
                         game.match.map.debris.push(
                             new Block(
                                 allID++,
-                                this.HB.pos.x,
-                                this.HB.pos.y,
-                                this.HB.pos.z,
-                                1, 1, 1,
+                                new Vect3(this.HB.pos.x, this.HB.pos.y, this.HB.pos.z),
+                                new Vect3(1, 1, 1),
                                 {
                                     speed: new Vect3(tempx, tempy, tempz),
                                     HB: new Cube(new Vect3(this.HB.pos.x, this.HB.pos.y, this.HB.pos.z), new Vect3(4, 4, 4)),
@@ -233,10 +239,8 @@ class Rifle extends Item {
                         game.match.map.debris.push(
                             new Block(
                                 allID++,
-                                this.HB.pos.x,
-                                this.HB.pos.y,
-                                this.HB.pos.z,
-                                1, 1, 1,
+                                new Vect3(this.HB.pos.x, this.HB.pos.y, this.HB.pos.z),
+                                new Vect3(1, 1, 1),
                                 {
                                     speed: new Vect3(tempx + (this.speed.x * 0.25), tempy + (this.speed.y * 0.25), tempz + (this.speed.z * 0.25)),
                                     HB: new Cube(new Vect3(this.HB.pos.x, this.HB.pos.y, this.HB.pos.z), new Vect3(6, 3, 1)),
@@ -255,16 +259,24 @@ class Rifle extends Item {
                 user.speed.y -= (aimY / distance) * 10;
                 user.speed.z -= (aimZ / distance) * 10;
 
+                // Shake the camera
+                if (user.parent.camera) user.parent.camera.shakeTime = 10;
+                if (user.parent.controller.type == 'gamepad') user.parent.controller.rumble(100, 0, 1.0);
+                if (user.parent.controller.type == 'touch' && user.parent.controller.canVibrate) navigator.vibrate(50);
+
+
             } else {
                 if (this.owner instanceof Player)
-                    this.reload_empty.play();
+                    if (!user.muted)
+                        this.reload_empty.play();
                 if (user.ammo[this.type] > 0 && !this.reloading) {
                     this.reloading = true;    // set reloading to true
                     this.ammo = this.ammoMax;   // reload
                     this.nextCool = game.match.ticks + this.reloadTime; // set reload time
                     user.ammo[this.type]--;      // consume a clip from a user
                     if (this.owner instanceof Player)
-                        this.reload_empty.play();
+                        if (!user.muted)
+                            this.reload_empty.play();
                 }
             }
         }
@@ -319,7 +331,9 @@ class Flamer extends Item {
                 this.nextCool = game.match.ticks + this.coolDown;
                 this.ammo--; // consume a bullet
                 this.shootSFX.currentTime = 0;
-                this.shootSFX.play(); // play shoot sound
+                // if (!user.muted) this.shootSFX.play(); // play shoot sound
+                if (!user.muted)
+                    this.shootSFX.play(); // play shoot sound
                 for (let i = 0; i < 5; i++) {
 
                     // There's a serious bug here.
@@ -341,7 +355,7 @@ class Flamer extends Item {
                     game.match.map.bullets.push(
                         new Bullet(
                             allID++, // ID
-                            user.HB.pos.x, user.HB.pos.y, user.HB.pos.z, 4, 4, 0, user, // Position and size
+                            new Vect3(user.HB.pos.x, user.HB.pos.y, user.HB.pos.z), new Vect3(4, 4, 0), user, // Position and size
                             {
                                 livetime: 16,
                                 speed: new Vect3(aimX, aimY, 0),
@@ -352,16 +366,23 @@ class Flamer extends Item {
                         )
                     );
                 }
+
+                if (user.parent.controller.type == 'gamepad') user.parent.controller.rumble(100, 0, 0.5);
+                if (user.parent.controller.type == 'touch' && user.parent.controller.canVibrate) navigator.vibrate(50);
+
+
             } else {
                 if (this.owner instanceof Player)
-                    this.reload_empty.play();
+                    if (!user.muted)
+                        this.reload_empty.play();
                 if (user.ammo[this.type] > 0 && !this.reloading) {
                     this.reloading = true;    // set reloading to true
                     this.ammo = this.ammoMax;   // reload
                     this.nextCool = game.match.ticks + this.reloadTime; // set reload time
                     user.ammo[this.type]--;      // consume a clip from a user
                     if (this.owner instanceof Player)
-                        this.reload_empty.play();
+                        if (!user.muted)
+                            this.reload_empty.play();
                 }
             }
         }
@@ -417,7 +438,7 @@ class Lance extends Item {
                 this.nextCool = game.match.ticks + this.coolDown;
                 this.ammo--; // consume a bullet
                 this.shootSFX.currentTime = 0;
-                this.shootSFX.play(); // play shoot sound
+                if (!user.muted) this.shootSFX.play(); // play shoot sound
                 //find the distance from player to mouse with pythagorean theorem
                 let distance = ((aimX ** 2) + (aimY ** 2)) ** 0.5;
                 //Normalize the dimension distance by the real distance (ratio)
@@ -436,7 +457,7 @@ class Lance extends Item {
                 game.match.map.bullets.push(
                     new Bullet(
                         allID++, // ID
-                        user.HB.pos.x, user.HB.pos.y, user.HB.pos.z, 4, 4, 0, user, // Position and size
+                        new Vect3(user.HB.pos.x, user.HB.pos.y, user.HB.pos.z), new Vect3(4, 4, 0), user, // Position and size
                         {
                             speed: new Vect3(aimX, aimY, 0),
                             parent: user,
@@ -471,10 +492,8 @@ class Lance extends Item {
                         game.match.map.debris.push(
                             new Block(
                                 allID++,
-                                this.HB.pos.x,
-                                this.HB.pos.y,
-                                this.HB.pos.z,
-                                1, 1, 1,
+                                new Vect3(this.HB.pos.x, this.HB.pos.y, this.HB.pos.z),
+                                new Vect3(1, 1, 1),
                                 {
                                     speed: new Vect3(tempx, tempy, tempz),
                                     HB: new Cube(new Vect3(this.HB.pos.x, this.HB.pos.y, this.HB.pos.z), new Vect3(4, 4, 4)),
@@ -499,10 +518,8 @@ class Lance extends Item {
                         game.match.map.debris.push(
                             new Block(
                                 allID++,
-                                this.HB.pos.x,
-                                this.HB.pos.y,
-                                this.HB.pos.z,
-                                1, 1, 1,
+                                new Vect3(this.HB.pos.x, this.HB.pos.y, this.HB.pos.z),
+                                new Vect3(1, 1, 1),
                                 {
                                     speed: new Vect3(tempx + (this.speed.x * 0.25), tempy + (this.speed.y * 0.25), tempz + (this.speed.z * 0.25)),
                                     HB: new Cube(new Vect3(this.HB.pos.x, this.HB.pos.y, this.HB.pos.z), new Vect3(6, 3, 1)),
@@ -517,10 +534,16 @@ class Lance extends Item {
                 }.bind(game.match.map.bullets[game.match.map.bullets.length - 1])
                 game.match.map.bullets[game.match.map.bullets.length - 1].HB.radius = user.HB.radius + 10;
 
+                // If the user has a gamepad, rumble
+                if (user.parent.controller.type == 'gamepad') user.parent.controller.rumble(100, 1.0, 0);
+                if (user.parent.controller.type == 'touch' && user.parent.controller.canVibrate) navigator.vibrate(50);
+
+
 
             } else {
                 if (this.owner instanceof Player)
-                    this.reload_empty.play();
+                    if (!user.muted)
+                        this.reload_empty.play();
                 if (user.ammo[this.type] > 0 && !this.reloading) {
                     this.reloading = true;    // set reloading to true
                     this.ammo = this.ammoMax;   // reload
@@ -551,7 +574,7 @@ class Sword extends Item {
         this.reload_empty = sounds.reload_empty;
         this.reload_done = sounds.reload_done;
         this.ppCost = 40;
-        this.range = 100;
+        this.range = 150;
         this.coolDown = 10;
         this.reloadTime = 0;
         this.nextCool = 0;
@@ -580,7 +603,7 @@ class Sword extends Item {
                 // Set next cooldown
                 this.nextCool = game.match.ticks + this.coolDown;
                 this.shootSFX.currentTime = 0;
-                this.shootSFX.play(); // play shoot sound
+                if (!user.muted) this.shootSFX.play(); // play shoot sound
                 //find the distance from player to mouse with pythagorean theorem
                 let distance = ((aimX ** 2) + (aimY ** 2)) ** 0.5;
                 //Normalize the dimension distance by the real distance (ratio)
@@ -592,7 +615,7 @@ class Sword extends Item {
                 game.match.map.bullets.push(
                     new Bullet(
                         allID++, // ID
-                        user.HB.pos.x, user.HB.pos.y, user.HB.pos.z, 4, 4, 0, user, // Position and size
+                        new Vect3(user.HB.pos.x, user.HB.pos.y, user.HB.pos.z), new Vect3(4, 4, 0), user, // Position and size
                         {
                             speed: new Vect3(aimX, aimY, 0),
                             parent: user,
@@ -610,7 +633,6 @@ class Sword extends Item {
                 // TODO: Make a new bullet class for a sword strike
                 game.match.map.bullets[game.match.map.bullets.length - 1].runFunc = [
                     function () {
-                        // Match the user's position
                         this.HB.pos.x = this.parent.HB.pos.x + aimX;
                         this.HB.pos.y = this.parent.HB.pos.y + aimY;
                         this.HB.pos.z = this.parent.HB.pos.z + aimZ;
@@ -628,10 +650,8 @@ class Sword extends Item {
                         game.match.map.debris.push(
                             new Block(
                                 allID++,
-                                this.HB.pos.x,
-                                this.HB.pos.y,
-                                this.HB.pos.z,
-                                1, 1, 1,
+                                new Vect3(this.HB.pos.x, this.HB.pos.y, this.HB.pos.z),
+                                new Vect3(1, 1, 1),
                                 {
                                     speed: new Vect3(tempx, tempy, tempz),
                                     HB: new Cube(new Vect3(compareX, compareY, this.HB.pos.z + this.HB.height), new Vect3(2, 2, 2)),
@@ -653,23 +673,26 @@ class Sword extends Item {
                         ctx.beginPath();
                         ctx.strokeStyle = 'rgba(200,200,200,1)';
                         ctx.lineWidth = 5;
-                        // calculate compareX
+                        // find where the user is on the camera
                         let compareX = game.player.camera.x - this.parent.HB.pos.x;
                         let compareY = game.player.camera.y - this.parent.HB.pos.y;
                         ctx.moveTo(
                             game.window.w / 2 - compareX,
                             game.window.h / 2 - compareY - this.parent.HB.pos.z - this.parent.HB.height / 2
                         );
-                        compareX = this.parent.HB.pos.x - this.HB.pos.x;
-                        compareY = this.parent.HB.pos.y - this.HB.pos.y;
-
-                        let distance = Math.sqrt((compareX ** 2) + (compareY ** 2));
-                        compareX = (compareX / distance) * 60;
-                        compareY = (compareY / distance) * 60;
-
+                        // find where the bullet is on the camera
+                        let targetX = game.player.camera.x - this.HB.pos.x;
+                        let targetY = game.player.camera.y - this.HB.pos.y;
+                        // Compare the user and bullet to find angle
+                        targetX = compareX - targetX;
+                        targetY = compareY - targetY;
+                        let distance = Math.sqrt((targetX ** 2) + (targetY ** 2));
+                        targetX = (targetX / distance) * -60;
+                        targetY = (targetY / distance) * -60;
+                        // Draw line from user to target
                         ctx.lineTo(
-                            game.window.w / 2 - compareX,
-                            game.window.h / 2 - compareY - this.parent.HB.pos.z - this.parent.HB.height / 2
+                            game.window.w / 2 - compareX - targetX,
+                            game.window.h / 2 - compareY - targetY - this.parent.HB.pos.z - this.parent.HB.height / 2
                         );
                         ctx.stroke();
                     }.bind(game.match.map.bullets[game.match.map.bullets.length - 1])
@@ -684,10 +707,8 @@ class Sword extends Item {
                         game.match.map.debris.push(
                             new Block(
                                 allID++,
-                                this.HB.pos.x,
-                                this.HB.pos.y,
-                                this.HB.pos.z,
-                                1, 1, 1,
+                                new Vect3(this.HB.pos.x, this.HB.pos.y, this.HB.pos.z),
+                                new Vect3(1, 1, 1),
                                 {
                                     speed: new Vect3(tempx + (this.speed.x * 0.25), tempy + (this.speed.y * 0.25), tempz + (this.speed.z * 0.25)),
                                     HB: new Cube(new Vect3(this.HB.pos.x, this.HB.pos.y, this.HB.pos.z), new Vect3(6, 3, 1)),
@@ -705,7 +726,8 @@ class Sword extends Item {
 
             } else {
                 if (this.owner instanceof Player)
-                    this.reload_empty.play();
+                    if (!user.muted)
+                        this.reload_empty.play();
                 if (user.ammo[this.type] > 0 && !this.reloading) {
                     this.reloading = true;    // set reloading to true
                     this.ammo = this.ammoMax;   // reload
