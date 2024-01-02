@@ -714,7 +714,7 @@ class Match_ForHonor extends Match {
             allID++,
             new Vect3((this.map.w / 2) - 800, (this.map.h / 2), 0),
             game.player,
-            { name: 'Cpt. Fabius', gfx: 'img/sprites/jetbike' });
+            { name: 'Cpt. Fabius', gfx: 'img/sprites/jetbike', cleanup: false });
         game.player.interface = new Interface_LocalMP(game.player, 0, 0);
 
         // Add player 2
@@ -723,7 +723,7 @@ class Match_ForHonor extends Match {
             allID++,
             new Vect3((this.map.w / 2) + 800, (this.map.h / 2), 0),
             this.bots[this.bots.length - 1],
-            { name: getName(), team: 1, gfx: 'img/sprites/dark2', color: [0, 0, 255] }
+            { name: getName(), team: 1, gfx: 'img/sprites/dark2', cleanup: false, color: [0, 0, 255] }
         );
         // Change to local multiplayer interaface
         this.bots[this.bots.length - 1].interface = new Interface_LocalMP(this.bots[this.bots.length - 1], () => { return game.window.w - 280 }, 0);
