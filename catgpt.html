@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat-GPT</title>
+</head>
+
+<body>
+    <h1>Cat-GPT</h1>
+    <p>Cat-GPT is a large language model generative AI trained on cats. Ask a question or start a conversation, and see
+        how a cat would respond.</p>
+    <div id="answerBox">
+        <div class="answer">Type in the box below to start the chat.</div>
+    </div>
+    <input type="text">
+    <button onclick="processAnswer()">Submit</button>
+</body>
+<script>
+    var answerString = "";
+    var answerIndex = 0;
+    var typing = false;
+    function processAnswer() {
+        if (!typing) {
+            let answerBox = document.getElementById("answerBox");
+            let newAnswer = document.createElement("div");
+            newAnswer.classList.add("answer");
+            newAnswer.innerHTML = "";
+            answerBox.appendChild(newAnswer);
+            let answerTokens = Math.round(Math.random() * 50) + 2;
+            let tokens = ["meow", "mew", "merrp", "meow", "meow", "meow"]
+            for (let i = 0; i < answerTokens; i++) {
+                answerString += tokens[Math.round(Math.random() * (tokens.length - 1))];
+                //at random, every 2 to 20 tokens, add a space
+                // otherwise, add a space
+                if (i % (Math.round(Math.random() * 18) + 2) === 0) {
+                    answerString += ". ";
+                } else {
+                    answerString += " ";
+                }
+
+            }
+            answerIndex = 0;
+            typing = true;
+            setInterval(() => {
+                if (answerIndex >= answerString.length) {
+                    typing = false;
+                    return;
+                }
+                newAnswer.innerHTML += answerString[answerIndex];
+                answerIndex++;
+            }, 50);
+        }
+    }
+</script>
+
+</html>
