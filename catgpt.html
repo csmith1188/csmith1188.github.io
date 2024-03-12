@@ -5,25 +5,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat-GPT</title>
+    <style>
+        body {
+            background-color: #DDDDDD;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #content {
+            margin: auto;
+            width: 60%;
+            background-color: #999999;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .question {
+            margin: 10px;
+            font-weight: bold;
+            padding: 10px;
+            background-color: #BBBBFF;
+            border-radius: 10px;
+        }
+
+        .answer {
+            margin: 10px;
+            padding: 10px;
+            background-color: #DDDDFF;
+            border-radius: 10px;
+        }
+
+        #banner {
+            text-align: center;
+            padding: 10px;
+            background-color: #BBBBBB;
+            border-radius: 10px;
+        }
+
+        #input {
+            text-align: center;
+            padding: 10px;
+            background-color: #BBBBBB;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Cat-GPT</h1>
-    <p>Cat-GPT is a large language model generative AI trained on cats. Ask a question or start a conversation, and see
-        how a cat would respond.</p>
-    <div id="answerBox">
-        <div class="answer">Type in the box below to start the chat.</div>
+    <div id="content">
+        <div id="banner">
+            <h1>Cat-GPT</h1>
+            <p>Cat-GPT is a large language model generative AI trained on cats. Ask a question or start a conversation,
+                and
+                see
+                how a cat would respond.</p>
+        </div>
+        <div id="answerBox">
+            <div class="answer">Type in the box below to start the chat.</div>
+        </div>
+        <div id="input">
+            <input id="question" type="text">
+            <button onclick="processAnswer()">Submit</button>
+        </div>
     </div>
-    <input type="text">
-    <button onclick="processAnswer()">Submit</button>
 </body>
 <script>
-    var answerString = "";
-    var answerIndex = 0;
     var typing = false;
+    var questionGrab = document.getElementById("question");
     function processAnswer() {
-        if (!typing) {
+        if (!typing && questionGrab.value.trim() !== "") {
+            var answerString = "";
+            var answerIndex = 0;
             let answerBox = document.getElementById("answerBox");
+            let newQuestion = document.createElement("div");
+            newQuestion.classList.add("question");
+            newQuestion.innerHTML = questionGrab.value;
+            answerBox.appendChild(newQuestion);
             let newAnswer = document.createElement("div");
             newAnswer.classList.add("answer");
             newAnswer.innerHTML = "";
@@ -43,15 +99,20 @@
             }
             answerIndex = 0;
             typing = true;
-            setInterval(() => {
-                if (answerIndex >= answerString.length) {
-                    typing = false;
-                    return;
-                }
-                newAnswer.innerHTML += answerString[answerIndex];
-                answerIndex++;
-            }, 50);
+            typeAnswer(newAnswer, answerString);
         }
+    }
+    function typeAnswer(box, string) {
+        let index = 0;
+        let typingInterval = setInterval(() => {
+            if (index >= string.length) {
+                typing = false;
+                clearInterval(typingInterval);
+                return;
+            }
+            box.innerHTML += string[index];
+            index++;
+        }, 20);
     }
 </script>
 
