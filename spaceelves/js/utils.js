@@ -148,7 +148,7 @@ class Cube {
      * @param {Vect3} origin - The origin position of the cube.
      * @param {Vect3} volume - The volume of the cube.
      */
-    constructor(origin = new Vect3(0,0,0), volume = new Vect3(0,0,0)) {
+    constructor(origin, volume) {
         this.pos = origin;
         this.volume = volume;
         this.end = new Vect3(origin.x + volume.x, origin.y + volume.y, origin.z + volume.z);
@@ -203,9 +203,9 @@ class Cylinder {
         //RECT/CUBE COLLIDE
         if (c instanceof Rect || c instanceof Cube) {
             // Calculate the potential new position of the circle after movement
-            let newX = this.pos.x + (speed.x * game.deltaTime);
-            let newY = this.pos.y + (speed.y * game.deltaTime);
-            let newZ = this.pos.z + (speed.z * game.deltaTime) + this.height / 2;
+            let newX = this.pos.x + speed.x;
+            let newY = this.pos.y + speed.y;
+            let newZ = this.pos.z + speed.z + this.height / 2;
 
             // Find the closest point on the rectangle to the circle
             let closestX = Math.max(Math.min(newX, c.pos.x + c.volume.x), c.pos.x);
@@ -249,9 +249,9 @@ class Cylinder {
             }
         } else if (c instanceof Cylinder) {
             // Calculate the potential new position of the circle after movement
-            let newX = this.pos.x + speed.x * game.deltaTime;
-            let newY = this.pos.y + speed.y * game.deltaTime;
-            let newZ = this.pos.z + speed.z * game.deltaTime;
+            let newX = this.pos.x + speed.x;
+            let newY = this.pos.y + speed.y;
+            let newZ = this.pos.z + speed.z;
 
             // calculate the distance between the circle's center and the other circle's center
             let distanceXY = Math.sqrt((newX - c.pos.x) ** 2 + (newY - c.pos.y) ** 2);
@@ -356,17 +356,4 @@ function formatTicks(ticks) {
     if (seconds < 10) seconds = '0' + seconds;
     if (minutes < 10) minutes = '0' + minutes;
     return minutes + ':' + seconds + '.' + milliseconds;
-}
-
-function decodeWS(event) {
-    const receivedArray = new Uint8Array(event.data);
-    const textDecoder = new TextDecoder('utf-8');
-    const receivedMessage = textDecoder.decode(receivedArray);
-    return JSON.parse(receivedMessage);
-}
-
-function encodeWS(message) {
-    const encoder = new TextEncoder();
-    const arrayBuffer = encoder.encode(JSON.stringify(message)).buffer;
-    return arrayBuffer;
 }
