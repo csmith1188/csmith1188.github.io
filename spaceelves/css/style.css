@@ -20,13 +20,8 @@
     user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
 }
 
-#game-canvas {
+canvas {
     z-index: 0;
-    border: 1px solid black;
-}
-
-#game-canvas {
-    z-index: 1;
     border: 1px solid black;
 }
 
