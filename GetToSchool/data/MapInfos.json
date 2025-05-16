@@ -1,10 +1,8 @@
 [
 null,
-{"id":1,"expanded":true,"name":"oHouse","order":1,"parentId":0,"scrollX":811,"scrollY":466.5},
-{"id":2,"expanded":false,"name":"iHouse","order":2,"parentId":1,"scrollX":0,"scrollY":0,"quick":false},
-{"id":3,"expanded":true,"name":"bpass","order":3,"parentId":0,"scrollX":850.1818181818181,"scrollY":626.5454545454545,"quick":false},
-{"id":4,"expanded":false,"name":"bpdungeon","order":4,"parentId":3,"scrollX":1622,"scrollY":917,"quick":false},
-{"id":5,"expanded":false,"name":"fpass","order":5,"parentId":0,"scrollX":632,"scrollY":474.1818181818182,"quick":false},
-{"id":6,"expanded":true,"name":"Atown","order":6,"parentId":0,"scrollX":647.2,"scrollY":362.4,"quick":false},
-{"id":7,"expanded":false,"name":"Bank","order":7,"parentId":6,"scrollX":647.2,"scrollY":362.4,"quick":false}
+{"id":1,"expanded":false,"name":"Test Map","order":5,"parentId":0,"scrollX":1081.3333333333333,"scrollY":622},
+{"id":2,"expanded":false,"name":"Adventure Map","order":2,"parentId":0,"scrollX":1092,"scrollY":626,"quick":false},
+{"id":3,"expanded":true,"name":"Forest Pass","order":3,"parentId":0,"scrollX":1081.3333333333333,"scrollY":622,"quick":false},
+{"id":4,"expanded":false,"name":"Setup","order":1,"parentId":0,"scrollX":1081.3333333333333,"scrollY":622,"quick":false},
+{"id":5,"expanded":false,"name":"Feather Gap","order":4,"parentId":3,"scrollX":1081.3333333333333,"scrollY":622,"quick":false}
 ]
