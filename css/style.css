@@ -1,0 +1,15 @@
+body {
+    font-family: "Saira Stencil", sans-serif;
+    background-color: grey;
+}
+
+h1 {
+    text-align: center;
+}
+
+section {
+    width: 80%;
+    margin: auto;
+    border: 2px solid black;
+    padding: 10px;
+}
